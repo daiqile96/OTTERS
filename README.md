@@ -1,6 +1,11 @@
 # OTTERS
 A powerful TWAS framework leveraging summary-level reference data
 
+## Example Data
+
+The example LD reference can be downloaded [here](https://www.dropbox.com/sh/7ubnuzamh45pwgs/AACKCL2CsTXIkbynLozVAzXna?dl=0).
+Other example input files provided under `./Example/`.
+
 ## Stage I: estimates eQTL weights from eQTL summary data and reference LD panel using four imputation models (P+T, lassosum, SDPR, PRS-CS)
 
 ### ***PRS-CS***
@@ -55,12 +60,11 @@ Example:
 ```bash
 OTTERS_dir=/home/qdai/YangFSSdata2/qdai/tool/OTTERS
 cd ${OTTERS_dir}/Example
-chr=4
 
 python3 ${OTTERS_dir}/PRScs/OTTERS_PRScs.py \
 --OTTERS_dir=${OTTERS_dir} \
 --anno_dir=anno_exp.txt \
---ld_dir=ld_exp.txt.gz \
+--ld_dir=${path_to_the_downloaded_example_ld}/ld_exp.txt.gz \
 --clumped_dir=exp_clumped.txt.gz \
 --sst_dir=sst_exp.txt.gz \
 --out_dir=${OTTERS_dir}/Example/ \
