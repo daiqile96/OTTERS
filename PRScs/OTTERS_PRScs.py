@@ -5,8 +5,10 @@ A TWAS method that infers posterior eQTL effect sizes under continuous shrinkage
 using eQTL summary statistics and an external LD reference panel.
 
 Usage:
-python OTTERS_PRScs.py --anno_dir=PATH_TO_ANNO --ld_dir=PATH_TO_LD --clumped_dir=PATH_TO_CLUMPED --sst_file=SUM_STATS_FILE --out_dir=OUTPUT_DIR --chrom=CHROM
+python OTTERS_PRScs.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --ld_dir=PATH_TO_LD --clumped_dir=PATH_TO_CLUMPED --sst_file=SUM_STATS_FILE --out_dir=OUTPUT_DIR --chrom=CHROM
                 [--window=WINDOW_SIZE --a=PARAM_A --b=PARAM_B --phi=PARAM_PHI --n_iter=MCMC_ITERATIONS --n_burnin=MCMC_BURNIN --thin=MCMC_THINNING_FACTOR --thread=THREAD --seed=SEED]
+ 
+ - PATH_TO_OTTERS: The directory of OTTERS source code
 
  - PATH_TO_ANNO: Full path and the file name of the gene annotation file. 
 
