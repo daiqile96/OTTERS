@@ -1,0 +1,1230 @@
+---
+title: "R and Bash scripts for Figures and Tables in OTTERS manuscript"
+author: "Qile Dai"
+date: "03/21/2022"
+header-includes:
+   - \usepackage[dvips]{graphicx}
+output: 
+  rmarkdown::html_document:
+    theme: united
+    highlight: tango
+    toc: true
+    toc_depth: 6
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+    fig_caption: true
+    #bibliography: bibliography.bib
+    #csl: biomed-central.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval=F)
+```
+
+
+```{r }
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(pander)
+library(ACAT)
+library(grid)
+library(openxlsx)
+panderOptions('round', 4)
+panderOptions('digits', 4)
+panderOptions('keep.trailing.zeros', FALSE)
+Manu_dir = "~/YangFSSdata2/qdai/BS_TWAS/Scripts/2_Final_RDA/Manu"
+```
+
+# Simulation Results
+
+## Figure 2A 
+
+Test $R^2$ comparison in simulation studies by 5 individual methods: P+T(0.001), P+T(0.05), lassosum, SDPR, PRS-CS, and OTTERS.
+
+```{r}
+#------------------------Read In Data----------------------------------
+SimuRes_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/Simulation"
+
+method_list = c("SDPR", "PRScs", "PT(0.05)", "PT(0.001)", "Lassosum")
+eva_r2 <- read.table(file.path(SimuRes_dir, "Manu/Compare/0_Simu_R2.txt"), 
+                     header = F,
+                     check.names = F)
+colnames(eva_r2) = c("CausalProp", "He2", method_list )
+
+eva_r2_sd <- read.table(file.path(SimuRes_dir, "Manu/Compare/0_Simu_R2_std.txt"), 
+                        header = F,
+                        check.names = F)
+colnames(eva_r2_sd) = c("CausalProp", "He2", method_list )
+
+
+eva_power_gwas  <- read.table(file.path(SimuRes_dir, "4_NewHP_Simu_GWAS_Power.txt"), 
+                              header = T,
+                              check.names = F)
+
+#-------------------------Plot R^2 Box Plot---------------------------
+
+temp_R2_tab = function(res_dir, method, cp, he2){
+  
+  r2_matrix_dir = file.path(res_dir, 
+                            paste0("Manu/Compare/0_Simu_R2_cp_", cp,"_He2_", he2, ".txt"))
+  
+  r2_matrix = read.table(r2_matrix_dir, header = T, check.names = F)
+  r2_vec = r2_matrix[, method]
+    
+  tab = r2_matrix %>% mutate(Method = method) %>% 
+    mutate(CausalProp = paste0("Causal Proportion=", CausalProp), 
+           He2 = factor(Heritability, levels = c(0.05,0.1,0.2,0.5),
+                        labels = c(0.05,0.1,0.2,0.5)),
+           R2 = r2_vec) %>% 
+    dplyr::select(CausalProp, He2, Method, R2) 
+  
+  return(tab)
+}
+
+res_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/Simulation"
+
+res_tab = NULL
+
+for (cp in c(0.001, 0.01, 0.1, 0.2)){
+  for (he2 in c(0.05, 0.1, 0.2, 0.5)){
+    for (method in c("SDPR", "PRScs", "PT(0.05)", "PT(0.001)", "Lassosum")){
+      temp_tab =  temp_R2_tab(res_dir, method, cp, he2)
+      res_tab = rbind(res_tab, temp_tab)
+    }
+  }
+}
+
+res_tab$Method = factor(res_tab$Method,
+                        levels = c("PT(0.001)", "PT(0.05)",
+                                   "Lassosum",  "SDPR", "PRScs"),
+                        labels = c("P+T(0.001)", "P+T(0.05)",
+                                   "lassosum", "SDPR", "PRS-CS"))
+
+maxR = max(res_tab$R2, na.rm = T)
+
+Figure2A = ggplot(res_tab, aes(x = He2, y = R2)) +  # ggplot function
+  geom_boxplot(aes(fill=Method),
+               position=position_dodge(.7), width = 0.5,
+               outlier.size = 0.5) + 
+  facet_wrap(~CausalProp, ncol = 2) +
+  scale_y_continuous(trans = "sqrt", breaks = c(0, 0.01, 0.05, 0.1, 0.2, 0.5), limits = c(0, maxR)) +
+  theme(text = element_text(size=28,face="bold"),
+        legend.position="bottom",
+        legend.box = "vertical",
+        axis.text = element_text(face="bold")) +
+  labs(y = bquote("Test"~R^2), x = bquote(h[e]^2))  +
+  scale_fill_brewer(palette="Accent")
+```
+
+
+## Figure 2B 
+
+TWAS power comparison in simulation studies by 5 individual methods: P+T(0.001), P+T(0.05), lassosum, SDPR, PRS-CS, and OTTERS.
+
+TWAS was conducted using simulated summary-level GWAS data. 
+
+```{r}
+temp_tab = function(method){
+  
+  eva_power_gwas$Power = eva_power_gwas[, method]
+  
+  tab = eva_power_gwas %>% mutate(Method = method) %>% 
+    mutate(CausalProp = paste0("Causal Proportion=", CausalProp), 
+           He2 = factor(Heritability, levels = c(0.05,0.1,0.2,0.5),
+                        labels = c(0.05,0.1,0.2,0.5))) %>% 
+    dplyr::select(CausalProp, Method, Power, He2) 
+  
+  return(tab)
+}
+
+gwas_power_df_plot <- rbind(temp_tab("SDPR"),
+                       temp_tab("PRScs"),
+                       temp_tab("PT(0.05)"),
+                       temp_tab("PT(0.001)"),
+                       temp_tab("Lassosum"),
+                       temp_tab("ACAT"))
+
+gwas_power_df_plot$Method = factor(gwas_power_df_plot$Method,
+                                   levels = c("PT(0.001)", "PT(0.05)",
+                                              "Lassosum", "SDPR", "PRScs", "ACAT"),
+                                   labels = c("P+T(0.001)", "P+T(0.05)",
+                                              "lassosum", "SDPR", "PRS-CS", "OTTERS"))
+
+Figure2B = ggplot(gwas_power_df_plot, aes(x = He2, y = as.numeric(Power),
+                          fill = Method)) +
+  geom_col(width = 0.6, position = position_dodge(0.7))+
+  scale_y_continuous(limits = c(0, 1)) + 
+  facet_wrap(~CausalProp, ncol = 2) +
+  labs(y = "TWAS Power", x = bquote(h[e]^2)) +
+  theme(text = element_text(size=28, face = "bold"),
+        legend.position="bottom",
+        legend.box = "vertical",
+        axis.text = element_text(face="bold")) +
+  scale_fill_brewer(palette="Accent")
+```
+
+
+
+## Combine Figure 2A and 2B
+
+```{r eval = F}
+get_only_legend <- function(plot) {
+  
+  # get tabular interpretation of plot
+  plot_table <- ggplot_gtable(ggplot_build(plot)) 
+  
+  #  Mark only legend in plot
+  legend_plot <- which(sapply(plot_table$grobs, function(x) x$name) == "guide-box") 
+  
+  # extract legend
+  legend <- plot_table$grobs[[legend_plot]]
+  
+  # return legend
+  return(legend) 
+}
+
+legend = get_only_legend(Figure2B)
+com_plots = gridExtra::grid.arrange(Figure2A + theme( legend.position = "none" ) , 
+                                    Figure2B + theme( legend.position = "none" ), 
+                                    nrow = 1)
+
+pdf(file.path(Manu_dir,"Figure2.pdf"), width = 21, height = 9)
+gridExtra::grid.arrange(com_plots, legend, ncol = 1, heights = c(10, 1))
+dev.off()
+```
+
+
+## Figure S1: 
+
+compare clumping vs no-clumping in the simulation
+
+```{r}
+#------------------------Read In Data----------------------------------
+SimuRes_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/Simulation"
+
+method_list = c("PRScs_noclump", "PRScs")
+eva_r2 <- read.table(file.path(SimuRes_dir, "Manu/Clump/0_Simu_R2.txt"), 
+                     header = F,
+                     check.names = F)
+colnames(eva_r2) = c("CausalProp", "He2", method_list )
+
+eva_r2_sd <- read.table(file.path(SimuRes_dir, "Manu/Clump/0_Simu_R2_std.txt"), 
+                        header = F,
+                        check.names = F)
+colnames(eva_r2_sd) = c("CausalProp", "He2", method_list )
+
+eva_power <- read.table(file.path(SimuRes_dir, "Manu/Clump/0_Simu_Power.txt"), 
+                        header = F,
+                        check.names = F)
+colnames(eva_power) = c("CausalProp", "He2", method_list )
+
+
+#-------------------------Plot Figure S1A---------------------------
+
+temp_R2_tab = function(res_dir, method, cp, he2){
+  
+  r2_matrix_dir = file.path(res_dir, 
+                            paste0("Manu/Clump/0_Simu_R2_cp_", cp,"_He2_", he2, ".txt"))
+  
+  r2_matrix = read.table(r2_matrix_dir, header = T, check.names = F)
+  r2_vec = r2_matrix[, method]
+  
+  tab = r2_matrix %>% mutate(Method = method) %>% 
+    mutate(CausalProp = paste0("Causal Proportion=", CausalProp), 
+           He2 = factor(Heritability, levels = c(0.05,0.1,0.2,0.5),
+                        labels = c(0.05,0.1,0.2,0.5)),
+           R2 = r2_vec) %>% 
+    dplyr::select(CausalProp, He2, Method, R2) 
+  
+  return(tab)
+}
+
+res_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/Simulation"
+
+res_tab = NULL
+
+for (cp in c(0.001, 0.01, 0.1, 0.2)){
+  for (he2 in c(0.05, 0.1, 0.2, 0.5)){
+    for (method in c("PRScs_noclump", "PRScs")){
+      temp_tab =  temp_R2_tab(res_dir, method, cp, he2)
+      res_tab = rbind(res_tab, temp_tab)
+    }
+  }
+}
+
+res_tab$Method = factor(res_tab$Method,
+                        levels = c("PRScs_noclump","PRScs"),
+                        labels = c("No Clumping", "Clumping"))
+
+maxR = max(res_tab$R2, na.rm = T)
+
+FigureS1A = ggplot(res_tab, aes(x = He2, y = R2)) +  # ggplot function
+  geom_boxplot(aes(fill=Method),
+               position=position_dodge(.7), width = 0.5,
+               outlier.size = 0.5) + 
+  facet_wrap(~CausalProp, ncol = 2) +
+  scale_y_continuous(trans = "sqrt", breaks = c(0, 0.01, 0.05, 0.1, 0.2, 0.5), limits = c(0, maxR)) +
+  theme(text = element_text(size=28, face="bold"),
+        legend.position="bottom",
+        legend.box = "vertical",
+        axis.text = element_text(face="bold")) +
+  labs(y = bquote("Test"~R^2), x = bquote(h[e]^2))  +
+  scale_fill_brewer(palette="Set2")
+
+
+#------------------Plot Figure S1B--------------------------
+
+ACAT_withNA = function(p_vec){
+  
+  p_vec_noNA = p_vec[is.na(p_vec) == F]
+  ACAT(p_vec_noNA)
+  
+}
+
+temp_p_tab = function(res_dir, cp, he2, ACAT_method = c("PRScs_noclump","PRScs")){
+  
+  temp_tab = temp_R2_tab(res_dir, method, cp, he2)
+  
+  p_matrix_dir = file.path(res_dir, 
+                           paste0("Manu/Clump/0_Simu_p_cp_", cp,"_He2_", he2, ".txt"))
+  
+  p_matrix = read.table(p_matrix_dir, header = T, check.names = F)
+  p_matrix = p_matrix[, ACAT_method]
+  ACAT = apply(p_matrix, 1, ACAT_withNA)
+  ACAT_power = sum(ACAT<2.5e-6)/1000
+  
+  return(c(cp, "ACAT", ACAT_power, he2))
+}
+
+res_tab = NULL
+
+for (cp in c(0.001, 0.01, 0.1, 0.2)){
+  for (he2 in c(0.05, 0.1, 0.2, 0.5)){
+    temp_tab =  temp_p_tab(res_dir, cp, he2)
+    res_tab = rbind(res_tab, temp_tab)
+  }
+}
+
+colnames(res_tab) = c("CausalProp", "Method", "Power", "He2")
+res_tab = data.frame(res_tab) %>% 
+  mutate(CausalProp = paste0("Causal Proportion=", CausalProp), 
+         He2 = factor(He2, levels = c(0.05,0.1,0.2,0.5),
+                      labels = c(0.05,0.1,0.2,0.5))) %>% 
+  dplyr::select(CausalProp, Method, Power, He2) 
+
+temp_tab = function(method){
+  
+  eva_power$Power = eva_power[, method]
+  
+  tab = eva_power %>% mutate(Method = method) %>% 
+    mutate(CausalProp = paste0("Causal Proportion=", CausalProp), 
+           He2 = factor(He2, levels = c(0.05,0.1,0.2,0.5),
+                        labels = c(0.05,0.1,0.2,0.5))) %>% 
+    dplyr::select(CausalProp, Method, Power, He2) 
+  
+  return(tab)
+}
+
+power_df_plot <- rbind(temp_tab("PRScs_noclump"),
+                       temp_tab("PRScs"))
+
+power_df_plot$Method = factor(power_df_plot$Method,
+                              levels = c("PRScs_noclump","PRScs"),
+                              labels = c("No Clumping", "Clumping"))
+
+FigureS1B = ggplot(power_df_plot, aes(x = He2, y = as.numeric(Power),
+                          fill = Method)) +
+  geom_col(width = 0.6, position = position_dodge(0.7)) +
+  facet_wrap(~CausalProp, ncol = 2) +
+  labs(y = "TWAS Power", x = bquote(h[e]^2)) +
+  theme(text = element_text(size=28,face="bold"),
+        legend.position="right",
+        legend.box = "vertical",
+        axis.text = element_text(face="bold")) +
+  scale_fill_brewer(palette="Set2")
+
+get_only_legend <- function(plot) {
+  
+  # get tabular interpretation of plot
+  plot_table <- ggplot_gtable(ggplot_build(plot)) 
+  
+  #  Mark only legend in plot
+  legend_plot <- which(sapply(plot_table$grobs, function(x) x$name) == "guide-box") 
+  
+  # extract legend
+  legend <- plot_table$grobs[[legend_plot]]
+  
+  # return legend
+  return(legend) 
+}
+
+
+legend = get_only_legend(FigureS1B + labs(fill = ""))
+com_plots = gridExtra::grid.arrange(FigureS1A + theme( legend.position = "none" ) , 
+                                    FigureS1B + theme( legend.position = "none" ), 
+                                    nrow = 1)
+
+pdf(file.path(Manu_dir,"FigureS1.pdf"), width = 21, height = 9)
+gridExtra::grid.arrange(com_plots, legend, ncol = 2, widths = c(8, 1))
+dev.off()
+```
+
+
+
+## Figure S3. 
+
+TWAS power comparison in simulation studies by 5 individual methods P+T(0.001), P+T(0.05), lassosum, SDPR, PRS-CS, and OTTERS.
+TWAS was conducted using simulated individual-level GWAS data. 
+
+```{r}
+eva_power <- read.table(file.path(SimuRes_dir, "Manu/Compare/0_Simu_Power.txt"), 
+                        header = F,
+                        check.names = F)
+colnames(eva_power) = c("CausalProp", "He2", method_list )
+
+#------------------Plot Power Line--------------------------
+
+ACAT_withNA = function(p_vec){
+  
+  p_vec_noNA = p_vec[is.na(p_vec) == F]
+  ACAT(p_vec_noNA)
+  
+}
+
+temp_p_tab = function(res_dir, cp, he2, ACAT_method = c("SDPR", "PRScs", "PT(0.05)", "Lassosum", "PT(0.001)")){
+  
+  temp_tab = temp_R2_tab(res_dir, method, cp, he2)
+  
+  p_matrix_dir = file.path(res_dir, 
+                            paste0("Manu/Compare/0_Simu_p_cp_", cp,"_He2_", he2, ".txt"))
+  
+  p_matrix = read.table(p_matrix_dir, header = T, check.names = F)
+  p_matrix = p_matrix[, ACAT_method]
+  ACAT = apply(p_matrix, 1, ACAT_withNA)
+  ACAT_power = sum(ACAT<2.5e-6)/1000
+
+  return(c(cp, "ACAT", ACAT_power, he2))
+}
+
+res_tab = NULL
+
+for (cp in c(0.001, 0.01, 0.1, 0.2)){
+  for (he2 in c(0.05, 0.1, 0.2, 0.5)){
+      temp_tab =  temp_p_tab(res_dir, cp, he2)
+      res_tab = rbind(res_tab, temp_tab)
+  }
+}
+
+colnames(res_tab) = c("CausalProp", "Method", "Power", "He2")
+res_tab = data.frame(res_tab) %>% 
+  mutate(CausalProp = paste0("Causal Proportion=", CausalProp), 
+         He2 = factor(He2, levels = c(0.05,0.1,0.2,0.5),
+                      labels = c(0.05,0.1,0.2,0.5))) %>% 
+  dplyr::select(CausalProp, Method, Power, He2) 
+
+temp_tab = function(method){
+  
+  eva_power$Power = eva_power[, method]
+  
+  tab = eva_power %>% mutate(Method = method) %>% 
+    mutate(CausalProp = paste0("Causal Proportion=", CausalProp), 
+           He2 = factor(He2, levels = c(0.05,0.1,0.2,0.5),
+                        labels = c(0.05,0.1,0.2,0.5))) %>% 
+    dplyr::select(CausalProp, Method, Power, He2) 
+  
+  return(tab)
+}
+
+power_df_plot <- rbind(temp_tab("SDPR"),
+                    temp_tab("PRScs"),
+                    temp_tab("PT(0.05)"),
+                    temp_tab("PT(0.001)"),
+                    temp_tab("Lassosum"),
+                    res_tab)
+
+power_df_plot$Method = factor(power_df_plot$Method,
+                        levels = c("PT(0.001)", "PT(0.05)",
+                                   "Lassosum", "SDPR", "PRScs", "ACAT"),
+                        labels = c("P+T(0.001)", "P+T(0.05)",
+                                   "lassosum",  "SDPR", "PRS-CS","OTTERS"))
+
+ggplot(power_df_plot, aes(x = He2, y = as.numeric(Power),
+                          fill = Method)) +
+  geom_col(width = 0.6, position = position_dodge(0.7)) +
+  facet_wrap(~CausalProp, ncol = 2) +
+  labs(y = NULL, x = bquote(h[e]^2), title = "") +
+  theme(text = element_text(size=40, face="bold"),
+        legend.position="bottom",
+        legend.box = "vertical",
+        axis.text = element_text(face="bold")) +
+  scale_fill_brewer(palette="Accent")
+
+ggsave(file.path(Manu_dir,"FigureS3.pdf"), width = 16, height = 14)
+```
+
+
+## Table S1. 
+
+TWAS type I errors under null simulation studies with $h_e^2=0.2$ and $p_{causal}=0.01$ by 5 individual methods P+T(0.001), P+T(0.05), lassosum, SDPR, PRS-CS, and OTTERS.
+
+```{r}
+Perm_dir = "~/YangFSSdata2/qdai/BS_TWAS/Data/Simulation/TWAS/std_cp_0.01_He2_0.2/Perm"
+p_matrix = read.table(file.path(Perm_dir, "Perm_results.txt"), header = T)
+
+get_error_tab = function(p_cut){
+  
+  error_tab = data.frame(error = colSums(p_matrix < p_cut))
+  return(error_tab)
+  
+}
+
+error_0.01 = get_error_tab(0.01)
+error_0.0001 = get_error_tab(0.0001)
+error_gw = get_error_tab(2.56*10^(-6))
+
+eva_error = cbind(error_0.01, error_0.0001, error_gw)/10^6
+colnames(eva_error) = c("0.01", "0.0001", "2.56*10^(-6)")
+write.xlsx(data.frame(eva_error), file.path(Manu_dir,"TableS1.xlsx"), overwrite= T)
+```
+
+## Figure S4. 
+
+Quantile-Quantile plots for P+T(0.001), P+T(0.05), lassosum, SDPR, PRS-CS, and OTTERS under null hypothesis, where gene expression were generated with $h_e^2=0.2$ and $p_{causal}=0.01$ and eQTL weights were permutated 10^6 times. 
+
+```{r}
+p_max = max(-log10(p_matrix), na.rm = T)
+
+myqq <- function(pvector, title="Quantile-Quantile plot of p-values", size = 24) {
+  
+  ci <- 0.95
+  pvector = pvector[!is.na(pvector)]
+  n <- length(pvector)
+  
+  plotdata <- data.frame(
+    observed = -log10(sort(pvector)),
+    expected = -log10(ppoints(n)),
+    clower   = -log10(qbeta(p = (1 - ci) / 2, shape1 = seq(n), shape2 = rev(seq(n)))),
+    cupper   = -log10(qbeta(p = (1 + ci) / 2, shape1 = seq(n), shape2 = rev(seq(n))))
+  )
+  
+  ggplot(plotdata, aes(x = expected, y = observed)) +
+    geom_point() + 
+    geom_ribbon(aes(x = expected, ymax = cupper, ymin = clower), fill = "grey30", alpha = 0.5) +
+    labs(x = "Expected", y = "Observed", title = title) +
+    geom_abline(intercept = 0, slope = 1, colour = "red") +
+    theme(text = element_text(size = size, face = "bold")) +
+    coord_cartesian(ylim = c(0, p_max), xlim = c(0, max(plotdata$expected))) 
+  
+}
+
+png(file.path(Manu_dir,"FigureS4.png"), width = 1500, height = 1000, units = "px") 
+
+p1 = myqq(p_matrix$PT.0.001.) + labs(tag = "A") + labs(title = "P+T(0.001)")
+p2 = myqq(p_matrix$PT.0.05.) + labs(tag = "B") + labs(title = "P+T(0.05)")
+p3 = myqq(p_matrix$Lassosum) + labs(tag = "C") + labs(title = "lassosum")
+p4 = myqq(p_matrix$SDPR) + labs(tag = "D") + labs(title = "SDPR")
+p5 = myqq(p_matrix$PRScs) + labs(tag = "E") + labs(title = "PRS-CS")
+p6 = myqq(p_matrix$ACAT) + labs(tag = "F") + labs(title = "OTTERS")
+
+grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 2)
+
+dev.off()
+```
+
+# GReX Imputation Accuracy in GTEx V8 Blood Samples
+
+## Figure 3A. 
+
+Test $R^2$ by PRS-CS versus P+T(0.001), P+T(0.05), lassosum, and SDPR with 315 GTEx V8 test samples 
+
+```{bash summarize_test_R2, eval = F}
+# run this on HGCC
+qsub -q b.q -j y -wd /home/qdai/YangFSSdata2/qdai/new_logs -N cal_R2 -pe smp 1 -t 1-22 -tc 15 ~/YangFSSdata2/qdai/BS_TWAS/Scripts/2_Final_RDA/Manu/summarize_R2.sh
+```
+
+```{r read_in_summarized_test_R2}
+GReX_res_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/RDA/GReX/R2"
+GReX = NULL
+
+for (chr in 1:22){
+  
+  temp_GReX = read.table(file.path(GReX_res_dir, 
+                                   paste0("CHR", chr, "_Predicted_R2.txt")), 
+                         header = T,
+                         check.names = F)
+  GReX = rbind(GReX, temp_GReX)
+  
+}
+
+compare_R2_tab = function(res, method1, method2){
+  
+  sub_res = res[, c("TargetID", method1, method2)]
+  sub_res = sub_res[complete.cases(sub_res), ]
+  colnames(sub_res) = c("TargetID", "M1", "M2")
+  maxR = max(sub_res[, c("M1", "M2")])
+  
+  sub_res = sub_res %>% mutate(col = case_when(
+    M1 >=0.01 & M2 <0.01 ~ "g1",
+    M1 <0.01 & M2 >=0.01 ~ "g2",
+    M1 >=0.01 & M2 >=0.01 ~ "g3",
+  )) %>% filter(M1 >=0.01 | M2 >= 0.01)
+  
+  p1 = ggplot(sub_res, aes(x=M1, y=M2, color = col)) + 
+    geom_point(show.legend = FALSE, size = 1) +
+    scale_x_continuous(trans = "sqrt", breaks = c(0,0.01,0.1,0.2, 0.5), limits = c(0, maxR)) +
+    scale_y_continuous(trans = "sqrt", breaks = c(0,0.01,0.1,0.2, 0.5), limits = c(0, maxR)) +
+    geom_abline(intercept = 0, slope = 1, color="black", linetype = "dotdash") +
+    labs(x = method1, y = method2) +
+    theme(text = element_text(size=25, face = "bold"),
+          axis.text = element_text(face="bold"))
+  
+  return(p1)
+  
+}
+
+p1 = compare_R2_tab(GReX, "PRScs", "PT(0.001)") + labs(x = "PRS-CS",y = "P+T(0.001)")
+p2 = compare_R2_tab(GReX, "PRScs", "PT(0.05)") + labs(x = "PRS-CS",y = "P+T(0.05)")
+p3 = compare_R2_tab(GReX, "PRScs", "Lassosum") + labs(x = "PRS-CS",y = "lassosum")
+p4 = compare_R2_tab(GReX, "PRScs", "SDPR") + labs(x = "PRS-CS", y = "SDPR")
+
+Figure3A = grid.arrange(p1,p2,p3,p4, ncol=2, nrow=2,
+             top = textGrob(bquote("Test"~R^2),gp=gpar(fontsize=32,font=2), 
+                   x = 0.09, hjust = 0))
+```
+
+
+
+## Table 1. 
+
+Test $R^2$ in 315 whole blood tissue samples from GTEx V8.
+
+```{r}
+
+# SDPR and lassosum sometimes failed to obtain results for some genes (~10 for SDPR and ~ 20 for lassosum among all the genes)
+GReX_full = GReX[complete.cases(GReX[, c("SDPR", "Lassosum")]), ]
+  
+summarize_res = function(res_all, method){
+  
+  res_vec = unlist(res_all[, method])
+  res_vec = as.numeric(res_vec[is.na(res_vec) == FALSE])
+  
+  n_test = length(res_vec)
+  gt_0.01 = as.integer(sum(res_vec > 0.01))
+  med_among_gt_0.01 = median(res_vec[res_vec > 0.01])
+  # gt_0.05 = as.integer(sum(res_vec > 0.05))
+  # med_among_gt_0.05 = median(res_vec[res_vec > 0.05])
+  return(t(c(n_test, gt_0.01, med_among_gt_0.01)))
+  
+}
+
+method_list = c("PRScs", "SDPR", "PT(0.001)", "PT(0.05)", "Lassosum")
+name_list = c("PRScs", "SDPR", "P+T(0.001)", "P+T(0.05)", "lassosum")
+res = sapply(1:length(method_list), function(i) summarize_res(GReX_full,method_list[i]))
+colnames(res) = name_list
+rownames(res) = c("Total Genes", 
+                  "Genes with $R^2$ > 0.01", 
+                  "Median $R^2$")
+pander(res)
+
+write.xlsx(data.frame(res), file.path(Manu_dir,"Table1.xlsx"), overwrite= T)
+
+# # calculate improvement
+# vec = res[2,]
+# prscs = vec[1]
+# 
+# prop = function(num){
+#   base = vec[num]
+#   (prscs - base)/base
+# }
+# 
+# sapply(2:5, prop)
+```
+
+## Figure S2. 
+
+Test $R^2$ in GTEx V8 samples by PRS-CS with LD-clumping ($R_T$ = 0.99) versus no clumping.
+
+```{r}
+
+cor_gene <- function(i, True, Pred){
+  cor = cor(unlist(True[i,6:ncol(True)]),unlist(Pred[i,6:ncol(True)]))
+  r2 = cor^2
+  return(r2)
+}
+
+cor_pred <- function(pred_dir){
+  pred = read.table(pred_dir, header = T, check.names = F, fill = T)
+  # sometimes the name cloud be different. we remove the numbers after ".".
+  cleanid <- function(gtex_id) sapply(strsplit(gtex_id, "\\."), "[", 1L)
+  pred$TargetID <- cleanid(pred$TargetID)
+  
+  # remove genes with missing prediction GReX
+  missing = rowSums(is.na(pred))
+  pred = pred[missing==0, ]
+  # find genes that are both in the prediction results and the true expression matrix
+  ID = intersect(pred$TargetID, true$TargetID)
+  
+  # make sure the genes in the prediction matrix and the true matrix are in the same order
+  row.names(pred) = pred$TargetID
+  sub_pred = pred[ID, ]
+  sub_true = true[ID, colnames(pred)]
+  
+  # calculate predicion R^2 for all the genes
+  res_cor = t(sapply(1:nrow(sub_pred), function(i) cor_gene(i, sub_true, sub_pred)))
+  names(res_cor) = ID
+  
+  return(res_cor)
+}
+
+calculate_R2 = function(methods, chr){
+  
+  res.dir = file.path(GTEx_V8.dir, paste0("PRScs_GReX"),
+                      paste0(methods, "_CHR", chr), paste0("Pred_CHR", chr), 
+                      paste0("CHR", chr, "_Pred_GReX.txt"))
+    
+  
+  res_cor = cor_pred(res.dir)
+  res_df = data.frame(names(res_cor), as.numeric(res_cor))
+  colnames(res_df) = c("TargetID", methods)
+  
+  return(res_df)
+  
+}
+
+calculate_R2_clumping = function(methods, chr){
+  
+  res.dir = file.path(GTEx_V8.dir, paste0("PRScs_GReX"),
+                      paste0("CHR", chr), paste0("Pred_CHR", chr), 
+                      paste0("CHR", chr, "_Pred_GReX.txt"))
+  
+  
+  res_cor = cor_pred(res.dir)
+  res_df = data.frame(names(res_cor), as.numeric(res_cor))
+  colnames(res_df) = c("TargetID", methods)
+  
+  return(res_df)
+  
+}
+
+chr=4
+clump=0.99
+
+# Read In True Expression Data
+true.dir <- "~/YangFSSdata2/qdai/BS_TWAS/Data/RDA/GTEx_V8/ExpressionFiles/"
+true_exp_dir = paste0(true.dir, "Whole_Blood_GTEx_Exp_chr",
+                      chr, "_315TestSamples.txt")
+true = read.table(true_exp_dir, header = T, check.names = F)
+row.names(true) = true$TargetID
+GTEx_V8.dir = "~/YangFSSdata2/qdai/BS_TWAS/Data/RDA/GTEx_V8"
+
+PRScs_noclump = calculate_R2("phi1e-4", chr)
+colnames(PRScs_noclump) = c("TargetID", "noclumping")
+PRScs_clump = calculate_R2_clumping("phi1e-4", 4)
+colnames(PRScs_clump) = c("TargetID", "clumping")
+
+compare_clumping = merge(PRScs_noclump, PRScs_clump, 
+                         by = "TargetID")
+
+pdf(file.path(Manu_dir,"FigureS2.pdf"), width = 15, height = 15)  # Open a new pdf file
+compare_R2_tab(compare_clumping, "clumping", "noclumping") + labs(x = bquote("clumping"~ R[T] ~ "=0.99"), 
+                                                                  y = "no clumping",
+                                                                  title =  bquote("Test"~ R^2))
+dev.off()
+
+```
+
+## Figure S5. 
+
+Test $R^2$ in GTEx V8 samples by PRS-CS with $\phi = (10^{-2}, 10^{-3}, 10^{-5}, 10^{-6}) vs. 10^{-4}$ on 590 genes on chromosome 4. 
+
+```{r}
+calculate_R2_diffphi = function(phi, chr){
+  
+  res.dir = file.path(GTEx_V8.dir, paste0("PRScs_GReX"),
+                      paste0(phi, "_CHR", chr), paste0("Pred_CHR", chr), 
+                      paste0("CHR", chr, "_Pred_GReX.txt"))
+    
+  
+  res_cor = cor_pred(res.dir)
+  res_df = data.frame(names(res_cor), as.numeric(res_cor))
+  colnames(res_df) = c("TargetID", phi)
+  
+  return(res_df)
+  
+}
+
+chr=4
+clump=0.99
+
+# Read In True Expression Data
+true.dir <- "~/YangFSSdata2/qdai/BS_TWAS/Data/RDA/GTEx_V8/ExpressionFiles/"
+true_exp_dir = paste0(true.dir, "Whole_Blood_GTEx_Exp_chr",
+                      chr, "_315TestSamples.txt")
+true = read.table(true_exp_dir, header = T, check.names = F)
+row.names(true) = true$TargetID
+GTEx_V8.dir = "~/YangFSSdata2/qdai/BS_TWAS/Data/RDA/GTEx_V8"
+
+# prepare to save the output 
+PRScs0.01 = calculate_R2_diffphi("phi1e-2", chr)
+PRScs0.001 = calculate_R2_diffphi("phi1e-3", chr)
+PRScs0.0001 = calculate_R2_diffphi("phi1e-4", chr)
+PRScs0.00001 = calculate_R2_diffphi("phi1e-5", chr)
+PRScs0.000001 = calculate_R2_diffphi("phi1e-6", chr)
+
+res = merge(PRScs0.01, PRScs0.001, by = "TargetID", all = T) %>% 
+  merge(., PRScs0.0001, by = "TargetID", all = T) %>% 
+  merge(., PRScs0.00001, by = "TargetID", all = T) %>% 
+  merge(., PRScs0.000001, by = "TargetID", all = T) %>% 
+  mutate(CHR = chr)
+
+pdf(file.path(Manu_dir,"FigureS5.pdf"), width = 15, height = 15)  # Open a new pdf file
+
+p1 =compare_R2_tab(res, "phi1e-4", "phi1e-2") + labs(x = bquote(Phi~"="~10^-4), y = bquote(Phi~"="~10^-2), tag = "A")
+p2 =compare_R2_tab(res, "phi1e-4", "phi1e-3")+ labs(x = bquote(Phi~"="~10^-4), y = bquote(Phi~"="~10^-3), tag = "B")
+p3 = compare_R2_tab(res, "phi1e-4", "phi1e-5")+ labs(x = bquote(Phi~"="~10^-4), y = bquote(Phi~"="~10^-5), tag = "C")
+p4 = compare_R2_tab(res, "phi1e-4", "phi1e-6")+ labs(x = bquote(Phi~"="~10^-4), y = bquote(Phi~"="~10^-6), tag = "D")
+
+grid.arrange(p1,p2,p3,p4, ncol=2, nrow=2,
+             top = textGrob(bquote("Test"~R^2),gp=gpar(fontsize=40,font=2), 
+                            x = 0.09, hjust = 0))
+
+dev.off() 
+```
+
+
+## Figure S6. 
+
+Test $R^2$ in GTEx V8 whole blood samples by P+T(0.001), P+T(0.05), lassosum, and SDPR. 
+
+```{r }
+png(file.path(Manu_dir,"FigureS6.png"), width = 1500, height = 1000, units = "px")  # Open a new pdf file
+
+p1 = compare_R2_tab(GReX, "PT(0.001)", "PT(0.05)") + labs(x = "P+T(0.001)", y = "P+T(0.05)", tag = "A")
+p2 = compare_R2_tab(GReX, "PT(0.001)", "Lassosum") + labs(x = "P+T(0.001)", y = "lassosum", tag = "B")
+p3 = compare_R2_tab(GReX, "PT(0.001)", "SDPR") + labs(x = "P+T(0.001)", tag = "C")
+p4 = compare_R2_tab(GReX, "PT(0.05)", "SDPR") + labs(x = "P+T(0.05)", tag = "D")
+p5 = compare_R2_tab(GReX, "SDPR", "Lassosum") + labs(tag = "E", y = "lassosum")
+
+grid.arrange(p1, p2, p3, p4, p5, nrow = 2)
+
+dev.off() 
+```
+
+# TWAS of Cardiovascular Disease using Summary-Level eQTLGen Data and UKBB GWAS Data
+
+## Summarizing TWAS Results 
+
+We first find significant genes for each methods.
+
+```{r}
+#---------- Read in TWAS results -----
+TWAS_res_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/RDA/TWAS_UKBB/Cardio"
+TWAS_noID = NULL
+methods = c("PT0.001", "PT0.05", "Lassosum", "SDPR", "PRScs")
+
+for (chr in c(1:22)){
+  
+  temp_TWAS = read.table(file.path(TWAS_res_dir, 
+                                   paste0("CHR", chr, "_Cardio_TWAS.txt")),
+                         header = T)
+  TWAS_noID = rbind(TWAS_noID, temp_TWAS)
+  
+}
+
+#-----------Get the gene name for TWAS results --------
+
+# merge with annotation files
+
+anno = NULL
+for (i in 1:22){
+  anno_temp = read.table(file.path("~/YangFSSdata2/qdai/BS_TWAS/Data/RDA/Anno",
+                                   paste0("GTEx_CHR", i, "_GeneAnno.txt")),
+                         header = T)
+  anno = rbind(anno, anno_temp)
+}
+
+colnames(anno) = c("CHR", "GeneStart", "GeneEnd", "ID", "GeneName")
+
+TWAS = merge(TWAS_noID, anno, by = c("CHR", "ID"), all = T)
+
+#---------- Perform Genomic Control -----------
+
+genomic_control = function(method){
+  
+  TWAS_vec = TWAS[, paste(method, "Z", sep = "_")]
+  Lambda = median(TWAS_vec^2, na.rm = T)/qchisq(0.5, df = 1)
+  TWAS_adjusted = pchisq(TWAS_vec^2/Lambda, df = 1, lower.tail = F)
+  
+  return(TWAS_adjusted)
+  
+}
+
+TWAS_adjusted = data.frame(sapply(methods, genomic_control)) %>% 
+  mutate(CHR = TWAS$CHR, ID = TWAS$GeneName, POS = TWAS$POS)
+
+#-----------Perform ACAT -------------------
+
+ACAT_withNA = function(p_vec){
+
+  p_vec_noNA = p_vec[is.na(p_vec) == F]
+  ACAT(p_vec_noNA)
+
+}
+
+ACAT_p = function(ACAT_method, TWAS){
+  
+  TWAS_sub = TWAS[, c("PRScs","PT0.05", "Lassosum", "SDPR")]
+  TWAS_ACAT = TWAS_sub[complete.cases(TWAS_sub), ]
+  ID = TWAS$ID[complete.cases(TWAS_sub)]
+  
+  ACAT_p = apply(TWAS_ACAT, 1, ACAT_withNA)
+  ACAT_TWAS = data.frame(ID = ID, ACAT = ACAT_p)
+  return(ACAT_TWAS) 
+  
+}
+
+ACAT_TWAS = ACAT_p(c("PRScs", "PT0.001", "PT0.05", "Lassosum", "SDPR"), TWAS_adjusted)
+TWAS_final = merge(TWAS_adjusted, ACAT_TWAS, by = "ID",  all = T)
+TWAS_final = TWAS_final[is.na(TWAS_final$ACAT) == F,]
+
+#------------------get significant TWAS genes -------------
+
+bon_P_cut = 0.05/nrow(TWAS_final)
+
+colnames(anno) = c("CHR", "GeneStart", "GeneEnd", "TargetID", "ID")
+
+get_TWAS_sig = function(res = TWAS_final, method){
+  
+  sub_TWAS = res[, c("CHR", "POS", method, "ID", "ACAT")]
+  sub_TWAS = sub_TWAS[complete.cases(sub_TWAS), ] 
+  colnames(sub_TWAS) = c("CHR", "POS", "PVALUE", "ID", "ACATp")
+  
+  sub_TWAS = sub_TWAS %>% 
+    merge(., anno, by = c("CHR", "ID")) %>% 
+    mutate(CHR = as.numeric(CHR), POS = as.numeric(POS), 
+           PVALUE = as.numeric(PVALUE)) %>% 
+    filter(PVALUE < bon_P_cut)  %>% 
+    arrange(CHR, POS)
+  
+  return(sub_TWAS)
+  
+}
+```
+
+To identify independently significant TWAS genes, we calculated the $R^2$ between the GReX predicted by PRS-CS for of each pair of the significant genes. 
+
+```{r}
+# save all the significant genes
+full_methods = c("ACAT", methods)
+full_sig_genes = lapply(full_methods, get_TWAS_sig, res = TWAS_final)
+full_ID = NULL
+
+for (i in c(1:length(full_sig_genes))){
+  full_ID = c(full_ID, full_sig_genes[[i]]$ID)
+}
+
+uni_fullID = unique(full_ID)
+sub_anno = anno %>% filter(ID %in% uni_fullID) %>% select(TargetID) %>% unlist(.) %>% unname
+Cardio_res_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/RDA/TWAS_UKBB/Cardio/"
+write.table(sub_anno,
+            file.path(Cardio_res_dir, "GeneListforR2.txt"),
+            sep = "\t",
+            row.names = F,
+            col.names = F,
+            quote = F)
+
+# save the predicted GReX by PRS-CS
+GTEx_V8.dir = "~/YangFSSdata2/qdai/BS_TWAS/Data/RDA/GTEx_V8"
+GReX_PRScs = NULL
+
+for (chr in c(1:22)){
+
+  GReX_dir = file.path(GTEx_V8.dir, paste0("PRScs_GReX"),
+                    paste0("CHR", chr), paste0("Pred_CHR", chr),
+                    paste0("CHR", chr, "_Pred_GReX.txt"))
+
+  GReX_temp = read.table(GReX_dir, header = T,
+                         check.names = F, fill = T)
+
+  GReX_PRScs = rbind(GReX_PRScs, GReX_temp)
+
+}
+
+Cardio_res_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/RDA/TWAS_UKBB/Cardio/"
+GeneList = unname(unlist(read.table("~/YangFSSdata2/qdai/BS_TWAS/Results/RDA/TWAS_UKBB/Cardio/GeneListforR2.txt",
+                  header = F)))
+GReX_PRScs = GReX_PRScs[GReX_PRScs$TargetID %in% GeneList, ]
+write.table(GReX_PRScs,
+            file.path(Cardio_res_dir, "GReXforR2.txt"),
+            sep = "\t",
+            row.names = F,
+            col.names = T,
+            quote = F)
+```
+
+For a pair of genes with the predicted GReX $R^2$ >0.5, we only kept the gene with the smaller TWAS p-value in our final TWAS results. 
+
+```{r}
+# calculate the R^2 between the predicted GReX
+Cardio_res_dir = "~/YangFSSdata2/qdai/BS_TWAS/Results/RDA/TWAS_UKBB/Cardio/"
+sub_GReX = read.table(file.path(Cardio_res_dir, "GReXforR2.txt"), header = T)
+sub_ID = sub_GReX$TargetID
+Exp_mat = t(sub_GReX[, 6:ncol(sub_GReX)])
+colnames(Exp_mat) = sub_ID
+cor_mat = cor(Exp_mat)
+diag(cor_mat) = 0
+
+
+# this function is to generate a flag representing whether a gene is independently significant. 
+# If this is not, the returned flag = 1, else, return 0.
+remove_flag = function(gene, TWAS_sig){
+  
+  test_P = TWAS_sig$PVALUE[gene]
+  
+  # find genes that have R^2 > 0.5 with this gene
+  temp_TWAS = TWAS_sig %>%
+    mutate(COR = cor_mat[TWAS_sig$TargetID[gene], TWAS_sig$TargetID]) %>% 
+    filter(COR^2 > 0.5)
+  
+  # among these genes, if there exists a gene having p-value less than this gene, return 1, else, return 0.
+  if (nrow(temp_TWAS) != 0){
+    
+    p = min(temp_TWAS$PVALUE)
+    return(ifelse(p < test_P, 1, 0))
+    
+  } else {
+    
+    return(0)
+    
+  }
+  
+  return(NULL)
+  
+}
+
+# find independently significant genes with flag == 0.
+get_TWAS_sig_idp = function(res = TWAS_final, method){
+
+  get_TWAS_sig(res = res, method = method) %>%
+    mutate(Flag = sapply(1:nrow(.), remove_flag, TWAS_sig = .)) %>%
+    filter(Flag == 0) %>%
+    select(CHR, ID, POS, PVALUE) 
+
+}
+```
+
+
+## Table 2. 
+
+Independent TWAS risk genes of cardiovascular disease identified by OTTERS, with the corresponding TWAS p-values by individual methods. 
+
+```{r}
+ACAT_idp = get_TWAS_sig_idp(method = "ACAT")
+tab = merge(ACAT_idp, TWAS_final, by = c("CHR","ID", "POS")) %>% 
+  mutate(CHR = as.numeric(CHR), POS = as.numeric(POS)) %>% 
+  arrange(CHR, POS)
+write.xlsx(tab,
+          file.path(Manu_dir, "Table2.xlsx"))
+```
+
+## Table S2. 
+
+Independent significant TWAS genes of cardiovascular disease identified by individual training methods (P+T(0.001), P+T(0.05), lassosum, SDPR, PRS-CS) but not by OTTERS.  
+
+```{r}
+get_TWAS_sig_idp_otherm = function(res = TWAS_final, method){
+  
+  get_TWAS_sig(res = res, method = method) %>%
+    mutate(Flag = sapply(1:nrow(.), remove_flag, TWAS_sig = .)) %>%
+    filter(Flag == 0) %>%
+    select(CHR, ID, POS, PVALUE, ACATp) %>% 
+    filter(ID %in% ACAT_idp$ID == F) 
+  
+}
+
+sig_otherm = NULL
+for (method in c("PT0.001", "PT0.05",  "Lassosum", "SDPR", "PRScs")){
+  temp_tab = get_TWAS_sig_idp_otherm(method = method) %>% 
+    mutate(method = method)
+  sig_otherm = rbind(sig_otherm, temp_tab)
+}
+write.xlsx(sig_otherm,
+           file.path(Manu_dir, "TableS2.xlsx"))
+```
+
+## Figure S3. 
+
+Manhattan plot of TWAS results by OTTERS using GWAS summary-level statistics of cardiovascular disease. 
+
+```{r}
+#--------------Manhattan Plot------------------
+
+max_p = max(-log10(TWAS_final[, c(methods, "ACAT")]), na.rm = T)
+
+myManPlot <- function(manPlot_dt, title = "Manhantton Plot", chr_vec = 1:22, ntop = 3, sig_level = 2.5e-6, size = 23, chrGAP = 5e2, label_genes, max_p){
+
+    # manPlot is a data frame containing columns: CHR, POS, PVALUE, ID
+    # CHR column should be of the format: chr*
+   # Setup ploting positions
+    # chr_vec = sort(unique(manPlot$CHR))
+    endPos = 0;
+    plotPos = NULL; temp_dt = NULL;
+    chrEnd = NULL; LabBreaks = NULL; xlabels = NULL;
+    for (chr in chr_vec) {
+        print(chr)
+        temp = manPlot_dt[manPlot_dt$CHR == chr, ]
+        temp$POS = order(temp$POS)
+        if(nrow(temp)>0){
+            temp_dt = rbind(temp_dt, temp)
+
+            chrPos = (temp$POS - min(temp$POS, na.rm = TRUE) ) + endPos + 1
+            endPos = max(chrPos, na.rm = TRUE) + chrGAP
+            plotPos = c(plotPos, chrPos)
+
+            yline_pos = max(chrPos, na.rm = TRUE) + chrGAP/2
+            chrEnd = c(chrEnd, yline_pos)
+            LabBreaks = c(LabBreaks, mean(chrPos, na.rm = TRUE) )
+            xlabels = c(xlabels, chr)
+        }
+    }
+    manPlot_dt_sort = data.frame(plotPos = plotPos, temp_dt)
+    
+    require("ggrepel")
+    ggplot(manPlot_dt_sort, aes(plotPos, -log10(PVALUE), color = factor(CHR) )) +
+    geom_point() + guides(color = FALSE) +
+    ylim(c(0, max(-log10(sig_level), max_p))) +
+    geom_hline(yintercept = -log10(sig_level), color = "red") +
+    labs(x = "Chromosome", y = "-log10(PVALUE)", title = title) +
+    scale_x_continuous(breaks = LabBreaks, labels = xlabels, limits = range(plotPos)) +
+    geom_label_repel(data = manPlot_dt_sort[manPlot_dt_sort$ID %in% label_genes, ],
+                      aes(plotPos, -log10(PVALUE), label = ID), size = 6,
+                      nudge_x = .15,
+                      box.padding = unit(0.25, "lines"),
+                      nudge_y = 1,
+                      segment.curvature = -0.1,
+                      segment.ncp = 3,
+                      segment.angle = 20,
+                     max.overlaps =20) +
+    theme(text = element_text(size = size, face = "bold"), axis.text.x = element_text(angle = -50, face = "bold", vjust=-0.5))
+
+
+}
+
+
+
+
+
+get_manhattan_plot = function(TWAS_res, method, size = 20){
+  
+  
+  sub_TWAS = TWAS_res[, c("CHR", "POS", method, "ID")]
+  sub_TWAS = sub_TWAS[complete.cases(sub_TWAS), ] 
+  colnames(sub_TWAS) = c("CHR", "POS", "PVALUE", "ID") 
+  
+  sub_TWAS = sub_TWAS %>% mutate(
+    
+    CHR = as.numeric(CHR),
+    POS = as.numeric(POS)
+
+  ) %>% arrange(CHR, POS)
+  
+  # sig_level = 0.05/nrow(sub_TWAS)
+  genes = get_TWAS_sig_idp(method = method)$ID
+  
+  p1 = myManPlot(sub_TWAS, 
+                 title = method, 
+                 chr_vec = c(1:22),
+                 size = size, chrGAP = 1.6e2,
+                 label_genes = genes,
+                 max_p = max_p)
+  
+  return(p1)
+}
+
+Figure3B = get_manhattan_plot(TWAS_final, method = "ACAT", size = 25) + theme(axis.text=element_text(size=18)) + labs(title = "TWAS of Cardiovascular Disease by OTTERS")
+                                                                        
+
+pdf(file.path(Manu_dir,"Figure3.pdf"), width = 25, height = 10) 
+grid.arrange(Figure3A, Figure3B, nrow = 1, widths = c(0.4,0.6))
+dev.off()
+
+```
+
+
+## Figure S7. 
+
+Manhattan plots of TWAS of cardiovascular disease by P+T(0.001) (A), P+T(0.05) (B), lassosum (C), SDPR (D), and PRS-CS (E) with independently significant TWAS risk genes being labelled. 
+
+```{r}
+pdf(file.path(Manu_dir,"FigureS7.pdf"), width = 25, height = 15) 
+
+p1 = get_manhattan_plot(TWAS_final, "PT0.001") + labs(tag = "A") + labs(title = "TWAS of Cardiovascular Disease by P+T(0.001)")
+p2 = get_manhattan_plot(TWAS_final, "PT0.05") + labs(tag = "B") + labs(title = "TWAS of Cardiovascular Disease by P+T(0.05)")
+p3 = get_manhattan_plot(TWAS_final, "Lassosum") + labs(tag = "C") + labs(title = "TWAS of Cardiovascular Disease by lassosum")
+p4 = get_manhattan_plot(TWAS_final, "SDPR") + labs(tag = "D") + labs(title = "TWAS of Cardiovascular Disease by SDPR")
+p5 = get_manhattan_plot(TWAS_final, "PRScs") + labs(tag = "E") + labs(title = "TWAS of Cardiovascular Disease by PRS-CS")
+
+grid.arrange(p1, p2, p3, p4, p5, nrow = 3)
+
+dev.off()
+```
+
+
+## Figure S8. 
+
+Quantile-Quantile plots of TWAS p-values of cardiovascular disease by P+T(0.001) (A), P+T(0.05) (B),  lassosum (C),  SDPR (D), PRS-CS (E), and OTTERS (F).
+
+```{r}
+myqq <- function(pvector, title="", size = 24) {
+  
+  ci <- 0.95
+  pvector = pvector[!is.na(pvector)]
+  n <- length(pvector)
+  
+  plotdata <- data.frame(
+    observed = -log10(sort(pvector)),
+    expected = -log10(1:n/n),
+    clower   = -log10(qbeta(p = (1 - ci) / 2, shape1 = seq(n), shape2 = rev(seq(n)))),
+    cupper   = -log10(qbeta(p = (1 + ci) / 2, shape1 = seq(n), shape2 = rev(seq(n))))
+  )
+  
+  ggplot(plotdata, aes(x = expected, y = observed)) +
+    geom_point() + 
+    geom_ribbon(aes(ymax = cupper, ymin = clower), fill = "grey30", alpha = 0.5) +
+    xlim(c(0, max(plotdata$expected))) + 
+    ylim(c(0, max_p)) +
+    labs(x = "Expected", y = "Observed", title = title) +
+    geom_abline(intercept = 0, slope = 1, colour = "red") +
+    theme(text = element_text(size = size, face = "bold"))
+  
+}
+
+get_qq_plot = function(TWAS, method){
+  
+  sub_TWAS = TWAS[, c("CHR", "POS", method, "ID")]
+  sub_TWAS = sub_TWAS[complete.cases(sub_TWAS), ]
+  colnames(sub_TWAS) = c("CHR", "POS", "PVALUE", "ID")
+  
+  p2 = myqq(sub_TWAS$PVALUE, title = "")
+  
+  return(p2)
+  
+}
+
+p1 = get_qq_plot(TWAS_final, "PT0.001") + labs(tag = "A") + labs(title = "P+T(0.001)")
+p2 = get_qq_plot(TWAS_final, "PT0.05") + labs(tag = "B") + labs(title = "P+T(0.05)")
+p3 = get_qq_plot(TWAS_final, "Lassosum") + labs(tag = "C") + labs(title = "lassosum")
+p4 = get_qq_plot(TWAS_final, "SDPR") + labs(tag = "D") + labs(title = "SDPR")
+p5 = get_qq_plot(TWAS_final, "PRScs") + labs(tag = "E") + labs(title = "PRS-CS")
+p6 = get_qq_plot(TWAS_final, "ACAT") + labs(tag = "F") + labs(title = "OTTERS")
+
+
+png(file.path(Manu_dir,"FigureS8.png"), width = 1500, height = 1000, units = "px") 
+
+grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 2)
+
+dev.off()
+```
+
