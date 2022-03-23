@@ -6,11 +6,11 @@ Please refer to the following pages for manual of using each imputation model:
 
 - [P+T](OTTERS/Imputation/P+T/README.md)
 
-- [lassosum](OTTERS/Imputation/lassosum/README.md)
+- [lassosum](Imputation/lassosum/README.md)
 
-- [SDPR](OTTERS/Imputation/SDPR/README.md)
+- [SDPR](Imputation/SDPR/README.md)
 
-- [PRS-CS](OTTERS/blob/main/Imputation/PRScs/README.md)
+- [PRS-CS](PRScs/README.md)
 
 
 Notes: 
