@@ -379,10 +379,12 @@ TWAS power comparison in simulation studies by 5 individual methods P+T(0.001), 
 TWAS was conducted using simulated individual-level GWAS data. 
 
 ```{r}
+method_list = c("SDPR", "PRScs", "PT(0.05)", "PT(0.001)", "Lassosum")
+
 eva_power <- read.table(file.path(SimuRes_dir, "Manu/Compare/0_Simu_Power.txt"), 
                         header = F,
                         check.names = F)
-colnames(eva_power) = c("CausalProp", "He2", method_list )
+colnames(eva_power) = c("CausalProp", "He2", method_list)
 
 #------------------Plot Power Line--------------------------
 
@@ -482,10 +484,10 @@ get_error_tab = function(p_cut){
 
 error_0.01 = get_error_tab(0.01)
 error_0.0001 = get_error_tab(0.0001)
-error_gw = get_error_tab(2.56*10^(-6))
+error_gw = get_error_tab(2.5*10^(-6))
 
 eva_error = cbind(error_0.01, error_0.0001, error_gw)/10^6
-colnames(eva_error) = c("0.01", "0.0001", "2.56*10^(-6)")
+colnames(eva_error) = c("0.01", "0.0001", "2.5*10^(-6)")
 write.xlsx(data.frame(eva_error), file.path(Manu_dir,"TableS1.xlsx"), overwrite= T)
 ```
 
@@ -630,16 +632,16 @@ pander(res)
 
 write.xlsx(data.frame(res), file.path(Manu_dir,"Table1.xlsx"), overwrite= T)
 
-# # calculate improvement
-# vec = res[2,]
-# prscs = vec[1]
-# 
-# prop = function(num){
-#   base = vec[num]
-#   (prscs - base)/base
-# }
-# 
-# sapply(2:5, prop)
+# compare them
+vec = res[2,]
+prscs = vec[1]
+
+prop = function(num){
+  base = vec[num]
+  (base - prscs)/prscs
+}
+
+sapply(2:5, prop)
 ```
 
 ## Figure S2. 
@@ -845,7 +847,7 @@ for (i in 1:22){
   anno = rbind(anno, anno_temp)
 }
 
-colnames(anno) = c("CHR", "GeneStart", "GeneEnd", "ID", "GeneName")
+colnames(anno) = c("CHR", "POS", "GeneEnd", "ID", "GeneName")
 
 TWAS = merge(TWAS_noID, anno, by = c("CHR", "ID"), all = T)
 
@@ -1027,6 +1029,8 @@ tab = merge(ACAT_idp, TWAS_final, by = c("CHR","ID", "POS")) %>%
   arrange(CHR, POS)
 write.xlsx(tab,
           file.path(Manu_dir, "Table2.xlsx"))
+
+full_res = lapply(full_methods, get_TWAS_sig_idp, res = TWAS_final)
 ```
 
 ## Table S2. 

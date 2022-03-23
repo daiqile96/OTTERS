@@ -683,89 +683,91 @@ div.tocify {
 <div id="figure-s3." class="section level2" number="1.5">
 <h2 number="1.5"><span class="header-section-number">1.5</span> Figure S3.</h2>
 <p>TWAS power comparison in simulation studies by 5 individual methods P+T(0.001), P+T(0.05), lassosum, SDPR, PRS-CS, and OTTERS. TWAS was conducted using simulated individual-level GWAS data.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>eva_power <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="fu">file.path</span>(SimuRes_dir, <span class="st">&quot;Manu/Compare/0_Simu_Power.txt&quot;</span>), </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">header =</span> F,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">check.names =</span> F)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(eva_power) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;CausalProp&quot;</span>, <span class="st">&quot;He2&quot;</span>, method_list )</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#------------------Plot Power Line--------------------------</span></span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>method_list <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;SDPR&quot;</span>, <span class="st">&quot;PRScs&quot;</span>, <span class="st">&quot;PT(0.05)&quot;</span>, <span class="st">&quot;PT(0.001)&quot;</span>, <span class="st">&quot;Lassosum&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>eva_power <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="fu">file.path</span>(SimuRes_dir, <span class="st">&quot;Manu/Compare/0_Simu_Power.txt&quot;</span>), </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">header =</span> F,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">check.names =</span> F)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(eva_power) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;CausalProp&quot;</span>, <span class="st">&quot;He2&quot;</span>, method_list)</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>ACAT_withNA <span class="ot">=</span> <span class="cf">function</span>(p_vec){</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  p_vec_noNA <span class="ot">=</span> p_vec[<span class="fu">is.na</span>(p_vec) <span class="sc">==</span> F]</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ACAT</span>(p_vec_noNA)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>temp_p_tab <span class="ot">=</span> <span class="cf">function</span>(res_dir, cp, he2, <span class="at">ACAT_method =</span> <span class="fu">c</span>(<span class="st">&quot;SDPR&quot;</span>, <span class="st">&quot;PRScs&quot;</span>, <span class="st">&quot;PT(0.05)&quot;</span>, <span class="st">&quot;Lassosum&quot;</span>, <span class="st">&quot;PT(0.001)&quot;</span>)){</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  temp_tab <span class="ot">=</span> <span class="fu">temp_R2_tab</span>(res_dir, method, cp, he2)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#------------------Plot Power Line--------------------------</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>ACAT_withNA <span class="ot">=</span> <span class="cf">function</span>(p_vec){</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  p_vec_noNA <span class="ot">=</span> p_vec[<span class="fu">is.na</span>(p_vec) <span class="sc">==</span> F]</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ACAT</span>(p_vec_noNA)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>temp_p_tab <span class="ot">=</span> <span class="cf">function</span>(res_dir, cp, he2, <span class="at">ACAT_method =</span> <span class="fu">c</span>(<span class="st">&quot;SDPR&quot;</span>, <span class="st">&quot;PRScs&quot;</span>, <span class="st">&quot;PT(0.05)&quot;</span>, <span class="st">&quot;Lassosum&quot;</span>, <span class="st">&quot;PT(0.001)&quot;</span>)){</span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  p_matrix_dir <span class="ot">=</span> <span class="fu">file.path</span>(res_dir, </span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">paste0</span>(<span class="st">&quot;Manu/Compare/0_Simu_p_cp_&quot;</span>, cp,<span class="st">&quot;_He2_&quot;</span>, he2, <span class="st">&quot;.txt&quot;</span>))</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  p_matrix <span class="ot">=</span> <span class="fu">read.table</span>(p_matrix_dir, <span class="at">header =</span> T, <span class="at">check.names =</span> F)</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  p_matrix <span class="ot">=</span> p_matrix[, ACAT_method]</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  ACAT <span class="ot">=</span> <span class="fu">apply</span>(p_matrix, <span class="dv">1</span>, ACAT_withNA)</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  ACAT_power <span class="ot">=</span> <span class="fu">sum</span>(ACAT<span class="sc">&lt;</span><span class="fl">2.5e-6</span>)<span class="sc">/</span><span class="dv">1000</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(cp, <span class="st">&quot;ACAT&quot;</span>, ACAT_power, he2))</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>res_tab <span class="ot">=</span> <span class="cn">NULL</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  temp_tab <span class="ot">=</span> <span class="fu">temp_R2_tab</span>(res_dir, method, cp, he2)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  p_matrix_dir <span class="ot">=</span> <span class="fu">file.path</span>(res_dir, </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">paste0</span>(<span class="st">&quot;Manu/Compare/0_Simu_p_cp_&quot;</span>, cp,<span class="st">&quot;_He2_&quot;</span>, he2, <span class="st">&quot;.txt&quot;</span>))</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  p_matrix <span class="ot">=</span> <span class="fu">read.table</span>(p_matrix_dir, <span class="at">header =</span> T, <span class="at">check.names =</span> F)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  p_matrix <span class="ot">=</span> p_matrix[, ACAT_method]</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  ACAT <span class="ot">=</span> <span class="fu">apply</span>(p_matrix, <span class="dv">1</span>, ACAT_withNA)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  ACAT_power <span class="ot">=</span> <span class="fu">sum</span>(ACAT<span class="sc">&lt;</span><span class="fl">2.5e-6</span>)<span class="sc">/</span><span class="dv">1000</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(cp, <span class="st">&quot;ACAT&quot;</span>, ACAT_power, he2))</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (cp <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>)){</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (he2 <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span>)){</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>      temp_tab <span class="ot">=</span>  <span class="fu">temp_p_tab</span>(res_dir, cp, he2)</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>      res_tab <span class="ot">=</span> <span class="fu">rbind</span>(res_tab, temp_tab)</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(res_tab) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;CausalProp&quot;</span>, <span class="st">&quot;Method&quot;</span>, <span class="st">&quot;Power&quot;</span>, <span class="st">&quot;He2&quot;</span>)</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>res_tab <span class="ot">=</span> <span class="fu">data.frame</span>(res_tab) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">CausalProp =</span> <span class="fu">paste0</span>(<span class="st">&quot;Causal Proportion=&quot;</span>, CausalProp), </span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>         <span class="at">He2 =</span> <span class="fu">factor</span>(He2, <span class="at">levels =</span> <span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>),</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels =</span> <span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(CausalProp, Method, Power, He2) </span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>temp_tab <span class="ot">=</span> <span class="cf">function</span>(method){</span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  eva_power<span class="sc">$</span>Power <span class="ot">=</span> eva_power[, method]</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>res_tab <span class="ot">=</span> <span class="cn">NULL</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (cp <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>)){</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (he2 <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span>)){</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>      temp_tab <span class="ot">=</span>  <span class="fu">temp_p_tab</span>(res_dir, cp, he2)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>      res_tab <span class="ot">=</span> <span class="fu">rbind</span>(res_tab, temp_tab)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(res_tab) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;CausalProp&quot;</span>, <span class="st">&quot;Method&quot;</span>, <span class="st">&quot;Power&quot;</span>, <span class="st">&quot;He2&quot;</span>)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>res_tab <span class="ot">=</span> <span class="fu">data.frame</span>(res_tab) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">CausalProp =</span> <span class="fu">paste0</span>(<span class="st">&quot;Causal Proportion=&quot;</span>, CausalProp), </span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>         <span class="at">He2 =</span> <span class="fu">factor</span>(He2, <span class="at">levels =</span> <span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>),</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels =</span> <span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(CausalProp, Method, Power, He2) </span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>temp_tab <span class="ot">=</span> <span class="cf">function</span>(method){</span>
 <span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>  tab <span class="ot">=</span> eva_power <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Method =</span> method) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">CausalProp =</span> <span class="fu">paste0</span>(<span class="st">&quot;Causal Proportion=&quot;</span>, CausalProp), </span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>           <span class="at">He2 =</span> <span class="fu">factor</span>(He2, <span class="at">levels =</span> <span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>),</span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(CausalProp, Method, Power, He2) </span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(tab)</span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>power_df_plot <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">temp_tab</span>(<span class="st">&quot;SDPR&quot;</span>),</span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">temp_tab</span>(<span class="st">&quot;PRScs&quot;</span>),</span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">temp_tab</span>(<span class="st">&quot;PT(0.05)&quot;</span>),</span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">temp_tab</span>(<span class="st">&quot;PT(0.001)&quot;</span>),</span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">temp_tab</span>(<span class="st">&quot;Lassosum&quot;</span>),</span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>                    res_tab)</span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>power_df_plot<span class="sc">$</span>Method <span class="ot">=</span> <span class="fu">factor</span>(power_df_plot<span class="sc">$</span>Method,</span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>                        <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;PT(0.001)&quot;</span>, <span class="st">&quot;PT(0.05)&quot;</span>,</span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">&quot;Lassosum&quot;</span>, <span class="st">&quot;SDPR&quot;</span>, <span class="st">&quot;PRScs&quot;</span>, <span class="st">&quot;ACAT&quot;</span>),</span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;P+T(0.001)&quot;</span>, <span class="st">&quot;P+T(0.05)&quot;</span>,</span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">&quot;lassosum&quot;</span>,  <span class="st">&quot;SDPR&quot;</span>, <span class="st">&quot;PRS-CS&quot;</span>,<span class="st">&quot;OTTERS&quot;</span>))</span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(power_df_plot, <span class="fu">aes</span>(<span class="at">x =</span> He2, <span class="at">y =</span> <span class="fu">as.numeric</span>(Power),</span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>                          <span class="at">fill =</span> Method)) <span class="sc">+</span></span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.6</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.7</span>)) <span class="sc">+</span></span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>CausalProp, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">x =</span> <span class="fu">bquote</span>(h[e]<span class="sc">^</span><span class="dv">2</span>), <span class="at">title =</span> <span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">40</span>, <span class="at">face=</span><span class="st">&quot;bold&quot;</span>),</span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position=</span><span class="st">&quot;bottom&quot;</span>,</span>
-<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.box =</span> <span class="st">&quot;vertical&quot;</span>,</span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">face=</span><span class="st">&quot;bold&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Accent&quot;</span>)</span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">file.path</span>(Manu_dir,<span class="st">&quot;FigureS3.pdf&quot;</span>), <span class="at">width =</span> <span class="dv">16</span>, <span class="at">height =</span> <span class="dv">14</span>)</span></code></pre></div>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>  eva_power<span class="sc">$</span>Power <span class="ot">=</span> eva_power[, method]</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>  tab <span class="ot">=</span> eva_power <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Method =</span> method) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">CausalProp =</span> <span class="fu">paste0</span>(<span class="st">&quot;Causal Proportion=&quot;</span>, CausalProp), </span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>           <span class="at">He2 =</span> <span class="fu">factor</span>(He2, <span class="at">levels =</span> <span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>),</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(CausalProp, Method, Power, He2) </span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(tab)</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>power_df_plot <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">temp_tab</span>(<span class="st">&quot;SDPR&quot;</span>),</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">temp_tab</span>(<span class="st">&quot;PRScs&quot;</span>),</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">temp_tab</span>(<span class="st">&quot;PT(0.05)&quot;</span>),</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">temp_tab</span>(<span class="st">&quot;PT(0.001)&quot;</span>),</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">temp_tab</span>(<span class="st">&quot;Lassosum&quot;</span>),</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>                    res_tab)</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>power_df_plot<span class="sc">$</span>Method <span class="ot">=</span> <span class="fu">factor</span>(power_df_plot<span class="sc">$</span>Method,</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>                        <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;PT(0.001)&quot;</span>, <span class="st">&quot;PT(0.05)&quot;</span>,</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">&quot;Lassosum&quot;</span>, <span class="st">&quot;SDPR&quot;</span>, <span class="st">&quot;PRScs&quot;</span>, <span class="st">&quot;ACAT&quot;</span>),</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;P+T(0.001)&quot;</span>, <span class="st">&quot;P+T(0.05)&quot;</span>,</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">&quot;lassosum&quot;</span>,  <span class="st">&quot;SDPR&quot;</span>, <span class="st">&quot;PRS-CS&quot;</span>,<span class="st">&quot;OTTERS&quot;</span>))</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(power_df_plot, <span class="fu">aes</span>(<span class="at">x =</span> He2, <span class="at">y =</span> <span class="fu">as.numeric</span>(Power),</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>                          <span class="at">fill =</span> Method)) <span class="sc">+</span></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.6</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.7</span>)) <span class="sc">+</span></span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>CausalProp, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">x =</span> <span class="fu">bquote</span>(h[e]<span class="sc">^</span><span class="dv">2</span>), <span class="at">title =</span> <span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">40</span>, <span class="at">face=</span><span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position=</span><span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.box =</span> <span class="st">&quot;vertical&quot;</span>,</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">face=</span><span class="st">&quot;bold&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Accent&quot;</span>)</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">file.path</span>(Manu_dir,<span class="st">&quot;FigureS3.pdf&quot;</span>), <span class="at">width =</span> <span class="dv">16</span>, <span class="at">height =</span> <span class="dv">14</span>)</span></code></pre></div>
 </div>
 <div id="table-s1." class="section level2" number="1.6">
 <h2 number="1.6"><span class="header-section-number">1.6</span> Table S1.</h2>
@@ -782,10 +784,10 @@ div.tocify {
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>error_0<span class="fl">.01</span> <span class="ot">=</span> <span class="fu">get_error_tab</span>(<span class="fl">0.01</span>)</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>error_0<span class="fl">.0001</span> <span class="ot">=</span> <span class="fu">get_error_tab</span>(<span class="fl">0.0001</span>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>error_gw <span class="ot">=</span> <span class="fu">get_error_tab</span>(<span class="fl">2.56</span><span class="sc">*</span><span class="dv">10</span><span class="sc">^</span>(<span class="sc">-</span><span class="dv">6</span>))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>error_gw <span class="ot">=</span> <span class="fu">get_error_tab</span>(<span class="fl">2.5</span><span class="sc">*</span><span class="dv">10</span><span class="sc">^</span>(<span class="sc">-</span><span class="dv">6</span>))</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>eva_error <span class="ot">=</span> <span class="fu">cbind</span>(error_0<span class="fl">.01</span>, error_0<span class="fl">.0001</span>, error_gw)<span class="sc">/</span><span class="dv">10</span><span class="sc">^</span><span class="dv">6</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(eva_error) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;0.01&quot;</span>, <span class="st">&quot;0.0001&quot;</span>, <span class="st">&quot;2.56*10^(-6)&quot;</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(eva_error) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;0.01&quot;</span>, <span class="st">&quot;0.0001&quot;</span>, <span class="st">&quot;2.5*10^(-6)&quot;</span>)</span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">write.xlsx</span>(<span class="fu">data.frame</span>(eva_error), <span class="fu">file.path</span>(Manu_dir,<span class="st">&quot;TableS1.xlsx&quot;</span>), <span class="at">overwrite=</span> T)</span></code></pre></div>
 </div>
 <div id="figure-s4." class="section level2" number="1.7">
@@ -916,16 +918,16 @@ div.tocify {
 <span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="fu">write.xlsx</span>(<span class="fu">data.frame</span>(res), <span class="fu">file.path</span>(Manu_dir,<span class="st">&quot;Table1.xlsx&quot;</span>), <span class="at">overwrite=</span> T)</span>
 <span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="co"># # calculate improvement</span></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co"># vec = res[2,]</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co"># prscs = vec[1]</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co"># prop = function(num){</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   base = vec[num]</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a><span class="co">#   (prscs - base)/base</span></span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="co"># sapply(2:5, prop)</span></span></code></pre></div>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="co"># compare them</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>vec <span class="ot">=</span> res[<span class="dv">2</span>,]</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>prscs <span class="ot">=</span> vec[<span class="dv">1</span>]</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>prop <span class="ot">=</span> <span class="cf">function</span>(num){</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>  base <span class="ot">=</span> vec[num]</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>  (base <span class="sc">-</span> prscs)<span class="sc">/</span>prscs</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">5</span>, prop)</span></code></pre></div>
 </div>
 <div id="figure-s2." class="section level2" number="2.3">
 <h2 number="2.3"><span class="header-section-number">2.3</span> Figure S2.</h2>
@@ -1117,7 +1119,7 @@ div.tocify {
 <span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  anno <span class="ot">=</span> <span class="fu">rbind</span>(anno, anno_temp)</span>
 <span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(anno) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;CHR&quot;</span>, <span class="st">&quot;GeneStart&quot;</span>, <span class="st">&quot;GeneEnd&quot;</span>, <span class="st">&quot;ID&quot;</span>, <span class="st">&quot;GeneName&quot;</span>)</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(anno) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;CHR&quot;</span>, <span class="st">&quot;POS&quot;</span>, <span class="st">&quot;GeneEnd&quot;</span>, <span class="st">&quot;ID&quot;</span>, <span class="st">&quot;GeneName&quot;</span>)</span>
 <span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>TWAS <span class="ot">=</span> <span class="fu">merge</span>(TWAS_noID, anno, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;CHR&quot;</span>, <span class="st">&quot;ID&quot;</span>), <span class="at">all =</span> T)</span>
 <span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a></span>
@@ -1286,7 +1288,9 @@ div.tocify {
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">CHR =</span> <span class="fu">as.numeric</span>(CHR), <span class="at">POS =</span> <span class="fu">as.numeric</span>(POS)) <span class="sc">%&gt;%</span> </span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(CHR, POS)</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write.xlsx</span>(tab,</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>          <span class="fu">file.path</span>(Manu_dir, <span class="st">&quot;Table2.xlsx&quot;</span>))</span></code></pre></div>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>          <span class="fu">file.path</span>(Manu_dir, <span class="st">&quot;Table2.xlsx&quot;</span>))</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>full_res <span class="ot">=</span> <span class="fu">lapply</span>(full_methods, get_TWAS_sig_idp, <span class="at">res =</span> TWAS_final)</span></code></pre></div>
 </div>
 <div id="table-s2." class="section level2" number="3.3">
 <h2 number="3.3"><span class="header-section-number">3.3</span> Table S2.</h2>
