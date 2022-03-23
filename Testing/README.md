@@ -1,11 +1,12 @@
 Stage II: GReX imputation and gene-based association analysis 
 
 - [Format](#format)
-  - [PRS-CS](#prs-cs)
-  - [lassosum](#lassosum)
-  - [SDPR](#sdpr)
+    - [PRS-CS](#prs-cs)
+    - [lassosum](#lassosum)
+    - [SDPR](#sdpr)
 - [GReX imputation](#grex-imputation)
 - [Gene-based association test](#gene-based-association-test)
+- [Omnibus Test](#omnibus-test)
 
 
 # Format 
@@ -18,15 +19,15 @@ We used the [TIGAR](https://github.com/yanglab-emory/TIGAR) tool to impute GReX.
     |:---:|:--:|:--:|:--:|:--------:|:--:|
     |   1   | 100 |  C  |  T  |     ENSG0000    |  0.2 |
 
-## PRS-CS
+### PRS-CS
 
 The output eQTL weights of PRS-CS implemented in OTTERS are already in the TIGAR format. 
 
-## lassosum
+### lassosum
 
 The output eQTL weights of lassosum implemented in OTTERS are already in the TIGAR format.
 
-## SDPR
+### SDPR
 
  - Input:
 
@@ -84,7 +85,8 @@ ${TIGAR_dir}/TIGAR_TWAS.sh \
 [Here](https://github.com/yanglab-emory/TIGAR#3-twas) provides the detailed usage of using TIGAR to perform TWAS.
 
 
- 
+ # Omnibus Test
 
+After obtaining the TWAS p-values for the eQTL weights trained by each imputation model, we apply [ACAT-O](https://github.com/yaowuliu/ACAT) to combine the p-values based on different imputation models.  
 
     
