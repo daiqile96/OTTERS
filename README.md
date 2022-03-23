@@ -41,4 +41,4 @@ Notes:
   export OMP_NUM_THREADS=$N_THREADS
   ```
 
-- The scripts for generating all the Tables and Figures of the Manuscript can be found [here](Manuscript/FiguresAndTables.html). 
+- The scripts for generating all the Tables and Figures of the Manuscript can be found [here](https://htmlpreview.github.io/?https://github.com/daiqile96/OTTERS/blob/main/Manuscript/FiguresAndTables.html). 
