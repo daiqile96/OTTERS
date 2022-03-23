@@ -1,7 +1,5 @@
 # PRS-CS: A GReX imputation model infers posterior eQTL effect sizes under continuous shrinkage (CS) priors 
 
-***The PRS-CS implemented in OTTERS was based on the (PRS-CS software)[https://github.com/getian107/PRScs] developed by Tian et al. but prioritized for TWAS by allowing parallel computation. In OTTERS, we used tabix tool to efficiently extract the summary statistics and the LD reference for each target gene.*** 
-
 ## Example Data
 
 The example LD reference can be downloaded [here](https://www.dropbox.com/sh/7ubnuzamh45pwgs/AACKCL2CsTXIkbynLozVAzXna?dl=0).
