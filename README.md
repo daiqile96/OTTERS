@@ -10,7 +10,7 @@ Please refer to the following pages for manual of using each imputation model:
 
 - [SDPR](OTTERS/Imputation/SDPR/README.md)
 
-- [PRS-CS](OTTERS/Imputation/PRScs/README.md)
+- [PRS-CS](OTTERS/blob/main/Imputation/PRScs/README.md)
 
 
 Notes: 
