@@ -2,6 +2,10 @@
 
 A powerful TWAS framework leveraging summary-level reference data
 
+## Stage 0
+
+Please refer to [here](Preparation/README.md) to perform LD-clumping and generate inputs that required in the Stage I imputation models for target genes. 
+
 ## Stage I
 
 Stage I estimates eQTL weights from eQTL summary data and reference LD panel using four imputation models (P+T, lassosum, SDPR, PRS-CS)
