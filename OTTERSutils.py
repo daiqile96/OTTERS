@@ -8,6 +8,7 @@ import subprocess
 import sys
 import traceback
 
+
 from io import StringIO
 from scipy.stats import norm
 
@@ -35,6 +36,41 @@ import numpy as np
 # reformat_vcf
 # check_prep_vcf
 # substr_in_strarray
+
+#########################################################
+# Testing functions
+
+def check_path(path):
+    if os.path.isdir(path):
+        print(path + ' exists.')
+    else:
+        os.makedirs(path)    
+        print(path + ' created.')
+
+def call_PLINK_extract(bim_path, out_path, target, chr, start, end):
+
+    # save the range of the gene 
+    range = os.path.join(out_path, 'range.txt') 
+    print(range)
+    with open(range, 'w') as ff:
+        ff.write('%s\t%s\t%s\t%s\n' % (chr, start, end, target))
+
+    # extract the genotype data for this range
+    out_geno = os.path.join(out_path, target) 
+    cmd = ["plink --bfile "+bim_path+" --extract range "+range+" --make-bed --out "+ out_geno]
+    return cmd
+
+# extract_bim_cmd = call_PLINK(bim_path, "ZNF595", "4", "0", "188211")
+
+def call_PLINK_clump(bim_path, r2, pvalue_path, window = 1000, p = 1, snp_field = "snpID", p_field = "P"):
+    
+    cmd = ["plink --bfile "+bim_path+" --clump-p1 "+str(p)+" --clump-r2 "+str(r2)+ 
+           " --clump-kb "+str(window)+" --clump "+pvalue_path+
+           " --clump-snp-field "+snp_field+" --clump-field "+p_field+
+           " --out "+bim_path]
+
+    return cmd
+
 
 #########################################################
 
@@ -346,13 +382,13 @@ def MCOV_cols_dtype(file_cols, add_cols=[], drop_cols=[], get_id=True):
 def get_snpIDs(df: pd.DataFrame, flip=False):
     chroms = df['chrom'].astype('str').values
     pos = df['SNPPos'].astype('str').values
-    ref = df['A1'].values
-    alt = df['A2'].values
+    A1 = df['A1'].values
+    A2 = df['A2'].values
 
     if flip:
-        return [':'.join(i) for i in zip(pos,alt,ref)]
+        return ['_'.join(i) for i in zip(chroms,pos,A1,A2)]
     else:
-        return [':'.join(i) for i in zip(pos,ref,alt)]  
+        return ['_'.join(i) for i in zip(chroms,pos,A2,A1)]  
 
 def get_mapped_dict(df: pd.DataFrame, flip = True, map = False):
 
