@@ -21,8 +21,6 @@ from scipy.stats.distributions import chi2
 import numpy as np
 import pandas as pd
 
-import OTTERSutils as ot
-
 ############################################################
 # time calculation
 start_time = time()
@@ -30,9 +28,9 @@ start_time = time()
 ############################################################
 
 def parse_param():
-    long_opts_list = ['anno_dir=', 'b_dir=', 'sst_dir=', 'chrom=', 'r2=', 'window=', 'thread=', 'help']
+    long_opts_list = ['OTTERS_dir=', 'anno_dir=', 'b_dir=', 'sst_dir=', 'chrom=', 'r2=', 'window=', 'thread=', 'help']
 
-    param_dict = {'anno_dir=': None, 'sst_dir': None, 'chrom': None, 'r2': 0.99, 'window': 1000000, 'thread': 1}
+    param_dict = {'OTTERS_dir=': None, 'anno_dir=': None, 'sst_dir': None, 'chrom': None, 'r2': 0.99, 'window': 1000000, 'thread': 1}
 
     print('\n')
 
@@ -48,6 +46,7 @@ def parse_param():
             if opt == "-h" or opt == "--help":
                 print(__doc__)
                 sys.exit(0)
+            elif opt == "--OTTERS_dir": param_dict['OTTERS_dir'] = arg
             elif opt == "--anno_dir": param_dict['anno_dir'] = arg
             elif opt == "--b_dir": param_dict['b_dir'] = arg
             elif opt == "--sst_dir": param_dict['sst_dir'] = arg
@@ -59,7 +58,10 @@ def parse_param():
         print(__doc__)
         sys.exit(0)
 
-    if param_dict['anno_dir'] == None:
+    if param_dict['OTTERS_dir'] == None:
+        print('* Please specify the directory to OTTERS --OTTERS_dir\n')
+        sys.exit(2)
+    elif param_dict['anno_dir'] == None:
         print('* Please specify the directory to the gene annotation file using --anno_dir\n')
         sys.exit(2)
     elif param_dict['b_dir'] == None:
@@ -81,12 +83,13 @@ def parse_param():
 ############################################################
 
 param_dict = parse_param()
-
+sys.path.append(param_dict['OTTERS_dir'])
+import OTTERSutils as ots
 chr= param_dict['chrom']
 
 print('Reading header of gene annotation file.\n')
-exp_cols = ot.get_header(param_dict['anno_dir'])
-e_cols_ind, e_dtype = ot.exp_cols_dtype(exp_cols)
+exp_cols = ots.get_header(param_dict['anno_dir'])
+e_cols_ind, e_dtype = ots.exp_cols_dtype(exp_cols)
 
 print('Reading gene annotation data.\n')
 anno_chunks = pd.read_csv(
@@ -102,7 +105,7 @@ GeneAnno = pd.concat([x[x['CHROM']==chr] for x in anno_chunks]).reset_index(drop
 if GeneAnno.empty:
     raise SystemExit('There are no valid gene annotation data for chromosome ' + chr + '\n')
 
-GeneAnno = ot.optimize_cols(GeneAnno) 
+GeneAnno = ots.optimize_cols(GeneAnno) 
 
 TargetID = GeneAnno.TargetID 
 n_targets = TargetID.size 
@@ -120,7 +123,7 @@ target_medianN = os.path.join(param_dict['b_dir'], 'CHR'+chr, 'medianN.txt')
 
 ############################################################
 
-@ot.error_handler
+@ots.error_handler
 def thread_process(num):
     
     target = TargetID[num]
@@ -136,8 +139,8 @@ def thread_process(num):
     
     # set output path of the target gene 
     target_b_dir = os.path.join(param_dict['b_dir'], 'CHR'+chr, target)
-    ot.check_path(target_b_dir)
-    extract_cmd = ot.call_PLINK_extract(b_chr, target_b_dir, target, chr, start, end)
+    ots.check_path(target_b_dir)
+    extract_cmd = ots.call_PLINK_extract(b_chr, target_b_dir, target, chr, start, end)
 
     try:
         proc = subprocess.check_call(extract_cmd, 
@@ -151,7 +154,7 @@ def thread_process(num):
     ################# eQTL summary statistics #####################
     print('Reading eQTL summary statistics data.')
 
-    sst_proc_out = ot.call_tabix(param_dict['sst_dir'], chr, start, end)
+    sst_proc_out = ots.call_tabix(param_dict['sst_dir'], chr, start, end)
 
     if not sst_proc_out:
         print('There is no summary statistics data for the range of ' + target + '\n')
@@ -185,8 +188,8 @@ def thread_process(num):
 
     target_ref = pd.concat([chunk for chunk in ref_chunks]).reset_index(drop=True)
 
-    target_sst['snpID'] = ot.get_snpIDs(target_sst, flip=False)
-    target_sst['snpIDflip'] = ot.get_snpIDs(target_sst, flip=True)
+    target_sst['snpID'] = ots.get_snpIDs(target_sst, flip=False)
+    target_sst['snpIDflip'] = ots.get_snpIDs(target_sst, flip=True)
 
 
     snp_overlap = np.intersect1d(target_ref.snpID, target_sst[['snpID','snpIDflip']])
@@ -230,7 +233,7 @@ def thread_process(num):
 		mode='w')
     
     target_b = os.path.join(target_b_dir, target)
-    clump_cmd = ot.call_PLINK_clump(target_b, param_dict['r2'], target_p)
+    clump_cmd = ots.call_PLINK_clump(target_b, param_dict['r2'], target_p)
 
     try:
         proc = subprocess.check_call(clump_cmd, 
@@ -292,5 +295,5 @@ if __name__ == '__main__':
 ############################################################
 # time calculation
 elapsed_sec = time()-start_time
-elapsed_time = ot.format_elapsed_time(elapsed_sec)
+elapsed_time = ots.format_elapsed_time(elapsed_sec)
 print('Computation time (DD:HH:MM:SS): ' + elapsed_time)
