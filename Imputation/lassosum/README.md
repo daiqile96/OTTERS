@@ -19,7 +19,7 @@ Rscript OTTERS_lassosum.R --medianN_path=PATH_TO_medianN --LDblocks=LD_BLOCKS --
 
   - SST_DIR: The directory of summary statistics of standardized beta for the target gene. The summary statitistics is assumed to be in this format:
    
-    | SNP       	| A1 	| A2 	| Beta      |
+    | SNP       	| A1 	| A2 	| Beta    |
     |-----------	|----	|----	|--------	|
     | rs737657  	| A  	| G  	| -2.044 	|
     | rs7086391 	| T  	| C  	| -2.257 	|
