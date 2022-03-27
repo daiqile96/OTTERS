@@ -35,7 +35,7 @@ python OTTERS_PRScs.py --anno_dir=PATH_TO_ANNO --ld_dir=PATH_TO_LD --clumped_dir
     |:-----:|:---:|:---:|:---:|:------:|:-----------:|:-:|
     |   1   | 100 |  C  |  T  |   3    |   ENSG0000  |  0.2 |
 
- - OUTPUT_DIR: Output directory and output filename prefix of the posterior effect size estimates.
+ - OUTPUT_DIR: Output directory and output filename prefix.
 
  - CHROM: An integer for the chromosome of tested genes.  
 
