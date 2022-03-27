@@ -15,8 +15,8 @@ We first outputs from PRS-CS, SDPR, P+T and lassosum to TIGAR eQTL weights forma
 
 We used the [TIGAR](https://github.com/yanglab-emory/TIGAR) tool to impute GReX. The TIGAR tool requires the eQTL weights to be in the format as:
 
-    | CHROM | POS | REF | ALT |     TargetID    |  ES  |
-    |:---:|:--:|:--:|:--:|:--------:|:--:|
+  - | CHROM | POS | REF | ALT |     TargetID    |  ES  |
+    |:-----:|:---:|:---:|:---:|:---------------:|:----:|
     |   1   | 100 |  C  |  T  |     ENSG0000    |  0.2 |
 
 ### PRS-CS
