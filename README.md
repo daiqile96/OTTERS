@@ -1,31 +1,26 @@
-# OTTERS: Omnibus Transcriptome Test using Expression Reference Summary data
+# OTTERS: **O**mnibus **T**ranscriptome **T**est using **E**xpression **R**eference **S**ummary data
 
-A powerful TWAS framework leveraging summary-level reference data
+![OTTERS Framework](Manuscript/F1.pdf)
 
-## Stage 0
+A powerful TWAS framework leveraging summary-level reference data. (***We are still working on updating the tool and all manuals.***)
 
-Please refer to [here](Preparation/README.md) to perform LD-clumping and generate inputs that required in the Stage I imputation models for target genes. 
+## Prepare eQTL summary statistics and LD reference data. 
+
+In OTTERS, we adapted four polegenetic risk score (PRS) methods(P+T, lassosum, SDPR, PRS-CS) as the GReX imputation model in Stage I. The tools implementing these methods were designed for PRS calculation, and also have different requirements for input files. Please refer to [here](Preparation/README.md) to see the required inputs for each method. 
 
 ## Stage I
 
-Stage I estimates eQTL weights from eQTL summary data and reference LD panel using four imputation models (P+T, lassosum, SDPR, PRS-CS)
+We provide an [integrated tool](Imputation/README.md) that can 
+ - 1. perform LD-clumping 
+ - 2. prepare the required inputs (LD reference and eQTL summary statistics) in the required formats for P+T, lassosum, SDPR, and PRS-CS
+ - 3. perform P+T, lassosum, and SDPR 
+In this tool, we integrate [TABIX](http://www.htslib.org/doc/tabix.html) and [PLINK 1.9](https://www.cog-genomics.org/plink) tools to extract input data per target gene more efficiently, and enable parallel computation to train imputation models simultaneously for multiple genes.
 
-Please refer to the following pages for manual of using each imputation model:
-
-- [P+T](Imputation/P+T/README.md)
-
-- [lassosum](Imputation/lassosum/README.md)
-
-- [SDPR](Imputation/SDPR/README.md)
-
-- [PRS-CS](Imputation/PRScs/README.md)
-
+PRS-CS usually requires more memory and time to run. So we provide a seperate tool to perform PRS-CS simultaneously for multiple genes. Please see the manual [here](Imputation/PRScs/README.md) to perform PRS-CS.
 
 ## Stage II
 
 In Stage II, we impute the respective GReX using each method in Stage I and perform the respective gene-based association analysis in the test GWAS dataset. In this stage, we applied the [TIGAR tool](https://github.com/yanglab-emory/TIGAR) to perform GReX imputation and gene-based association analysis. 
-
- - [Format output eQTL weights](https://github.com/daiqile96/OTTERS/tree/main/Testing#format)
   
  - [GRex Imputation](https://github.com/daiqile96/OTTERS/tree/main/Testing#grex-imputation)
   
@@ -35,7 +30,7 @@ In Stage II, we impute the respective GReX using each method in Stage I and perf
 
 Notes:
 
-- The PRS-CS implemented in OTTERS was based on the [PRS-CS software](https://github.com/getian107/PRScs) but prioritized for TWAS. In OTTERS-PRS-CS, we use [tabix](http://www.htslib.org/doc/tabix.html) tool to efficiently extract the summary statistics and the LD reference for each target gene and allow parallel computation for multiple genes. For P+T, SDPR, and lassosum, currently we provide the manual of using [PLINK 1.9](https://www.cog-genomics.org/plink), [lassosum](https://github.com/tshmak/lassosum), and [SDPR](https://github.com/eldronzhou/SDPR) to train eQTL weights. The python script prioritizing these softwares for TWAS will be available soon. We appreciate the authors of these softwares. 
+- The PRS-CS, SDPR, and lassosum implemented in OTTERS are based on [PRS-CS software](https://github.com/getian107/PRScs), [lassosum R package](https://github.com/tshmak/lassosum), and [SDPR software](https://github.com/eldronzhou/SDPR). We really appreciate the authors of these softwares. 
 
 - When run ***SDPR*** and ***PRS-CS***, please use the following commands to prevent automatically using  all available cores on a compute node:
 
