@@ -1,55 +1,27 @@
 Stage II: GReX imputation and gene-based association analysis 
 
-- [Format](#format)
-    - [PRS-CS](#prs-cs)
-    - [lassosum](#lassosum)
-    - [SDPR](#sdpr)
+- [Sort, Bgzip and Tabix the estimated eQTL weights](#sort-bgzip-and-tabix-the-estimated-eqtl-weights)
 - [GReX imputation](#grex-imputation)
 - [Gene-based association test](#gene-based-association-test)
 - [Omnibus Test](#omnibus-test)
 
 
-# Format 
+# Sort, Bgzip and Tabix the estimated eQTL weights
 
-We first outputs from PRS-CS, SDPR, P+T and lassosum to TIGAR eQTL weights format.
-
-We used the [TIGAR](https://github.com/yanglab-emory/TIGAR) tool to impute GReX. The TIGAR tool requires the eQTL weights to be in the format as:
-
-  - | CHROM | POS | REF | ALT |     TargetID    |  ES  |
-    |:-----:|:---:|:---:|:---:|:---------------:|:----:|
-    |   1   | 100 |  C  |  T  |     ENSG0000    |  0.2 |
-
-### PRS-CS
-
-The output eQTL weights of PRS-CS implemented in OTTERS are already in the TIGAR format. 
-
-### lassosum
-
-The output eQTL weights of lassosum implemented in OTTERS are already in the TIGAR format.
-
-### SDPR
-
- - Input:
-
-   - MedianN
-
-   - BIM_DIR(SDPR_OUTPUT_DIR)
-
-   - OUT_DIR
+We take the estimated eQTL weights from SDPR as an example:
 
  - Example 
 
     ```bash
     # Format SDPR results.
-    FORMAT=${OUT_DIR}/CHR${chr}_SDPR_formatted.txt
-    Rscript ${OTTERS_DIR}/Testing/format_SDPR.R ${CHR} ${MedianN} ${BIM} ${FORMAT}
+    RAW=${OUT_DIR}/SDPR.txt
 
     # SORT, BGZIP, and TABIX the formatted results
-    SORT=${OUT_DIR}/CHR${chr}_SDPR_sort.txt
+    SORT=${OUT_DIR}/SDPR_sort.txt
 
     echo -e "CHROM\tPOS\tALT\tREF\tTargetID\tES" > ${SORT}
     echo Sorting.
-    sort -n -k1 -k2 ${FORMAT} >> ${SORT}
+    sort -n -k1 -k2 ${RAW} >> ${SORT}
     echo Done sorting.
 
     echo Bgzipping.

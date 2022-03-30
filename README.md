@@ -1,6 +1,6 @@
 # OTTERS: **O**mnibus **T**ranscriptome **T**est using **E**xpression **R**eference **S**ummary data
 
-![OTTERS Framework](Manuscript/F1.pdf)
+![OTTERS Framework](/Manuscript/F1.pdf)
 
 A powerful TWAS framework leveraging summary-level reference data. (***We are still working on updating the tool and all manuals.***)
 
@@ -11,9 +11,9 @@ In OTTERS, we adapted four polegenetic risk score (PRS) methods(P+T, lassosum, S
 ## Stage I
 
 We provide an [integrated tool](Imputation/README.md) that can 
- - 1. perform LD-clumping 
- - 2. prepare the required inputs (LD reference and eQTL summary statistics) in the required formats for P+T, lassosum, SDPR, and PRS-CS
- - 3. perform P+T, lassosum, and SDPR 
+ -  perform LD-clumping 
+ -  prepare the required inputs (LD reference and eQTL summary statistics) in the required formats for P+T, lassosum, SDPR, and PRS-CS
+ -  perform P+T, lassosum, and SDPR 
 In this tool, we integrate [TABIX](http://www.htslib.org/doc/tabix.html) and [PLINK 1.9](https://www.cog-genomics.org/plink) tools to extract input data per target gene more efficiently, and enable parallel computation to train imputation models simultaneously for multiple genes.
 
 PRS-CS usually requires more memory and time to run. So we provide a seperate tool to perform PRS-CS simultaneously for multiple genes. Please see the manual [here](Imputation/PRScs/README.md) to perform PRS-CS.
@@ -32,7 +32,7 @@ Notes:
 
 - The PRS-CS, SDPR, and lassosum implemented in OTTERS are based on [PRS-CS software](https://github.com/getian107/PRScs), [lassosum R package](https://github.com/tshmak/lassosum), and [SDPR software](https://github.com/eldronzhou/SDPR). We really appreciate the authors of these softwares. 
 
-- When run ***SDPR*** and ***PRS-CS***, please use the following commands to prevent automatically using  all available cores on a compute node:
+- When run SDPR and PRS-CS, please use the following commands to prevent automatically using  all available cores on a compute node:
 
   ```bash
   export MKL_NUM_THREADS=$N_THREADS
