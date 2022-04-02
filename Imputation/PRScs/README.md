@@ -1,43 +1,43 @@
 # PRS-CS: A GReX imputation model infers posterior eQTL effect sizes under continuous shrinkage (CS) priors 
 
-## Example Data
-
-The example LD reference can be downloaded [here](https://www.dropbox.com/sh/7ubnuzamh45pwgs/AACKCL2CsTXIkbynLozVAzXna?dl=0).
-Other example input files provided under `./Example/`.
+<!-- ## Example Data -->
 
 ## Usage:
-python OTTERS_PRScs.py --anno_dir=PATH_TO_ANNO --ld_dir=PATH_TO_LD --clumped_dir=PATH_TO_CLUMPED --sst_file=SUM_STATS_FILE --out_dir=OUTPUT_DIR --chrom=CHROM
+python OTTERS_PRScs.py --OTTERS_dir=PATH_TO_OTTERS --N_path=PATH_TO_N --ld_dir=PATH_TO_LD --sst_file=SUM_STATS_FILE --out_dir=OUTPUT_DIR --chrom=CHROM
                 [--window=WINDOW_SIZE --a=PARAM_A --b=PARAM_B --phi=PARAM_PHI --n_iter=MCMC_ITERATIONS --n_burnin=MCMC_BURNIN --thin=MCMC_THINNING_FACTOR --thread=THREAD --seed=SEED]
                 
  - PATH_TO_OTTERS: The directory of OTTERS source code
 
- - PATH_TO_ANNO: Full path and the file name of the gene annotation file. The annotation file is assumed to be in this format:
+ - PATH_TO_N: Full path and the file name of the gene sample size file. The sample size file is assumed to be in this format:
 
-    | CHROM | GeneStart | GeneEnd |     TargetID    | GeneName | 
-    |:-----:|:---------:|:-------:|:---------------:|:--------:|
-    |   1   |    100    |   200   |     ENSG0000    |     X    |
+    |     TargetID    |   N  | 
+    |:---------------:|:----:|
+    |     ENSG0000    | 10000|
 
- - PATH_TO_LD:  Full path and the file name of the LD reference file. The LD reference Data is assumed to be generated using the [TIGAR] tool.
-                Please refer [here](https://github.com/yanglab-emory/TIGAR/blob/master/README.md#4-generate-reference-ld-genotype-covariance-files) for more guidance on generating the LD reference matrix. 
+ - PATH_TO_LD:  Full path and the file name of the LD reference file. The LD reference Data is assumed to be generated using OTTERS.
+                Please refer [here](../../LD/README.md) for more guidance on generating the LD reference matrix. 
 
- - PATH_TO_CLUMPED: Full path and the file name of the clumped eQTL file. 
-                    If not be provided, all the eQTLs in the eQTL summary statistics for the target gene will be used, 
-                    i.e, no clumping will be performed.
-                    The annotation file is assumed to be in this format:
+ - SUM_STATS_FILE: The directory of summary statistics. For gene ENSG0000, the full path of the summary statistics should be SUM_STATS_FILE/ENSG0000/ENSG0000_beta.txt. The summary statistics should in this format:
 
-    | CHROM | POS | REF | ALT |     TargetID    |  ES  |
-    |:-----:|:---:|:---:|:---:|:---------------:|:----:|
-    |   1   | 100 |  C  |  T  |     ENSG0000    |  0.2 |
-
- - SUM_STATS_FILE: Full path and the file name of the summary statistics. 
-
-    | CHROM | POS | REF | ALT | Zscore |  TargetID   | N |
-    |:-----:|:---:|:---:|:---:|:------:|:-----------:|:-:|
-    |   1   | 100 |  C  |  T  |   3    |   ENSG0000  |  0.2 |
+    |    SNP     | A1  | A2  |  Beta  |
+    |:----------:|:---:|:---:|:------:|
+    | 1_1000_T_C | 100 |  C  |   0.2  |
 
  - OUTPUT_DIR: Output directory and output filename prefix.
 
  - CHROM: An integer for the chromosome of tested genes.  
+
+ - PATH_TO_OTTERS: The directory of OTTERS source code
+
+ - PATH_TO_N: Full path and the file name of the gene sample size file.
+
+ - PATH_TO_LD:  Full path and the file name of the LD reference file.
+
+ - SUM_STATS_FILE: Full path and the file name of the summary statistics.
+
+ - OUTPUT_DIR: Output directory and output filename prefix of the posterior effect size estimates.
+
+ - CHROM: An integer for the chromosome of tested genes.
 
  - WINDOW (optional): Window size (in base pairs) around gene region from which to include SNPs (default: 1000000 [+- 1MB region around gene region])
 
@@ -55,13 +55,14 @@ python OTTERS_PRScs.py --anno_dir=PATH_TO_ANNO --ld_dir=PATH_TO_LD --clumped_dir
  - MCMC_BURNIN (optional): Number of burnin iterations. Default is 500.
 
  - MCMC_THINNING_FACTOR (optional): Thinning of the Markov chain. Default is 5.
- 
+
  - THREAD (optional): Number of simultaneous processes to use for parallel computation. Default is 1.
 
  - SEED (optional): Non-negative integer which seeds the random number generator.
 
 
-## Example:
+
+<!-- ## Example:
 
 ```bash
 cd ${OTTERS_dir}/Example
@@ -78,4 +79,4 @@ python3 ${OTTERS_dir}/PRScs/OTTERS_PRScs.py \
 --window=1000000 \
 --thread=1 \
 --seed=20210522  \
-```
+``` -->
