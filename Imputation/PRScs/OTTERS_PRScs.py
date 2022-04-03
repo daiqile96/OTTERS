@@ -7,7 +7,7 @@ using eQTL summary statistics and an external LD reference panel.
 Usage:
 python OTTERS_PRScs.py --OTTERS_dir=PATH_TO_OTTERS --N_path=PATH_TO_N --ld_dir=PATH_TO_LD --sst_file=SUM_STATS_FILE --out_dir=OUTPUT_DIR --chrom=CHROM
                 [--window=WINDOW_SIZE --a=PARAM_A --b=PARAM_B --phi=PARAM_PHI --n_iter=MCMC_ITERATIONS --n_burnin=MCMC_BURNIN --thin=MCMC_THINNING_FACTOR --thread=THREAD --seed=SEED]
- 
+
  - PATH_TO_OTTERS: The directory of OTTERS source code
 
  - PATH_TO_N: Full path and the file name of the gene sample size file.
@@ -36,7 +36,7 @@ python OTTERS_PRScs.py --OTTERS_dir=PATH_TO_OTTERS --N_path=PATH_TO_N --ld_dir=P
  - MCMC_BURNIN (optional): Number of burnin iterations. Default is 500.
 
  - MCMC_THINNING_FACTOR (optional): Thinning of the Markov chain. Default is 5.
- 
+
  - THREAD (optional): Number of simultaneous processes to use for parallel computation. Default is 1.
 
  - SEED (optional): Non-negative integer which seeds the random number generator.
@@ -174,8 +174,9 @@ GeneN = pd.concat([x[x['CHROM'] == param_dict['chrom']] for x in N_chunks]).rese
 if GeneN.empty:
     raise SystemExit('There are no valid sample size data for chromosome ' + param_dict['chrom'] + '\n')
 
-TargetID = GeneAnno.TargetID
+TargetID = GeneN.TargetID
 n_targets = TargetID.size
+N = GeneN.N
 
 
 ############################################################
@@ -184,6 +185,7 @@ n_targets = TargetID.size
 def thread_process(num):
     print('Reading eQTL summary statistics data.')
     target = TargetID[num]
+    target_n = N[num]
     print('num=' + str(num) + '\nTargetID=' + target)
 
     # extract summary statistics and reference LD matrix for the gene
@@ -220,7 +222,7 @@ def thread_process(num):
         try:
             target_sst['ES'] = mcmc_gtb.mcmc(a=param_dict['a'], b=param_dict['b'],
                                              phi=param_dict['phi'],
-                                             sst_dict=target_sst, n=N,
+                                             sst_dict=target_sst, n=target_n,
                                              ld_blk=V_cov,
                                              blk_size=blk_size,
                                              n_iter=param_dict['n_iter'],
