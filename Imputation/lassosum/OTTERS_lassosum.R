@@ -85,7 +85,7 @@ out <- lassosum.pipeline(cor=cor,
                          ref.bfile = bfile, # The reference panel dataset
                          test.bfile = bfile, # We don't have test data here
                          LDblocks = argsL$LDblocks,
-                         exclude.ambiguous = T,
+                         exclude.ambiguous = F,
                          destandardize = F,
                          trace = 0)
 
