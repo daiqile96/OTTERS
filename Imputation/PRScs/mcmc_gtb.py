@@ -45,6 +45,7 @@ def mcmc(a, b, phi, sst_dict, n, ld_blk, blk_size, n_iter, n_burnin, thin, seed)
         idx_blk = range(0,blk_size)
         dinvt = ld_blk+sp.diag(1.0/psi[idx_blk].T[0])
         dinvt_chol = linalg.cholesky(dinvt)
+
         beta_tmp = linalg.solve_triangular(dinvt_chol, beta_mrg[idx_blk], trans='T') + sp.sqrt(sigma/n)*random.randn(len(idx_blk),1)
         beta[idx_blk] = linalg.solve_triangular(dinvt_chol, beta_tmp, trans='N')
         quad += sp.dot(sp.dot(beta[idx_blk].T, dinvt), beta[idx_blk])
