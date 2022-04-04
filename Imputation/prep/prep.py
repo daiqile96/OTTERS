@@ -3,10 +3,10 @@
 """
 
 Usage:
-python OTTERS_imputation.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PATH_TO_GENO --sst_dir=PATH_TO_SST --out_dir=OUTPUT_DIR --chrom=CHROM 
+python prep.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PATH_TO_GENO --sst_dir=PATH_TO_SST --out_dir=OUTPUT_DIR --chrom=CHROM 
        [--r2=R2 --window=WINDOW --thread=THREAD --help]
-                
- - OTTERS_DIR: The directory of OTTERS source code
+
+ - PATH_TO_OTTERS: The directory of OTTERS source code
 
  - PATH_TO_ANNO: Full path and the file name of the gene annotation file. The annotation file is assumed to be in this format:
 
@@ -47,6 +47,8 @@ import numpy as np
 import pandas as pd
 import shutil
 
+from scipy.stats.distributions import chi2
+
 
 ############################################################
 # time calculation
@@ -61,7 +63,7 @@ def parse_param():
                       'sst_dir=', 'out_dir=', 'chrom=', 'r2=',
                       'window=', 'thread=', 'help']
 
-    param_dict = {'OTTERS_dir=': None, 'anno_dir=': None,
+    param_dict = {'OTTERS_dir': None, 'anno_dir': None,
                   'b_dir': None, 'sst_dir': None, 'out_dir': None, 'chrom': None,
                   'r2': 2, 'window': 1000000, 'thread': 1}
 
@@ -132,9 +134,12 @@ param_dict = parse_param()
 sys.path.append(param_dict['OTTERS_dir'])
 import OTTERSutils as ots
 
+# set chrom and paths
 chr = param_dict['chrom']
+b_dir = param_dict['b_dir']
+out_dir = param_dict['out_dir']
 
-print('Reading gene annotation data on chromosome ' + chr)
+print('Reading gene annotation data on chromosome ' + chr + '...')
 anno_chunks = pd.read_csv(
     param_dict['anno_dir'],
     sep='\t',
@@ -143,7 +148,6 @@ anno_chunks = pd.read_csv(
     iterator=True,
     dtype={'CHROM': object,
         'GeneEnd': np.int64,
-        'GeneName': object,
         'GeneStart': np.int64,
         'TargetID': object})
 
@@ -157,7 +161,7 @@ TargetID = GeneAnno.TargetID
 n_targets = TargetID.size
 
 # create output file for median eQTL sample size for each gene
-target_medianN = os.path.join(param_dict['out_dir'], 'medianN.txt')
+target_medianN = os.path.join(out_dir, 'medianN.txt')
 medianN_cols = ['CHROM', 'TargetID', 'N']
 pd.DataFrame(columns=medianN_cols).to_csv(
     target_medianN,
@@ -181,42 +185,42 @@ def thread_process(num):
 
     ################# PLINK Binary Files #####################
 
-    print('Making PLINK binary files for the target gene')
+    print('Making PLINK binary files for the target gene...')
 
     # set output path of the target gene
-    target_b_dir = os.path.join(param_dict['out_dir'], target)
-    ots.check_path(target_b_dir)
+    target_dir = os.path.join(out_dir, target)
+    ots.check_path(target_dir)
 
     # generate command to call PLINK to extract the binary file for the target gene
-    extract_cmd = ots.call_PLINK_extract(param_dict['b_dir'], target_b_dir, target, chr, start, end)
+    extract_cmd = ots.call_PLINK_extract(b_dir, target_dir, target, chr, start, end)
 
     try:
         proc = subprocess.check_call(extract_cmd,
                                      stdout=subprocess.PIPE,
-                                     shell=True,
-                                     bufsize=1)
-        print('Done making binary files')
+                                     shell=True)
+        print('Done making binary files.')
     except subprocess.CalledProcessError:
         print('There is no genotype data for TargetID: ' + target)
-        shutil.rmtree(target_b_dir)
+        print('Remove binary files for TargetID: ' + target + '.\n')
+        shutil.rmtree(target_dir)
         return None
 
     ################# eQTL summary statistics #####################
 
-    print('Reading eQTL summary statistics data.')
+    print('Reading eQTL summary statistics data...')
 
     sst_proc_out = ots.call_tabix(param_dict['sst_dir'], chr, start, end)
 
     if not sst_proc_out:
-        print('There is no summary statistics data for the range of ' + target + '\n')
+        print('There is no summary statistics data for the range of ' + target)
         print('Remove binary files for TargetID: ' + target + '.\n')
-        shutil.rmtree(target_b_dir)
+        shutil.rmtree(target_dir)
         return None
 
     sst_chunks = pd.read_csv(StringIO(sst_proc_out.decode('utf-8')), sep='\t',
                              low_memory=False,
                              header=None,
-                             names=["CHROM", "POS", "SNP", "A1", "A2", "Z", "P", "TargetID", "Gene", "NrSamples"],
+                             names=["CHROM", "POS", "A1", "A2", "Z", "TargetID", "N"],
                              iterator=True,
                              chunksize=1000,
                              dtype={'P': np.float64, 'NrSamples': np.int32})
@@ -226,24 +230,30 @@ def thread_process(num):
     if len(target_sst) == 0:
         print('There is no summary statistics data for TargetID: ' + target)
         print('Remove binary files for TargetID: ' + target + '.\n')
-        shutil.rmtree(target_b_dir)
+        shutil.rmtree(target_dir)
         return None
 
-    print('Check overlap between eQTL summary stat and LD reference.')
-
+    print('Check overlap between eQTL summary stat and LD reference...')
     # read in snps in LD reference panel
-    target_bim = os.path.join(target_b_dir, target + '.bim')
+    target_bim = os.path.join(target_dir, target + '.bim')
     ref_chunks = pd.read_csv(target_bim, sep='\t',
                              low_memory=False,
                              header=None,
                              names=["CHROM", "SNP", "bp", "POS", "A1", "A2"],
                              iterator=True,
                              chunksize=1000,
-                             usecols=["CHROM", "POS", "A1", "A2"])
-
+                             usecols=["CHROM", "POS", 'bp', "A1", "A2"])
     target_ref = pd.concat([chunk for chunk in ref_chunks]).reset_index(drop=True)
 
+    print('Formatting SNP ID in LD reference bim file...')
     target_ref['snpID'] = ots.get_snpIDs(target_ref, flip=False)
+    target_ref[['CHROM', 'snpID', 'bp', 'POS', 'A1', 'A2']].to_csv(
+        target_bim,
+        sep='\t',
+        index=None,
+        header=None,
+        mode='w')
+
     target_sst['snpID'] = ots.get_snpIDs(target_sst, flip=False)
     target_sst['snpIDflip'] = ots.get_snpIDs(target_sst, flip=True)
 
@@ -252,10 +262,10 @@ def thread_process(num):
     if not snp_overlap.size:
         print('No overlapping test eQTLs between eQTL summary statistics and LD reference panel for TargetID: ' + target)
         print('Remove binary files for TargetID: ' + target + '.\n')
-        shutil.rmtree('target_b_dir')
+        shutil.rmtree(target_dir)
         return None
     else:
-        print('%s overlapped eQTLs' % (len(snp_overlap)))
+        print('Find %s overlapped eQTLs' % (len(snp_overlap)))
 
     # filter out non-matching snpID rows
     target_sst = target_sst[np.any(target_sst[['snpID', 'snpIDflip']].isin(snp_overlap), axis=1)].reset_index(drop=True)
@@ -270,17 +280,18 @@ def thread_process(num):
 
     ################# Calculate median sample size ####################
 
-    print('Calculate median sample size of eQTLs')
-    median_N = np.nanmedian(target_sst['NrSamples'])
+    print('Calculate median sample size of eQTLs...')
+    median_N = np.nanmedian(target_sst['N'])
 
     with open(target_medianN, 'a') as ff:
         ff.write('%s\t%s\t%d\n' % (chr, target, median_N))
 
     ################# LD clumping #############################
-    print('Perform LD clumping')
+    print('Perform LD clumping...')
 
     # generate summary statistics of p-value to perform LD-clumping
-    target_p = os.path.join(target_b_dir, target+'.pvalue')
+    target_sst['P'] = chi2.sf(np.power(target_sst['Z'], 2), 1)
+    target_p = os.path.join(target_dir, target + '.pvalue')
     target_sst[['snpID', 'A1', 'A2', 'P']].to_csv(
         target_p,
         sep='\t',
@@ -288,27 +299,21 @@ def thread_process(num):
         header=True,
         mode='w')
 
-    # set the path and prefix of the PLINK binary genotype files of the target gene
-    target_b = os.path.join(target_b_dir, target)
-
     # use call_PLINK_clump to generate command to call PLINK to perform LD-clumping 
-    # required input: 
-    # path_to_binary_reference_genotype=target_b, clumping_r2_threshold=r2, path_to_summary_stat_pvalue=target_p
-    # output: os.path.join(target_b_dir, target+'.clumped')
-    clump_cmd = ots.call_PLINK_clump(target_b, param_dict['r2'], target_p)
+    clump_cmd = ots.call_PLINK_clump(target, param_dict['r2'], target_p)
 
     try:
         proc = subprocess.check_call(clump_cmd,
                                      stdout=subprocess.PIPE,
-                                     shell=True,
-                                     bufsize=1)
-        print('Done Clumping')
+                                     cwd=target_dir,
+                                     shell=True)
+        print('Done LD Clumping.')
     except subprocess.CalledProcessError:
-        print('Clumping Failed for TargetID: ' + target + '\n')
+        print('LD Clumping Failed for TargetID: ' + target + '\n')
         return None
 
     # read in remaining eQTLs after LD-clumping
-    target_clumped = os.path.join(target_b_dir, target+'.clumped')
+    target_clumped = os.path.join(target_dir, target + '.clumped')
     with open(target_clumped) as file_in:
         lines = []
         clumped_snp = []
@@ -324,20 +329,20 @@ def thread_process(num):
 
     ################# Prepare Input Summary Statistics for Imputation Models #############################
 
-    print('Start prepare input summary statistics')
+    print('Start prepare input summary statistics...')
 
     # Prepare Zscore input for SDPR
-    target_zscore = os.path.join(target_b_dir, target+'_Zscore.txt')
+    target_zscore = os.path.join(target_dir, target+'_Zscore.txt')
     target_sst[['snpID', 'A1', 'A2', 'Z']].to_csv(
         target_zscore,
         sep='\t',
         index=None,
         header=['SNP', "A1", "A2", "Z"],
         mode='w')
-    print('Done generating Zscore')
+    print('Done generating Zscore.')
 
     # Prepare the standardized beta input for lassosum and P+T
-    target_beta = os.path.join(target_b_dir, target+'_beta.txt')
+    target_beta = os.path.join(target_dir, target+'_beta.txt')
     target_sst['Beta'] = target_sst['Z']/np.sqrt(median_N)
     target_sst[['snpID', 'A1', 'A2', 'Beta']].to_csv(
         target_beta,
@@ -345,15 +350,14 @@ def thread_process(num):
         index=None,
         header=['SNP', "A1", "A2", "Beta"],
         mode='w')
-    print('Done generating standardized beta')
+    print('Done generating standardized beta.')
     print('Done prepare inputs for ' + str(num) + ':' + target + '\n')
 
-   
 ############################################################
 if __name__ == '__main__':
     print('Starting prepare inputs for ' + str(n_targets) + ' target genes.\n')
     pool = multiprocessing.Pool(param_dict['thread'])
-    pool.imap(thread_process, [num for num in range(10)])
+    pool.imap(thread_process, [num for num in range(n_targets)])
     pool.close()
     pool.join()
     print('Done.')
