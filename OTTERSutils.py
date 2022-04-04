@@ -13,6 +13,7 @@ from io import StringIO
 import pandas as pd
 import numpy as np
 
+
 #########################################################
 ## FUNCTIONS:
 
@@ -72,17 +73,13 @@ def format_elapsed_time(time_secs):
 
 # check if a path exists. If not, create the path
 def check_path(path):
-    if os.path.isdir(path):
-        print(path + ' exists.')
-    else:
+    if not os.path.isdir(path):
         os.makedirs(path)
-        print(path + ' created.')
-
 
 # return snpIDs
 def get_snpIDs(df: pd.DataFrame, flip=False):
-    chroms = df['chrom'].astype('str').values
-    pos = df['SNPPos'].astype('str').values
+    chroms = df['CHROM'].astype('str').values
+    pos = df['POS'].astype('str').values
     A1 = df['A1'].values
     A2 = df['A2'].values
 
@@ -112,7 +109,6 @@ def call_PLINK_extract(bim_path, out_path, target, chr, start, end):
 
     # save the range of the gene
     range = os.path.join(out_path, 'range.txt')
-    print(range)
     with open(range, 'w') as ff:
         ff.write('%s\t%s\t%s\t%s\n' % (chr, start, end, target))
 
