@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 
 """
-A TWAS method that infers posterior eQTL effect sizes under continuous shrinkage (CS) priors
-using eQTL summary statistics and an external LD reference panel.
 
 Usage:
 python OTTERS_PRScs.py --OTTERS_dir=PATH_TO_OTTERS --in_dir=INPUR_DIR --out_dir=OUTPUT_DIR --chrom=CHROM
-                [--window=WINDOW_SIZE --a=PARAM_A --b=PARAM_B --phi=PARAM_PHI --n_iter=MCMC_ITERATIONS --n_burnin=MCMC_BURNIN --thin=MCMC_THINNING_FACTOR --thread=THREAD --seed=SEED]
+                [--out_file=OUTPUT_FILE --thread=THREAD --seed=SEED]
 
  - PATH_TO_OTTERS: The directory of OTTERS source code
 
  - INPUT_DIR:  Full path and the file name of the LD reference file.
 
- - OUTPUT_DIR: Output directory and output filename of the posterior effect size estimates.
+ - OUTPUT_DIR: Output directory of the posterior effect size estimates.
+
+ - OUTPUT_FILE (optional): Output filename of the posterior effect size estimates. Default is lassosum.txt
 
  - CHROM: An integer for the chromosome of tested genes.
 
@@ -40,10 +40,10 @@ start_time = time()
 
 def parse_param():
     long_opts_list = ['OTTERS_dir=', 'in_dir=',
-                      'out_dir=', 'chrom=', 'thread=', 'help']
+                      'out_dir=', 'out_file=', 'chrom=', 'thread=', 'help']
 
     param_dict = {'OTTERS_dir': None, 'in_dir': None,
-                  'out_dir': None, 'chrom': None,
+                  'out_dir': None, 'out_file': 'lassosum.txt', 'chrom': None,
                   'thread': 1}
 
     print('\n')
@@ -66,6 +66,8 @@ def parse_param():
                 param_dict['in_dir'] = arg
             elif opt == "--out_dir":
                 param_dict['out_dir'] = arg
+            elif opt == "--out_file":
+                param_dict['out_file'] = arg
             elif opt == "--chrom":
                 param_dict['chrom'] = str(arg)
             elif opt == "--thread":
@@ -102,7 +104,8 @@ import OTTERSutils as ots
 
 chrom = param_dict['chrom']
 input_dir = param_dict['in_dir']
-out_dir = param_dict['out_dir']
+out_dir = os.path.join(param_dict['out_dir'], param_dict['out_file'])
+ots.check_path(param_dict['out_dir'])
 lassosum_path = os.path.join(param_dict['OTTERS_dir'], 'Imputation', 'lassosum', 'OTTERS_lassosum.R')
 
 print('Reading sample size file.\n')
@@ -124,6 +127,7 @@ n_targets = TargetID.size
 N = GeneN.N
 
 # create output file for PRS-CS
+print(out_dir)
 out_cols = ['CHROM', 'POS', 'A1', 'A2', 'TargetID', 'ES']
 pd.DataFrame(columns=out_cols).to_csv(
     out_dir,
@@ -143,7 +147,7 @@ def thread_process(num):
     target_n = N[num]
     target_dir = os.path.join(input_dir, target)
 
-    print("Start lassosum")
+    print("Start lassosum...")
 
     try:
         lassosum_arg = ['Rscript ' + lassosum_path +
@@ -158,13 +162,13 @@ def thread_process(num):
         proc = subprocess.check_call(lassosum_arg,
                                      stdout=subprocess.PIPE,
                                      cwd=target_dir,
-                                     shell=True,
-                                     bufsize=1)
+                                     shell=True)
     except subprocess.CalledProcessError:
-            print('SDPR failed for TargetID: ' + target)
+            print('lassosum failed for TargetID: ' + target + '\n')
             return None
 
-    print('Done training lassosum for ' + str(num) + ':' + target)
+    os.remove(os.path.join(target_dir, 'Rplots.pdf'))
+    print('Done training lassosum. \n')
 
 ############################################################
 if __name__ == '__main__':

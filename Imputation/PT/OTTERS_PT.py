@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
 """
-A TWAS method that infers posterior eQTL effect sizes under continuous shrinkage (CS) priors
-using eQTL summary statistics and an external LD reference panel.
 
 Usage:
-python OTTERS_PRScs.py --OTTERS_dir=PATH_TO_OTTERS --in_dir=INPUR_DIR --out_dir=OUTPUT_DIR --chrom=CHROM
-                [--pt=PT]
+python OTTERS_PT.py --OTTERS_dir=PATH_TO_OTTERS --in_dir=INPUR_DIR --out_dir=OUTPUT_DIR --chrom=CHROM
+                [--pt=PT --thread=THREAD]
 
  - PATH_TO_OTTERS: The directory of OTTERS source code
 
@@ -109,6 +107,7 @@ import OTTERSutils as ots
 chrom = param_dict['chrom']
 input_dir = param_dict['in_dir']
 out_dir = param_dict['out_dir']
+ots.check_path(out_dir)
 
 print('Reading sample size file.\n')
 N_chunks = pd.read_csv(
@@ -128,7 +127,7 @@ TargetID = GeneN.TargetID
 n_targets = TargetID.size
 N = GeneN.N
 
-# create output file for PRS-CS
+# create output file for P+T
 out_cols = ['CHROM', 'POS', 'A1', 'A2', 'TargetID', 'ES']
 for p in param_dict['pt']:
     PT_res = os.path.join(out_dir, 'P' + str(p) + '.txt')
@@ -145,7 +144,6 @@ for p in param_dict['pt']:
 
 @ots.error_handler
 def thread_process(num):
-    print('Reading eQTL summary statistics data.')
 
     target = TargetID[num]
     print('num=' + str(num) + '\nTargetID=' + target)
@@ -153,7 +151,7 @@ def thread_process(num):
     target_dir = os.path.join(input_dir, target)
 
     # extract summary statistics 
-    print('Extracting eQTL summary statistics data.')
+    print('Extracting eQTL summary statistics data...')
     sst_path = os.path.join(target_dir, target + '_Zscore.txt')
     sst_chunks = pd.read_csv(sst_path, sep='\t',
                              low_memory=False,
@@ -174,7 +172,7 @@ def thread_process(num):
     target_sst['ES'] = target_sst['Z']/np.sqrt(target_n)
     target_sst['P'] = chi2.sf(np.power(target_sst['Z'], 2), 1)
 
-    print("Start P+T")
+    print("Start P+T...")
 
     for p in param_dict['pt']:
 
@@ -189,15 +187,15 @@ def thread_process(num):
             header=None,
             mode='a')
 
-        print('Done training P+T for ' + str(num) + ':' + target + 'with p-value threshold: ' + p)
+        print('Done P+T for Target ' + str(num) + ': ' + target + ' with p-value threshold: ' + p)
 
-    print("Done P+T \n")
+    print("Done P+T. \n")
 
 ############################################################
 if __name__ == '__main__':
     print('Starting summary for ' + str(n_targets) + ' target genes.\n')
     pool = multiprocessing.Pool(param_dict['thread'])
-    pool.imap(thread_process, [num for num in range(3)])
+    pool.imap(thread_process, [num for num in range(n_targets)])
     pool.close()
     pool.join()
     print('Done.')

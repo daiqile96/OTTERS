@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 
 """
-A TWAS method that infers posterior eQTL effect sizes under continuous shrinkage (CS) priors
-using eQTL summary statistics and an external LD reference panel.
 
 Usage:
 python OTTERS_PRScs.py --OTTERS_dir=PATH_TO_OTTERS --in_dir=INPUR_DIR --out_dir=OUTPUT_DIR --chrom=CHROM
-                [--window=WINDOW_SIZE --a=PARAM_A --b=PARAM_B --phi=PARAM_PHI --n_iter=MCMC_ITERATIONS --n_burnin=MCMC_BURNIN --thin=MCMC_THINNING_FACTOR --thread=THREAD --seed=SEED]
+                [--out_file=OUTPUT_FILE --a=PARAM_A --b=PARAM_B --phi=PARAM_PHI --n_iter=MCMC_ITERATIONS --n_burnin=MCMC_BURNIN --thin=MCMC_THINNING_FACTOR --thread=THREAD --seed=SEED]
 
  - PATH_TO_OTTERS: The directory of OTTERS source code
 
  - INPUT_DIR:  Full path and the file name of the LD reference file.
 
- - OUTPUT_DIR: Output directory and output filename of the posterior effect size estimates.
+ - OUTPUT_DIR: Output directory of the posterior effect size estimates.
 
  - CHROM: An integer for the chromosome of tested genes.
+
+ - OUTPUT_FILE: Output filename of the posterior effect size estimates. Default is PRScs.txt.
 
  - PARAM_A (optional): Parameter a in the gamma-gamma prior in the continous shrinkage prior proposed by PRS-CS. Default is 1. 
 
@@ -60,12 +60,12 @@ start_time = time()
 
 def parse_param():
     long_opts_list = ['OTTERS_dir=', 'in_dir=',
-                      'out_dir=', 'chrom=', 'window=', 'thread=',
+                      'out_dir=', 'out_file=', 'chrom=', 'window=', 'thread=',
                       'a=', 'b=', 'phi=', 'n_iter=', 'n_burnin=', 'thin=',
                       'seed=', 'help']
 
     param_dict = {'OTTERS_dir': None, 'in_dir': None,
-                  'out_dir': None, 'chrom': None,
+                  'out_dir': None, 'out_file': 'PRScs.txt', 'chrom': None,
                   'window': 1000000, 'thread': 1, 'a': 1, 'b': 0.5,
                   'phi': None, 'n_iter': 1000, 'n_burnin': 500, 'thin': 5,
                   'seed': None}
@@ -90,6 +90,8 @@ def parse_param():
                 param_dict['in_dir'] = arg
             elif opt == "--out_dir":
                 param_dict['out_dir'] = arg
+            elif opt == "--out_file":
+                param_dict['out_file'] = arg
             elif opt == "--chrom":
                 param_dict['chrom'] = str(arg)
             elif opt == "--window":
@@ -144,6 +146,8 @@ import OTTERSutils as ots
 
 chrom = param_dict['chrom']
 input_dir = param_dict['in_dir']
+out_dir = os.path.join(param_dict['out_dir'], param_dict['out_file'])
+ots.check_path(param_dict['out_dir'])
 
 print('Reading sample size file.\n')
 N_chunks = pd.read_csv(
@@ -166,7 +170,7 @@ N = GeneN.N
 # create output file for PRS-CS
 out_cols = ['CHROM', 'POS', 'A1', 'A2', 'TargetID', 'ES']
 pd.DataFrame(columns=out_cols).to_csv(
-    param_dict['out_dir'],
+    out_dir,
     sep='\t',
     index=None,
     header=True,
@@ -176,7 +180,6 @@ pd.DataFrame(columns=out_cols).to_csv(
 
 @ots.error_handler
 def thread_process(num):
-    print('Reading eQTL summary statistics data.')
 
     target = TargetID[num]
     print('num=' + str(num) + '\nTargetID=' + target)
@@ -184,7 +187,7 @@ def thread_process(num):
     target_dir = os.path.join(input_dir, target)
 
     # extract summary statistics 
-    print('Extracting eQTL summary statistics data.')
+    print('Extracting eQTL summary statistics data...')
     sst_path = os.path.join(target_dir, target + '_beta.txt')
     sst_chunks = pd.read_csv(sst_path, sep='\t',
                              low_memory=False,
@@ -200,8 +203,9 @@ def thread_process(num):
         return None
 
     # Save the list of SNPs that are kept in the summary statistics 
+    target_ref_dir = os.path.join(target_dir, "ref")
     target_snplist = target_sst['SNP']
-    target_snplist_path = os.path.join(target_dir, target + '.snplist')
+    target_snplist_path = os.path.join(target_ref_dir, target + '.snplist')
 
     target_snplist.to_csv(target_snplist_path,
                           sep='\t',
@@ -210,23 +214,25 @@ def thread_process(num):
                           mode='w')
 
     # Calculate LD for these SNPs.
-    print('Generating reference LD matrix.')
-    snplist = target + '.snplist'
-    get_ld_cmd = ["plink --bfile " + target + " --keep-allele-order --extract " +
-                  snplist + " --r square --out " + target + " --memory 2000 "]
+    print('Generating reference LD matrix...')
+    get_ld_cmd = ["plink --bfile " + target +
+                  " --keep-allele-order" +
+                  " --extract " + target_snplist_path +
+                  " --r square" +
+                  " --out " + os.path.join(target_ref_dir, target) +
+                  " --memory 2000 "]
 
     try:
         ld_proc = subprocess.check_call(get_ld_cmd,
-                                    stdout=subprocess.PIPE,
-                                    cwd=target_dir,
-                                    shell=True,
-                                    bufsize=1)
-        print('LD calculation completed')
+                                        stdout=subprocess.PIPE,
+                                        cwd=target_dir,
+                                        shell=True)
+        print('LD calculation completed.')
     except subprocess.CalledProcessError as err:
         print('calculation failed for TargetID: ' + target + '\n')
         return None
 
-    target_ld = os.path.join(target_dir, target + '.ld')
+    target_ld = os.path.join(target_ref_dir, target + '.ld')
 
     ld_chunks = pd.read_csv(target_ld, sep='\t',
                             low_memory=False,
@@ -235,13 +241,16 @@ def thread_process(num):
                             chunksize=1000)
 
     ld = pd.concat([chunk for chunk in ld_chunks]).reset_index(drop=True)
+    # The .ld file is large, delete it after using it.
+    os.remove(target_ld)
 
-    # Make sure the ld is positive definite matrix
-    # PLINK rounds to 6 decimal points, which sometimes makes the correlation matrix become not positive definite
     V = ld.to_numpy()
     # PLINK return nan when all mutually-nonmissing set is homozygous major
     # We set nan = 0 here 
     V = np.nan_to_num(V)
+
+    # Make sure the ld is positive definite matrix
+    # PLINK rounds to 6 decimal points, which sometimes makes the correlation matrix become not positive definite
     _, s, v = linalg.svd(V)
     h = np.dot(v.T, np.dot(np.diag(s), v))
     V = (V+h)/2
@@ -249,6 +258,7 @@ def thread_process(num):
 
     if blk_size > 0:
         try:
+            print('Start PRS-CS...')
             target_sst['ES'] = mcmc_gtb.mcmc(a=param_dict['a'], b=param_dict['b'],
                                              phi=param_dict['phi'],
                                              sst_dict=target_sst, n=target_n,
@@ -263,11 +273,11 @@ def thread_process(num):
             return None
 
     target_sst['POS'] = [int(snp.split('_')[1]) for snp in target_sst['SNP']]
-    with open(param_dict['out_dir'], 'a') as ff:
+    with open(out_dir, 'a') as ff:
         for pos, a1, a2, beta in zip(target_sst['POS'], target_sst['A1'], target_sst['A2'], target_sst['ES']):
             ff.write('%d\t%d\t%s\t%s\t%s\t%.6e\n' % (int(chrom), int(pos), a1, a2, target, beta))
 
-    print('Done ' + str(num) + ':' + target + '\n')
+    print('Done PRS-CS. \n')
 
 ############################################################
 if __name__ == '__main__':
