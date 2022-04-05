@@ -29,16 +29,17 @@
 cd ${OTTERS_DIR}/Example
 
 chr=4
+exp_anno=exp_anno.txt
 bim_dir=Exp_geno
 sst_dir=Exp_SumStats.txt.gz
 input_to_imputation=Inputs
 
-# Step 1: Prepare inputs with LD-clumping R^2 = 0.05
+# Step 1: Prepare inputs with LD-clumping R^2 = 0.99
 python3 ${OTTERS_dir}/Imputation/prep/prep.py \
 --OTTERS_dir=${OTTERS_dir} \
 --anno_dir=${exp_anno} \
 --b_dir=${bim_dir} \
---sst_dir=${sst_dir}.gz \
+--sst_dir=${sst_dir} \
 --out_dir=${input_to_imputation} \
 --chrom=${chr} \
 --r2=0.99 \
@@ -94,10 +95,10 @@ The estimated eQTL weights for SDPR, P+T, lassosum will be saved under OUTPUT_DI
     |:-----:|:---:|:--:|:--:|:---------------:|:----:|
     |   1   | 100 |  C |  T |     ENSG0000    |  0.2 |
  
-  - Exp/Outputs/P0.05.txt & Exp/Outputs/P0.1.txt for P+T with p-value thresholding 0.1 and 0.05.
-  - Exp/Outputs/lassosum.txt
-  - Exp/Outputs/SDPR.txt
-  - Exp/Outputs/PRScs.txt
+  - Example/Outputs/P0.05.txt & Exp/Outputs/P0.1.txt for P+T with p-value thresholding 0.1 and 0.05.
+  - Example/Outputs/lassosum.txt
+  - Example/Outputs/SDPR.txt
+  - Example/Outputs/PRScs.txt
 
 ## Detailed usage
 
