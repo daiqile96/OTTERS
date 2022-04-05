@@ -49,8 +49,8 @@ Optional parameters:
 ## Example:
 
 ```bash
-input_to_imputation=Exp/Inputs
-output_dir=Exp/Outputs
+input_to_imputation=Example/Inputs
+output_dir=Example/Outputs
 chr=4
 
 python3 ${OTTERS_dir}/Imputation/PRScs/OTTERS_PRScs.py \
@@ -65,7 +65,7 @@ python3 ${OTTERS_dir}/Imputation/PRScs/OTTERS_PRScs.py \
 
 ## Output:
 
-Exp/Outputs/PRScs.txt: the estimated eQTL weights
+Example/Outputs/PRScs.txt: the estimated eQTL weights
 
   - | CHROM | POS | A1 | A2 |     TargetID    |  ES  |
     |:-----:|:---:|:--:|:--:|:---------------:|:----:|

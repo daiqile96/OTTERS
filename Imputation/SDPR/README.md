@@ -47,8 +47,8 @@ python OTTERS_SDPR.py \
 ## Example:
 
 ```bash
-input_to_imputation=Exp/Inputs
-output_dir=Exp/Outputs
+input_to_imputation=Example/Inputs
+output_dir=Example/Outputs
 chr=4
 
 python3 ${OTTERS_dir}/Imputation/SDPR/OTTERS_SDPR.py \
@@ -63,7 +63,7 @@ python3 ${OTTERS_dir}/Imputation/SDPR/OTTERS_SDPR.py \
 
 ## Output:
 
-Exp/Outputs/SDPR.txt: the estimated eQTL weights
+Example/Outputs/SDPR.txt: the estimated eQTL weights
 
   - | CHROM | POS | A1 | A2 |     TargetID    |  ES  |
     |:-----:|:---:|:--:|:--:|:---------------:|:----:|

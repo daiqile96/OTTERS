@@ -24,8 +24,8 @@ python OTTERS_PT.py \
 ## Example:
 
 ```bash
-input_to_imputation=Exp/Inputs
-output_dir=Exp/Outputs
+input_to_imputation=Example/Inputs
+output_dir=Example/Outputs
 chr=4
 
 python3 ${OTTERS_dir}/Imputation/PT/OTTERS_PT.py \
@@ -39,7 +39,7 @@ python3 ${OTTERS_dir}/Imputation/PT/OTTERS_PT.py \
 
 ## Output:
 
-Exp/Outputs/P0.05.txt: the estimated eQTL weights
+Example/Outputs/P0.05.txt: the estimated eQTL weights
 
   - | CHROM | POS | A1 | A2 |     TargetID    |  ES  |
     |:-----:|:---:|:--:|:--:|:---------------:|:----:|

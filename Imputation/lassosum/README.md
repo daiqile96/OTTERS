@@ -23,8 +23,8 @@ python OTTERS_PRScs.py --OTTERS_dir=PATH_TO_OTTERS --in_dir=INPUR_DIR --out_dir=
 ## Example:
 
 ```bash
-input_to_imputation=Exp/Inputs
-output_dir=Exp/Outputs
+input_to_imputation=Example/Inputs
+output_dir=Example/Outputs
 chr=4
 
 python3 ${OTTERS_dir}/Imputation/lassosum/OTTERS_lassosum.py \
@@ -37,7 +37,7 @@ python3 ${OTTERS_dir}/Imputation/lassosum/OTTERS_lassosum.py \
 
 ## Output:
 
-Exp/Outputs/lassosum.txt: the estimated eQTL weights
+Example/Outputs/lassosum.txt: the estimated eQTL weights
 
   - | CHROM | POS | A1 | A2 |     TargetID    |  ES  |
     |:-----:|:---:|:--:|:--:|:---------------:|:----:|

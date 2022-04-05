@@ -45,9 +45,9 @@ python prep.py \
 ```bash
 cd ${OTTERS_DIR}/Example
 
-bim_dir=Exp/Exp_geno
-sst_dir=Exp/Exp_SumStats.txt.gz
-input_to_imputation=Exp/Inputs
+bim_dir=Exp_geno
+sst_dir=Exp_SumStats.txt.gz
+input_to_imputation=Inputs
 
 # Step 1: Prepare inputs with LD-clumping R^2 = 0.05
 python3 ${OTTERS_dir}/Imputation/prep/prep.py \
@@ -63,7 +63,7 @@ python3 ${OTTERS_dir}/Imputation/prep/prep.py \
 
 ## Outputs of the Example: 
 
-   - Exp/Inputs
+   - Example/Inputs
      - ENSG000001
        - ENSG000001(.bim/.bed/.fam): PLINK binary genotype data from LD reference panel for gene ENSG000001.
        - ENSG000001.clumped: clumping results for this gene.
