@@ -27,10 +27,11 @@
 
 ```bash
 cd ${OTTERS_DIR}/Example
+
 chr=4
-bim_dir=Exp/Exp_geno
-sst_dir=Exp/Exp_SumStats.txt.gz
-input_to_imputation=Exp/Inputs
+bim_dir=Exp_geno
+sst_dir=Exp_SumStats.txt.gz
+input_to_imputation=Inputs
 
 # Step 1: Prepare inputs with LD-clumping R^2 = 0.05
 python3 ${OTTERS_dir}/Imputation/prep/prep.py \
@@ -45,7 +46,7 @@ python3 ${OTTERS_dir}/Imputation/prep/prep.py \
 
 # Step 2: Run Imputation models
 SDPR_dir=${SDPR_dir}
-output_dir=Exp/Outputs
+output_dir=Outputs
 
 # P+T
 python3 ${OTTERS_dir}/Imputation/PT/OTTERS_PT.py \
