@@ -63,7 +63,7 @@ python3 ${OTTERS_dir}/Imputation/prep/prep.py \
 
 ## Outputs of the Example: 
 
-   - Exp/Inputs
+   - Example/Inputs
      - ENSG000001
        - ENSG000001(.bim/.bed/.fam): PLINK binary genotype data from LD reference panel for gene ENSG000001.
        - ENSG000001.clumped: clumping results for this gene.
