@@ -18,7 +18,7 @@
 
     | CHROM | POS | A1 | A2 | Zscore |  TargetID   |   N  |
     |:-----:|:---:|:--:|:--:|:------:|:-----------:|:----:|
-    |   1   | 100 |  C |  T |   3    |   ENSG0000  |  0.2 |
+    |   1   | 100 |  C |  T |   3    |   ENSG0000  |  200 |
 
    Example: Example/Exp_SumStats.txt.gz; Example/Exp_SumStats.txt.gz.tbi
 
