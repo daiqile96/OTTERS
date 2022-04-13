@@ -76,9 +76,9 @@ python3 ${OTTERS_dir}/Imputation/prep/prep.py \
            
          - ENSG000002_beta.txt: eQTL summary statistics with standardized single variant regression coefficient. The SNP is generated as CHROM_POS_A2_A1. 
 
-            |    SNP   | A1 | A2 | Z |
+            |    SNP   | A1 | A2 | Beta |
             |:--------:|:--:|:--:|:-:|
-            | 1_100_T_C| C  | T  | 1 |
+            | 1_100_T_C| C  | T  | 0.5 |
 
      - medianN.txt: the median sample size of eQTLs for the target gene. 
 
