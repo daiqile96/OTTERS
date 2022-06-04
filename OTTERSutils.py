@@ -135,8 +135,7 @@ def call_tabix(path, chr, start, end):
     proc = subprocess.Popen(
         ["tabix "+path+" "+chr+":"+start+"-"+end],
         shell=True,
-        stdout=subprocess.PIPE,
-        bufsize=1)
+        stdout=subprocess.PIPE)
 
     proc_out = bytearray()
 
