@@ -1,32 +1,28 @@
 PLINK v1.90b5.3 64-bit (21 Feb 2018)
 Options in effect:
   --bfile ENSG000001
-  --extract /home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Inputs/ENSG000001/ref/ENSG000001.snplist
+  --extract ref/ENSG000001.snplist
   --keep-allele-order
   --memory 2000
-  --out /home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Inputs/ENSG000001/ref/ENSG000001
+  --out ref/ENSG000001
   --r square
 
-Hostname: node07.local
-Working directory: /mnt/YangFSS/data2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Inputs/ENSG000001
-Start time: Mon Apr  4 18:12:31 2022
+Hostname: node03.local
+Working directory: /mnt/YangFSS/data2/qdai/Tool_Test/OTTERS/Example/Inputs/ENSG000001
+Start time: Sat Jun  4 19:25:53 2022
 
-Random number seed: 1649110351
-64261 MB RAM detected; reserving 2000 MB for main workspace.
+Random number seed: 1654385153
+257780 MB RAM detected; reserving 2000 MB for main workspace.
 4441 variants loaded from .bim file.
 838 people (0 males, 0 females, 838 ambiguous) loaded from .fam.
-Ambiguous sex IDs written to
-/home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Inputs/ENSG000001/ref/ENSG000001.nosex
-.
+Ambiguous sex IDs written to ref/ENSG000001.nosex .
 --extract: 2006 variants remaining.
-Using up to 15 threads (change this with --threads).
+Using up to 31 threads (change this with --threads).
 Before main variant filters, 838 founders and 0 nonfounders present.
 Calculating allele frequencies... done.
 Total genotyping rate is 0.998594.
 2006 variants and 838 people pass filters and QC.
 Note: No phenotypes present.
---r square to
-/home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Inputs/ENSG000001/ref/ENSG000001.ld
-... done.
+--r square to ref/ENSG000001.ld ... done.
 
-End time: Mon Apr  4 18:12:31 2022
+End time: Sat Jun  4 19:25:53 2022

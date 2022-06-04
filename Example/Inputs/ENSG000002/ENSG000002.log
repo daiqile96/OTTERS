@@ -1,19 +1,20 @@
 PLINK v1.90b5.3 64-bit (21 Feb 2018)
 Options in effect:
   --bfile ENSG000002
-  --clump /home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Inputs/ENSG000002/ENSG000002.pvalue
+  --clump ENSG000002.pvalue
   --clump-field P
   --clump-kb 1000
   --clump-p1 1
   --clump-r2 0.99
   --clump-snp-field snpID
+  --keep-allele-order
   --out ENSG000002
 
-Hostname: node06.local
-Working directory: /mnt/YangFSS/data2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Inputs/ENSG000002
-Start time: Mon Apr  4 17:24:11 2022
+Hostname: node03.local
+Working directory: /mnt/YangFSS/data2/qdai/Tool_Test/OTTERS/Example/Inputs/ENSG000002
+Start time: Sat Jun  4 18:43:36 2022
 
-Random number seed: 1649107451
+Random number seed: 1654382616
 257780 MB RAM detected; reserving 128890 MB for main workspace.
 Allocated 7257 MB successfully, after larger attempt(s) failed.
 4522 variants loaded from .bim file.
@@ -28,4 +29,4 @@ Note: No phenotypes present.
 --clump: 1695 clumps formed from 2919 top variants.
 Results written to ENSG000002.clumped .
 
-End time: Mon Apr  4 17:24:15 2022
+End time: Sat Jun  4 18:43:41 2022
