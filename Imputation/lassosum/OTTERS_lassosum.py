@@ -155,7 +155,7 @@ def thread_process(num):
                         ' --medianN=' + str(int(target_n)) +
                         ' --bim_file=' + target +
                         ' --sst_file=' + target + '_beta.txt' +
-                        ' --out_path=' + out_dir +
+                        ' --out_path=' + os.path.join(os.getcwd(), out_dir) +
                         ' --chr=' + str(chrom) +
                         ' --LDblocks=EUR.hg38']
 

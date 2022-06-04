@@ -28,30 +28,29 @@
 ```bash
 cd ${OTTERS_DIR}/Example
 
-chr=4
 exp_anno=exp_anno.txt
-bim_dir=Exp_geno
-sst_dir=Exp_SumStats.txt.gz
+geno_dir=Exp_geno
+sst_file=Exp_SumStats.txt
 input_to_imputation=Inputs
+chr=4
 
 # Step 1: Prepare inputs with LD-clumping R^2 = 0.99
-python3 ${OTTERS_dir}/Imputation/prep/prep.py \
---OTTERS_dir=${OTTERS_dir} \
+python3 ${OTTERS_DIR}/Imputation/prep/prep.py \
+--OTTERS_dir=${OTTERS_DIR} \
 --anno_dir=${exp_anno} \
---b_dir=${bim_dir} \
---sst_dir=${sst_dir} \
+--geno_dir=${geno_dir} \
+--sst_file=${sst_file}.gz \
 --out_dir=${input_to_imputation} \
 --chrom=${chr} \
 --r2=0.99 \
 --thread=2
 
 # Step 2: Run Imputation models
-SDPR_dir=${SDPR_dir}
 output_dir=Outputs
 
 # P+T
-python3 ${OTTERS_dir}/Imputation/PT/OTTERS_PT.py \
---OTTERS_dir=${OTTERS_dir} \
+python3 ${OTTERS_DIR}/Imputation/PT/OTTERS_PT.py \
+--OTTERS_dir=${OTTERS_DIR} \
 --in_dir=${input_to_imputation} \
 --out_dir=${output_dir} \
 --chrom=${chr} \
@@ -59,17 +58,18 @@ python3 ${OTTERS_dir}/Imputation/PT/OTTERS_PT.py \
 --thread=2
 
 # lassosum
-python3 ${OTTERS_dir}/Imputation/lassosum/OTTERS_lassosum.py \
---OTTERS_dir=${OTTERS_dir} \
+python3 ${OTTERS_DIR}/Imputation/lassosum/OTTERS_lassosum.py \
+--OTTERS_dir=${OTTERS_DIR} \
 --in_dir=${input_to_imputation} \
 --out_dir=${output_dir} \
 --chrom=${chr} \
 --thread=2
 
 # SDPR
-python3 ${OTTERS_dir}/Imputation/SDPR/OTTERS_SDPR.py \
---OTTERS_dir=${OTTERS_dir} \
---SDPR_dir=${SDPR_dir} \
+SDPR_dir=${SDPR_DIR}
+python3 ${OTTERS_DIR}/Imputation/SDPR/OTTERS_SDPR.py \
+--OTTERS_dir=${OTTERS_DIR} \
+--SDPR_dir=${SDPR_DIR} \
 --in_dir=${input_to_imputation} \
 --out_dir=${output_dir} \
 --chrom=${chr} \
@@ -77,14 +77,17 @@ python3 ${OTTERS_dir}/Imputation/SDPR/OTTERS_SDPR.py \
 --thread=2
 
 # PRS-CS
+# This may take several minutes to run
 python3 ${OTTERS_dir}/Imputation/PRScs/OTTERS_PRScs.py \
 --OTTERS_dir=${OTTERS_dir} \
 --in_dir=${input_to_imputation} \
 --out_dir=${output_dir} \
 --chrom=${chr} \
---n_iter=100 \
+--n_iter=500 \
+--n_burnin=200 \
 --phi=1e-4 \
---thread=2
+--thread=1
+
 ```
 
 ## Outputs of the Example: 

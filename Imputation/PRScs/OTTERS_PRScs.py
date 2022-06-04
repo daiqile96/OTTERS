@@ -204,6 +204,8 @@ def thread_process(num):
 
     # Save the list of SNPs that are kept in the summary statistics 
     target_ref_dir = os.path.join(target_dir, "ref")
+    ots.check_path(target_ref_dir)
+    
     target_snplist = target_sst['SNP']
     target_snplist_path = os.path.join(target_ref_dir, target + '.snplist')
 
@@ -217,9 +219,9 @@ def thread_process(num):
     print('Generating reference LD matrix...')
     get_ld_cmd = ["plink --bfile " + target +
                   " --keep-allele-order" +
-                  " --extract " + target_snplist_path +
+                  " --extract " + os.path.join('ref', target + '.snplist') +
                   " --r square" +
-                  " --out " + os.path.join(target_ref_dir, target) +
+                  " --out " + os.path.join('ref', target) +
                   " --memory 2000 "]
 
     try:

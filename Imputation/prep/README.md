@@ -21,15 +21,19 @@ python prep.py \
     |:-----:|:---------:|:-------:|:---------------:|
     |   1   |    100    |   200   |     ENSG0000    | 
 
-   See [Example](Example/exp_anno.txt) of annotation file. 
+   See [Example](../../Example/exp_anno.txt) of annotation file. 
 
  - PATH_TO_GENO:  The directory and preflix of PLINK binary files(.bim/.bed/.fam) for genotype data from LD reference panel.
+
+   See [Example](../../Example/) which included Exp_geno.bim, Exp_geno.bed, Exp_geno.fam.
 
  - PATH_TO_SST: Full path and the file name of the summary statistics. 
 
     | CHROM | POS | A1 | A2 |   Z    |  TargetID  |   N  |
     |:-----:|:---:|:--:|:--:|:------:|:----------:|:----:|
     |   1   | 100 |  C |  T |   3    |  ENSG0000  |  0.2 |
+   
+   See [Example](../../Example/Exp_SumStats.txt.gz) of summary statistics. This summary statistics should be bgziped and tabixed.
 
  - OUTPUT_DIR: The directory to save output files. These output files will be used as input files for GReX Imputation models. 
 
@@ -49,20 +53,21 @@ cd ${OTTERS_DIR}/Example
 
 exp_anno=exp_anno.txt
 geno_dir=Exp_geno
-sst_dir=Exp_SumStats.txt
+sst_file=Exp_SumStats.txt.gz
 input_to_imputation=Inputs
 chr=4
 
-# Step 1: Prepare inputs with LD-clumping R^2 = 0.05
+# Step 1: Prepare inputs with LD-clumping R^2 = 0.99
 python3 ${OTTERS_DIR}/Imputation/prep/prep.py \
 --OTTERS_dir=${OTTERS_DIR} \
 --anno_dir=${exp_anno} \
 --geno_dir=${geno_dir} \
---sst_file=${sst_dir}.gz \
+--sst_file=${sst_file} \
 --out_dir=${input_to_imputation} \
 --chrom=${chr} \
 --r2=0.99 \
 --thread=2
+
 ```
 
 ## Outputs of the Example: 
