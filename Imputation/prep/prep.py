@@ -138,6 +138,7 @@ import OTTERSutils as ots
 chr = param_dict['chrom']
 geno_dir = param_dict['geno_dir']
 out_dir = param_dict['out_dir']
+ots.check_path(out_dir)
 
 print('Reading gene annotation data on chromosome ' + chr + '...')
 anno_chunks = pd.read_csv(
@@ -185,7 +186,7 @@ def thread_process(num):
 
     ################# PLINK Binary Files #####################
 
-    print('Making PLINK binary files for the target gene...')
+    print('*Making PLINK binary files for the target gene...*')
 
     # set output path of the target gene
     target_dir = os.path.join(out_dir, target)
@@ -207,7 +208,7 @@ def thread_process(num):
 
     ################# eQTL summary statistics #####################
 
-    print('Reading eQTL summary statistics data...')
+    print('*Reading eQTL summary statistics data...*')
 
     sst_proc_out = ots.call_tabix(param_dict['sst_file'], chr, start, end)
 
@@ -280,14 +281,14 @@ def thread_process(num):
 
     ################# Calculate median sample size ####################
 
-    print('Calculate median sample size of eQTLs...')
+    print('*Calculate median sample size of eQTLs...*')
     median_N = np.nanmedian(target_sst['N'])
 
     with open(target_medianN, 'a') as ff:
         ff.write('%s\t%s\t%d\n' % (chr, target, median_N))
 
     ################# LD clumping #############################
-    print('Perform LD clumping...')
+    print('*Perform LD clumping...*')
 
     # generate summary statistics of p-value to perform LD-clumping
     target_sst['P'] = chi2.sf(np.power(target_sst['Z'], 2), 1)
@@ -300,7 +301,7 @@ def thread_process(num):
         mode='w')
 
     # use call_PLINK_clump to generate command to call PLINK to perform LD-clumping 
-    clump_cmd = ots.call_PLINK_clump(target, param_dict['r2'], target_p)
+    clump_cmd = ots.call_PLINK_clump(target, param_dict['r2'], target + '.pvalue')
 
     try:
         proc = subprocess.check_call(clump_cmd,
@@ -329,7 +330,7 @@ def thread_process(num):
 
     ################# Prepare Input Summary Statistics for Imputation Models #############################
 
-    print('Start prepare input summary statistics...')
+    print('*Start prepare input summary statistics...*')
 
     # Prepare Zscore input for SDPR
     target_zscore = os.path.join(target_dir, target+'_Zscore.txt')
