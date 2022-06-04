@@ -114,7 +114,7 @@ def call_PLINK_extract(bim_path, out_path, target, chr, start, end):
 
     # extract the genotype data for this range
     out_geno = os.path.join(out_path, target)
-    cmd = ["plink --bfile "+bim_path+" --extract range " + range + " --make-bed --out " + out_geno]
+    cmd = ["plink --bfile "+bim_path+" --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
     return cmd
 
 
@@ -123,7 +123,7 @@ def call_PLINK_clump(bim_path, r2, pvalue_path, window=1000, p=1, snp_field="snp
     cmd = ["plink --bfile " + bim_path+" --clump-p1 " + str(p) + " --clump-r2 " + str(r2) +
            " --clump-kb " + str(window)+" --clump " + pvalue_path +
            " --clump-snp-field " + snp_field + " --clump-field " + p_field +
-           " --out "+bim_path]
+           " --keep-allele-order --out "+bim_path]
 
     return cmd
 

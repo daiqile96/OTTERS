@@ -3,7 +3,7 @@
 """
 
 Usage:
-python prep.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PATH_TO_GENO --sst_dir=PATH_TO_SST --out_dir=OUTPUT_DIR --chrom=CHROM 
+python prep.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PATH_TO_GENO --sst_file=PATH_TO_SST --out_dir=OUTPUT_DIR --chrom=CHROM 
        [--r2=R2 --window=WINDOW --thread=THREAD --help]
 
  - PATH_TO_OTTERS: The directory of OTTERS source code
@@ -59,12 +59,12 @@ start_time = time()
 
 def parse_param():
 
-    long_opts_list = ['OTTERS_dir=', 'anno_dir=', 'b_dir=',
-                      'sst_dir=', 'out_dir=', 'chrom=', 'r2=',
+    long_opts_list = ['OTTERS_dir=', 'anno_dir=', 'geno_dir=',
+                      'sst_file=', 'out_dir=', 'chrom=', 'r2=',
                       'window=', 'thread=', 'help']
 
     param_dict = {'OTTERS_dir': None, 'anno_dir': None,
-                  'b_dir': None, 'sst_dir': None, 'out_dir': None, 'chrom': None,
+                  'geno_dir': None, 'sst_file': None, 'out_dir': None, 'chrom': None,
                   'r2': 2, 'window': 1000000, 'thread': 1}
 
     print('\n')
@@ -85,10 +85,10 @@ def parse_param():
                 param_dict['OTTERS_dir'] = arg
             elif opt == "--anno_dir":
                 param_dict['anno_dir'] = arg
-            elif opt == "--b_dir":
-                param_dict['b_dir'] = arg
-            elif opt == "--sst_dir":
-                param_dict['sst_dir'] = arg
+            elif opt == "--geno_dir":
+                param_dict['geno_dir'] = arg
+            elif opt == "--sst_file":
+                param_dict['sst_file'] = arg
             elif opt == "--out_dir":
                 param_dict['out_dir'] = arg
             elif opt == "--chrom":
@@ -109,11 +109,11 @@ def parse_param():
     elif param_dict['anno_dir'] is None:
         print('* Please specify the directory to the gene annotation file using --anno_dir\n')
         sys.exit(2)
-    elif param_dict['b_dir'] is None:
-        print('* Please specify the directory to the binary file of LD reference panel --bim_dir\n')
+    elif param_dict['geno_dir'] is None:
+        print('* Please specify the directory to the binary file of LD reference panel --geno_dir\n')
         sys.exit(2)
-    elif param_dict['sst_dir'] is None:
-        print('* Please specify the eQTL summary statistics file using --sst_dir\n')
+    elif param_dict['sst_file'] is None:
+        print('* Please specify the eQTL summary statistics file using --sst_file\n')
         sys.exit(2)
     elif param_dict['out_dir'] is None:
         print('* Please specify the output directory\n')
@@ -136,7 +136,7 @@ import OTTERSutils as ots
 
 # set chrom and paths
 chr = param_dict['chrom']
-b_dir = param_dict['b_dir']
+geno_dir = param_dict['geno_dir']
 out_dir = param_dict['out_dir']
 
 print('Reading gene annotation data on chromosome ' + chr + '...')
@@ -192,7 +192,7 @@ def thread_process(num):
     ots.check_path(target_dir)
 
     # generate command to call PLINK to extract the binary file for the target gene
-    extract_cmd = ots.call_PLINK_extract(b_dir, target_dir, target, chr, start, end)
+    extract_cmd = ots.call_PLINK_extract(geno_dir, target_dir, target, chr, start, end)
 
     try:
         proc = subprocess.check_call(extract_cmd,
@@ -209,7 +209,7 @@ def thread_process(num):
 
     print('Reading eQTL summary statistics data...')
 
-    sst_proc_out = ots.call_tabix(param_dict['sst_dir'], chr, start, end)
+    sst_proc_out = ots.call_tabix(param_dict['sst_file'], chr, start, end)
 
     if not sst_proc_out:
         print('There is no summary statistics data for the range of ' + target)
