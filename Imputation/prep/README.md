@@ -47,14 +47,15 @@ python prep.py \
 ```bash
 cd ${OTTERS_DIR}/Example
 
+exp_anno=exp_anno.txt
 geno_dir=Exp_geno
 sst_dir=Exp_SumStats.txt
 input_to_imputation=Inputs
-chr=1
+chr=4
 
 # Step 1: Prepare inputs with LD-clumping R^2 = 0.05
-python3 ${OTTERS_dir}/Imputation/prep/prep.py \
---OTTERS_dir=${OTTERS_dir} \
+python3 ${OTTERS_DIR}/Imputation/prep/prep.py \
+--OTTERS_dir=${OTTERS_DIR} \
 --anno_dir=${exp_anno} \
 --geno_dir=${geno_dir} \
 --sst_file=${sst_dir}.gz \
