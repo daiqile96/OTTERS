@@ -6,103 +6,103 @@ A powerful TWAS framework leveraging summary-level reference data.
 
 ## Getting Started
 
-- 1. Install 
+Download and install following required tools, modules, and packages:
+
+  - Download OTTERS using:
+    
+    ```bash
+    git clone https://github.com/daiqile96/OTTERS.git 
+    ```
+
+  - [BGZIP](http://www.htslib.org/doc/bgzip.html) and [TABIX](http://www.htslib.org/doc/tabix.html)
+
+    *Here is my code to download and install BGZIP and TABIX:*
+
+    ```bash
+    wget https://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2
+    tar jxvf tabix-0.2.6.tar.bz2
+    cd tabix-0.2.6
+    make
+
+    # copy the binary bgzip and tabix to my path: ~/projects/bin
+    cp bgzip tabix ~/projects/bin
+
+    # test if BGZIP and TABIX are successfully installed
+    export PATH=~/projects/bin:$PATH 
+    bgzip
+    tabix
+    ```
+
+  - [PLINK 1.9](https://www.cog-genomics.org/plink/)
+    
+    *Here is my code to download and install PLINK 1.9:*
+
+    ```bash
+    # Download the latest binary of PLINK 1.9
+    wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20220402.zip
+
+    # Unzip the archive
+    unzip plink_linux_x86_64_20220402.zip -d ~/projects/bin
+
+    # Remove archive
+    rm plink2_linux_x86_64_latest.zip
+
+    # Test if PLINK 1.9 is successfully installed
+    export PATH=~/projects/bin:$PATH 
+    plink
+    ```
+
+  - Python modules/libraries:
+    - pandas
+    - scipy
+    - numpy
   
-   - Download OTTERS using:
-     
+      *Here is my code to set up the Python Environment to use OTTERS:*
       ```bash
-      git clone https://github.com/daiqile96/OTTERS.git 
+      # install miniconda
+      wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+      bash Miniconda3-latest-Linux-x86_64.sh
+      source ~/.bashrc
+      # remove sh file 
+      rm Miniconda3-latest-Linux-x86_64.sh
+
+      # create the environment 
+      conda create --name otters python=3.9 pandas numpy scipy 
+      # deactivate the conda environment
+      conda deactivate
       ```
 
-   - [BGZIP](http://www.htslib.org/doc/bgzip.html) and [TABIX](http://www.htslib.org/doc/tabix.html)
+      *To use this environment to run OTTERS*:
 
-     *Here is my code to download and install BGZIP and TABIX:*
+      ```bash
+        # activate the environment
+      conda activate otters
 
-     ```bash
-     wget https://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2
-     tar jxvf tabix-0.2.6.tar.bz2
-     cd tabix-0.2.6
-     make
+      # RUN OTTERS HERE
 
-     # copy the binary bgzip and tabix to my path: ~/projects/bin
-     cp bgzip tabix ~/projects/bin
+      # deactivate the environment
+      conda deactivate
+      ```
 
-     # test if BGZIP and TABIX are successfully installed
-     export PATH=~/projects/bin:$PATH 
-     bgzip
-     tabix
-     ```
+  - If you want to apply SDPR and lassosum as imputation models, please install:
+    - [SDPR](https://github.com/eldronzhou/SDPR) to perform SDPR
+      
+      *Here is my code to download SDPR*
+      
+      ```bash
+      cd ~/projects/bin
+      git clone https://github.com/eldronzhou/SDPR.git
 
-   - [PLINK 1.9](https://www.cog-genomics.org/plink/)
-     
-     *Here is my code to download and install PLINK 1.9:*
+      # make sure that dynamic libraries gsl/lib/libgsl.so and MKL/lib/libmkl_rt.so are not changed
+      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/projects/bin/SDPR/MKL/lib
+      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/projects/bin/SDPR/gsl/lib
+      ```
 
-     ```bash
-     # Download the latest binary of PLINK 1.9
-     wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20220402.zip
+      **Please make sure that dynamic libraries are not changed every time when use SDPR.**
 
-     # Unzip the archive
-     unzip plink_linux_x86_64_20220402.zip -d ~/projects/bin
-
-     # Remove archive
-     rm plink2_linux_x86_64_latest.zip
-
-     # Test if PLINK 1.9 is successfully installed
-     export PATH=~/projects/bin:$PATH 
-     plink
-     ```
-
-   - Python modules/libraries:
-     - pandas
-     - scipy
-     - numpy
-    
-       *Here is my code to set up the Python Environment to use OTTERS:*
-       ```bash
-        # install miniconda
-        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-        bash Miniconda3-latest-Linux-x86_64.sh
-        source ~/.bashrc
-        # remove sh file 
-        rm Miniconda3-latest-Linux-x86_64.sh
-
-        # create the environment 
-        conda create --name otters python=3.9 pandas numpy scipy 
-        # deactivate the conda environment
-        conda deactivate
-       ```
-
-       *To use this environment to run OTTERS*:
-
-        ```bash
-         # activate the environment
-        conda activate otters
-
-        # RUN OTTERS HERE
-
-        # deactivate the environment
-        conda deactivate
-        ```
-
-   - If you want to apply SDPR and lassosum as imputation models, please install:
-     - [SDPR](https://github.com/eldronzhou/SDPR) to perform SDPR
-        
-        *Here is my code to download SDPR*
-        
-        ```bash
-        cd ~/projects/bin
-        git clone https://github.com/eldronzhou/SDPR.git
-
-        # make sure that dynamic libraries gsl/lib/libgsl.so and MKL/lib/libmkl_rt.so are not changed
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/projects/bin/SDPR/MKL/lib
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/projects/bin/SDPR/gsl/lib
-        ```
-
-        **Please make sure that dynamic libraries are not changed every time when use SDPR.**
-
-     - [lassosum](https://github.com/tshmak/lassosum) to perform lassosum. 
-     - [fdrtool](https://github.com/tshmak/lassosum) to perform pseudo-validation implemented in lassosum. 
-    
+    - [lassosum](https://github.com/tshmak/lassosum) to perform lassosum. 
+    - [fdrtool](https://github.com/tshmak/lassosum) to perform pseudo-validation implemented in lassosum. 
+  
   
 
 ## Stage I
