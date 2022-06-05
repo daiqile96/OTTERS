@@ -20,13 +20,13 @@ python prep.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PA
 
     | CHROM | POS | A1 | A2 | Zscore |  TargetID  |   N  |
     |:-----:|:---:|:--:|:--:|:------:|:----------:|:----:|
-    |   1   | 100 |  C |  T |   3    |  ENSG0000  |  0.2 |
+    |   1   | 100 |  C |  T |   3    |  ENSG0000  |   10 |
 
  - OUTPUT_DIR: Output directory
 
  - CHROM: An integer for the chromosome of tested genes. ***We will parpare inputs for all the genes in the annotation file that are on this chromosome. ***
 
- - R2: The R squre threshold used to perform LD-clumping.
+ - R2: The R squre threshold used to perform LD-clumping. 
 
  - WINDOW (optional): Window size (in base pairs) around gene region from which to include SNPs (default: 1000000 [+- 1MB region around gene region])
   
@@ -301,7 +301,7 @@ def thread_process(num):
         mode='w')
 
     # use call_PLINK_clump to generate command to call PLINK to perform LD-clumping 
-    clump_cmd = ots.call_PLINK_clump(target, param_dict['r2'], target + '.pvalue')
+    clump_cmd = ots.call_PLINK_clump(target, param_dict['r2'], target + '.pvalue', param_dict['window']/1000)
 
     try:
         proc = subprocess.check_call(clump_cmd,

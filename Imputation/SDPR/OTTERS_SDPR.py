@@ -127,7 +127,7 @@ def parse_param():
         print('* Please specify the directory to OTTERS --OTTERS_dir\n')
         sys.exit(2)
     elif param_dict['SDPR_dir'] is None:
-        print('* Please specify the directory to OTTERS --OTTERS_dir\n')
+        print('* Please specify the directory to SDPR --SDPR_dir\n')
         sys.exit(2)
     elif param_dict['in_dir'] is None:
         print('* Please specify the full path to input files --in_dir\n')

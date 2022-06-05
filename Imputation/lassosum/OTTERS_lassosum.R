@@ -1,9 +1,7 @@
 #!/usr/bin/env Rscript
 
 ###################################################################
-# Import packages needed
-library(foreach)
-library(bigstatsr)
+# Import packages neededåå
 library(data.table)
 library(lassosum)
 
@@ -49,11 +47,6 @@ if (is.null(argsL$chr)) {
   cat('* Please specify the output path\n')
   q(save="no")
 } 
-
-## Check optional parameters and assign default values
-if (is.null(argsL$n_thread)){
-  argsL$n_thread <- 1
-}
 
 print(argsL)
 

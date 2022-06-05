@@ -26,8 +26,27 @@
 ## Example:
 
 ```bash
+# activate the environment
+conda activate otters
+
+# set number of threads to be used
+N_THREADS=1
+
+# set up my OTTERS directory and SDPR directory
+OTTERS_DIR=/home/qdai8/projects/bin/OTTERS
+SDPR_DIR=/home/qdai8/projects/bin/SDPR
+# make sure the dynamic libraries are not changed
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${SDPR_DIR}/MKL/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${SDPR_DIR}/gsl/lib
+# prevent automatically using  all available cores on a compute node
+export MKL_NUM_THREADS=$N_THREADS
+export NUMEXPR_NUM_THREADS=$N_THREADS
+export OMP_NUM_THREADS=$N_THREADS
+
+# Start to run OTTERS
 cd ${OTTERS_DIR}/Example
 
+# set up input files
 exp_anno=exp_anno.txt
 geno_dir=Exp_geno
 sst_file=Exp_SumStats.txt
@@ -43,7 +62,7 @@ python3 ${OTTERS_DIR}/Imputation/prep/prep.py \
 --out_dir=${input_to_imputation} \
 --chrom=${chr} \
 --r2=0.99 \
---thread=2
+--thread=$N_THREADS
 
 # Step 2: Run Imputation models
 output_dir=Outputs
@@ -55,7 +74,7 @@ python3 ${OTTERS_DIR}/Imputation/PT/OTTERS_PT.py \
 --out_dir=${output_dir} \
 --chrom=${chr} \
 --pt=0.1,0.05 \
---thread=2
+--thread=$N_THREADS
 
 # lassosum
 python3 ${OTTERS_DIR}/Imputation/lassosum/OTTERS_lassosum.py \
@@ -63,7 +82,7 @@ python3 ${OTTERS_DIR}/Imputation/lassosum/OTTERS_lassosum.py \
 --in_dir=${input_to_imputation} \
 --out_dir=${output_dir} \
 --chrom=${chr} \
---thread=2
+--thread=$N_THREADS
 
 # SDPR
 SDPR_dir=${SDPR_DIR}
@@ -74,20 +93,19 @@ python3 ${OTTERS_DIR}/Imputation/SDPR/OTTERS_SDPR.py \
 --out_dir=${output_dir} \
 --chrom=${chr} \
 --r2=0.1 \
---thread=2
+--thread=$N_THREADS
 
 # PRS-CS
 # This may take several minutes to run
-python3 ${OTTERS_dir}/Imputation/PRScs/OTTERS_PRScs.py \
---OTTERS_dir=${OTTERS_dir} \
+python3 ${OTTERS_DIR}/Imputation/PRScs/OTTERS_PRScs.py \
+--OTTERS_dir=${OTTERS_DIR} \
 --in_dir=${input_to_imputation} \
 --out_dir=${output_dir} \
 --chrom=${chr} \
 --n_iter=500 \
 --n_burnin=200 \
 --phi=1e-4 \
---thread=1
-
+--thread=$N_THREADS
 ```
 
 ## Outputs of the Example: 
