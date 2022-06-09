@@ -20,13 +20,13 @@ python prep.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PA
 
     | CHROM | POS | A1 | A2 | Zscore |  TargetID  |   N  |
     |:-----:|:---:|:--:|:--:|:------:|:----------:|:----:|
-    |   1   | 100 |  C |  T |   3    |  ENSG0000  |   10 |
+    |   1   | 100 |  C |  T |   3    |  ENSG0000  |  0.2 |
 
  - OUTPUT_DIR: Output directory
 
  - CHROM: An integer for the chromosome of tested genes. ***We will parpare inputs for all the genes in the annotation file that are on this chromosome. ***
 
- - R2: The R squre threshold used to perform LD-clumping. 
+ - R2: The R squre threshold used to perform LD-clumping.
 
  - WINDOW (optional): Window size (in base pairs) around gene region from which to include SNPs (default: 1000000 [+- 1MB region around gene region])
   
@@ -224,7 +224,7 @@ def thread_process(num):
                              names=["CHROM", "POS", "A1", "A2", "Z", "TargetID", "N"],
                              iterator=True,
                              chunksize=1000,
-                             dtype={'P': np.float64, 'NrSamples': np.int32})
+                             dtype={'P': np.float64, 'N': np.int32})
 
     target_sst = pd.concat([chunk[chunk.TargetID == target] for chunk in sst_chunks]).reset_index(drop=True)
 
@@ -291,7 +291,8 @@ def thread_process(num):
     print('*Perform LD clumping...*')
 
     # generate summary statistics of p-value to perform LD-clumping
-    target_sst['P'] = chi2.sf(np.power(target_sst['Z'], 2), 1)
+    # we divided it by 5 here to shrink Zscore to prevent p-values = 0
+    target_sst['P'] = chi2.sf(np.power(target_sst['Z']/5, 2), 1)
     target_p = os.path.join(target_dir, target + '.pvalue')
     target_sst[['snpID', 'A1', 'A2', 'P']].to_csv(
         target_p,
@@ -301,7 +302,7 @@ def thread_process(num):
         mode='w')
 
     # use call_PLINK_clump to generate command to call PLINK to perform LD-clumping 
-    clump_cmd = ots.call_PLINK_clump(target, param_dict['r2'], target + '.pvalue', param_dict['window']/1000)
+    clump_cmd = ots.call_PLINK_clump(target, param_dict['r2'], target + '.pvalue')
 
     try:
         proc = subprocess.check_call(clump_cmd,

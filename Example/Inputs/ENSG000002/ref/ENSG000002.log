@@ -1,4 +1,4 @@
-PLINK v1.90b5.3 64-bit (21 Feb 2018)
+PLINK v1.90b6.26 64-bit (2 Apr 2022)
 Options in effect:
   --bfile ENSG000002
   --extract ref/ENSG000002.snplist
@@ -7,12 +7,12 @@ Options in effect:
   --out ref/ENSG000002
   --r square
 
-Hostname: node03.local
-Working directory: /mnt/YangFSS/data2/qdai/Tool_Test/OTTERS/Example/Inputs/ENSG000002
-Start time: Sat Jun  4 19:30:50 2022
+Hostname: node23
+Working directory: /projects/YangLabData/qdai/bin/OTTERS/Example/Inputs/ENSG000002
+Start time: Sun Jun  5 18:43:43 2022
 
-Random number seed: 1654385450
-257780 MB RAM detected; reserving 2000 MB for main workspace.
+Random number seed: 1654469023
+192086 MB RAM detected; reserving 2000 MB for main workspace.
 4522 variants loaded from .bim file.
 838 people (0 males, 0 females, 838 ambiguous) loaded from .fam.
 Ambiguous sex IDs written to ref/ENSG000002.nosex .
@@ -25,4 +25,4 @@ Total genotyping rate is 0.999011.
 Note: No phenotypes present.
 --r square to ref/ENSG000002.ld ... done.
 
-End time: Sat Jun  4 19:30:50 2022
+End time: Sun Jun  5 18:43:43 2022

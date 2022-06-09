@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 ###################################################################
-# Import packages neededåå
+# Import packages needed
 library(data.table)
 library(lassosum)
 
@@ -48,6 +48,11 @@ if (is.null(argsL$chr)) {
   q(save="no")
 } 
 
+## Check optional parameters and assign default values
+if (is.null(argsL$n_thread)){
+  argsL$n_thread <- 1
+}
+
 print(argsL)
 
 ###############################################################
@@ -92,11 +97,12 @@ beta = unlist(lassosum_out$beta)
 results = data.frame(sumstats, TargetID = gene_name, ES = beta) 
 results = results[, c("chr", "pos", "A1", "A2", "TargetID", "ES")]
 
+out_file=file.path(argsL$out_path, paste0(gene_name, "_lassosum.txt"))
 write.table(results,
-            argsL$out_path,
+            out_file,
             quote = F,
             row.names= F,
-            col.names= F,
+            col.names= T,
             sep = "\t",
-            append = T)
+            append = F)
 

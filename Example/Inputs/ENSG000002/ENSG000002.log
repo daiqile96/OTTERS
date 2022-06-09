@@ -1,4 +1,4 @@
-PLINK v1.90b5.3 64-bit (21 Feb 2018)
+PLINK v1.90b6.26 64-bit (2 Apr 2022)
 Options in effect:
   --bfile ENSG000002
   --clump ENSG000002.pvalue
@@ -10,13 +10,12 @@ Options in effect:
   --keep-allele-order
   --out ENSG000002
 
-Hostname: node03.local
-Working directory: /mnt/YangFSS/data2/qdai/Tool_Test/OTTERS/Example/Inputs/ENSG000002
-Start time: Sat Jun  4 18:43:36 2022
+Hostname: node23
+Working directory: /projects/YangLabData/qdai/bin/OTTERS/Example/Inputs/ENSG000002
+Start time: Sun Jun  5 18:38:34 2022
 
-Random number seed: 1654382616
-257780 MB RAM detected; reserving 128890 MB for main workspace.
-Allocated 7257 MB successfully, after larger attempt(s) failed.
+Random number seed: 1654468714
+192086 MB RAM detected; reserving 96043 MB for main workspace.
 4522 variants loaded from .bim file.
 838 people (0 males, 0 females, 838 ambiguous) loaded from .fam.
 Ambiguous sex IDs written to ENSG000002.nosex .
@@ -29,4 +28,4 @@ Note: No phenotypes present.
 --clump: 1695 clumps formed from 2919 top variants.
 Results written to ENSG000002.clumped .
 
-End time: Sat Jun  4 18:43:41 2022
+End time: Sun Jun  5 18:38:41 2022

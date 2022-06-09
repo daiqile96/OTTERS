@@ -155,7 +155,7 @@ def thread_process(num):
                         ' --medianN=' + str(int(target_n)) +
                         ' --bim_file=' + target +
                         ' --sst_file=' + target + '_beta.txt' +
-                        ' --out_path=' + os.path.join(os.getcwd(), out_dir) +
+                        ' --out_path=' + target_dir +
                         ' --chr=' + str(chrom) +
                         ' --LDblocks=EUR.hg38']
 
@@ -167,6 +167,23 @@ def thread_process(num):
             print('lassosum failed for TargetID: ' + target + '\n')
             return None
 
+    lassosum_out = os.path.join(target_dir, target + '_lassosum.txt')
+    lassosum_chunks = pd.read_csv(lassosum_out, sep='\t',
+                                  low_memory=False,
+                                  header=0,
+                                  names=['CHROM', 'POS', 'A1', 'A2', 'TargetID', 'ES'],
+                                  iterator=True,
+                                  chunksize=1000)
+
+    lassosum_target = pd.concat([chunk for chunk in lassosum_chunks]).reset_index(drop=True)
+    lassosum_target[['CHROM', 'POS', 'A1', 'A2', 'TargetID', 'ES']].to_csv(
+        out_dir,
+        sep='\t',
+        index=None,
+        header=None,
+        mode='a')
+
+    os.remove(lassosum_out)
     os.remove(os.path.join(target_dir, 'Rplots.pdf'))
     print('Done training lassosum. \n')
 
