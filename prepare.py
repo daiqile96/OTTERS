@@ -34,9 +34,9 @@ def prepare(target, target_anno, chrom, window,
         # print('Done making binary files.')
     except subprocess.CalledProcessError:
         print('There is no genotype data for TargetID: ' + target)
-        print('Remove binary files for TargetID: ' + target + '.\n')
+        print('Remove temporary files for TargetID: ' + target + '.\n')
         shutil.rmtree(target_dir)
-        return None
+        return None, None, None
 
     ################# Read in eQTL summary statistics #####################
 
@@ -46,9 +46,9 @@ def prepare(target, target_anno, chrom, window,
 
     if not sst_proc_out:
         print('There is no summary statistics data for the range of ' + target)
-        print('Remove binary files for TargetID: ' + target + '.\n')
+        print('Remove temporary files for TargetID: ' + target + '.\n')
         shutil.rmtree(target_dir)
-        return None
+        return None, None, None
 
     sst_chunks = pd.read_csv(StringIO(sst_proc_out.decode('utf-8')), sep='\t',
                              low_memory=False,
@@ -62,9 +62,9 @@ def prepare(target, target_anno, chrom, window,
 
     if len(target_sst) == 0:
         print('There is no summary statistics data for TargetID: ' + target)
-        print('Remove binary files for TargetID: ' + target + '.\n')
+        print('Remove temporary files for TargetID: ' + target + '.\n')
         shutil.rmtree(target_dir)
-        return None
+        return None, None, None
 
     ################# Read in SNPs in LD reference #####################
 
@@ -93,9 +93,9 @@ def prepare(target, target_anno, chrom, window,
 
     if not snp_overlap.size:
         print('No overlapping test eQTLs')
-        print('Remove binary files for TargetID: ' + target + '.\n')
+        print('Remove temporary files for TargetID: ' + target + '.\n')
         shutil.rmtree(target_dir)
-        return None
+        return None, None, None
 
     # else:
         # print('Find %s overlapped eQTLs' % (len(snp_overlap)))

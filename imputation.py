@@ -149,6 +149,8 @@ def thread_process(num):
                                                     out_dir=out_dir,
                                                     sst_dir=param_dict['sst_file'],
                                                     clump_r2=param_dict['r2'])
+    if (target_dir is None):
+        return None
 
     ################# Start Imputation Models #############################
 
