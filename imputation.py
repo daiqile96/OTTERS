@@ -263,7 +263,7 @@ def thread_process(num):
 if __name__ == '__main__':
     print('Start train eQTL weights for ' + str(n_targets) + ' target genes.\n')
     pool = multiprocessing.Pool(param_dict['thread'])
-    pool.imap(thread_process, [num for num in range(2)])
+    pool.imap(thread_process, [num for num in range(n_targets)])
     pool.close()
     pool.join()
     print('Done.')
