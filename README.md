@@ -110,13 +110,11 @@ Download and install following required tools, modules, and packages:
 We provide an integrated tool that can 
  -  perform LD-clumping 
  -  prepare the required inputs (LD reference and eQTL summary statistics) in the required formats for P+T, lassosum, SDPR, and PRS-CS
- -  perform P+T, lassosum, SDPR, and PRS-CS.
+ -  run P+T, lassosum, SDPR, and PRS-CS to train eQTL weights.
 
 In this tool, we 
  - integrate [TABIX](http://www.htslib.org/doc/tabix.html) and [PLINK 1.9](https://www.cog-genomics.org/plink) tools to extract input data per target gene more efficiently
  - enable parallel computation to train imputation models simultaneously for multiple genes. 
-
-More details about using OTTERS to perform Stage I TWAS can be found [here](Imputation/README.md).
 
 ### *The example of using OTTERS to train eQTL weights using eQTL summary statistics and LD reference data:*
 
@@ -126,92 +124,54 @@ More details about using OTTERS to perform Stage I TWAS can be found [here](Impu
 
   # set number of threads to be used
   N_THREADS=1
- 
+
   # set up my OTTERS directory and SDPR directory
-  OTTERS_DIR=/home/qdai8/projects/bin/OTTERS
+  OTTERS_DIR=/home/qdai8/projects/bin/OTTERS_new
   SDPR_DIR=/home/qdai8/projects/bin/SDPR
-  # make sure the dynamic libraries are not changed
+
+  # make sure the dynamic libraries of SDPR are not changed
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${SDPR_DIR}/MKL/lib
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${SDPR_DIR}/gsl/lib
+
   # prevent automatically using  all available cores on a compute node
   export MKL_NUM_THREADS=$N_THREADS
   export NUMEXPR_NUM_THREADS=$N_THREADS
   export OMP_NUM_THREADS=$N_THREADS
 
+  # Load R to perform lassosum
+  module load R
+
   # Start to run OTTERS
   cd ${OTTERS_DIR}/Example
-  
+
   # set up input files
   exp_anno=exp_anno.txt
   geno_dir=Exp_geno
   sst_file=Exp_SumStats.txt
-  input_to_imputation=Inputs
+  out_dir=Results
   chr=4
+  
+  # set LD-clumping threshold 
+  clump_r2=0.99
 
-  # Step 1: Prepare inputs with LD-clumping R^2 = 0.99
-  python3 ${OTTERS_DIR}/Imputation/prep/prep.py \
+  # Run OTTERS to train eQTL weights using P+T, lassosum, SDPR and PRS-CS. 
+  # It may take several minutes to complete.
+  python3 ${OTTERS_DIR}/imputation.py \
   --OTTERS_dir=${OTTERS_DIR} \
+  --SDPR_dir=${SDPR_DIR} \
   --anno_dir=${exp_anno} \
   --geno_dir=${geno_dir} \
   --sst_file=${sst_file}.gz \
-  --out_dir=${input_to_imputation} \
+  --out_dir=${out_dir} \
   --chrom=${chr} \
-  --r2=0.99 \
-  --thread=$N_THREADS
-
-  # Step 2: Run Imputation models
-  output_dir=Outputs
-
-  # P+T
-  python3 ${OTTERS_DIR}/Imputation/PT/OTTERS_PT.py \
-  --OTTERS_dir=${OTTERS_DIR} \
-  --in_dir=${input_to_imputation} \
-  --out_dir=${output_dir} \
-  --chrom=${chr} \
-  --pt=0.1,0.05 \
-  --thread=$N_THREADS
-
-  # lassosum
-  python3 ${OTTERS_DIR}/Imputation/lassosum/OTTERS_lassosum.py \
-  --OTTERS_dir=${OTTERS_DIR} \
-  --in_dir=${input_to_imputation} \
-  --out_dir=${output_dir} \
-  --chrom=${chr} \
-  --thread=$N_THREADS
-
-  # SDPR
-  SDPR_dir=${SDPR_DIR}
-  python3 ${OTTERS_DIR}/Imputation/SDPR/OTTERS_SDPR.py \
-  --OTTERS_dir=${OTTERS_DIR} \
-  --SDPR_dir=${SDPR_DIR} \
-  --in_dir=${input_to_imputation} \
-  --out_dir=${output_dir} \
-  --chrom=${chr} \
-  --r2=0.1 \
-  --thread=$N_THREADS
-
-  # PRS-CS
-  # This may take several minutes to run
-  python3 ${OTTERS_DIR}/Imputation/PRScs/OTTERS_PRScs.py \
-  --OTTERS_dir=${OTTERS_DIR} \
-  --in_dir=${input_to_imputation} \
-  --out_dir=${output_dir} \
-  --chrom=${chr} \
-  --n_iter=500 \
-  --n_burnin=200 \
-  --phi=1e-4 \
+  --r2=${clump_r2} \
+  --models=PT,lassosum,SDPR,PRScs \
   --thread=$N_THREADS
   ```
 
-## Stage II
+## Stage II (Still working on Stage II)
 
-In Stage II, we impute GReX and perform gene-based association analysis in the test GWAS dataset. In this stage, we applied the [TIGAR tool](https://github.com/yanglab-emory/TIGAR) to perform GReX imputation and gene-based association analysis. 
-  
- - [GRex Imputation](https://github.com/daiqile96/OTTERS/tree/main/Testing#grex-imputation)
-  
- - [Gene-based association analysis](https://github.com/daiqile96/OTTERS/tree/main/Testing#gene-based-association-test)
-
- - [Omnibus Test](https://github.com/daiqile96/OTTERS/tree/main/Testing#omnibus-test)
+In Stage II, we impute GReX and perform gene-based association analysis in the test GWAS dataset. 
 
 Notes:
 
