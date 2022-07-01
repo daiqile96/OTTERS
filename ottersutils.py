@@ -7,9 +7,13 @@ import subprocess
 import sys
 import traceback
 from numpy import linalg
+from functools import reduce
+from io import StringIO
+from scipy.stats.distributions import chi2
 import pandas as pd
 import numpy as np
 import getopt
+import pysam
 
 #########################################################
 ## FUNCTIONS:
@@ -26,142 +30,105 @@ import getopt
 # call_PLINK_extract
 
 
-################ Parse arguments ##################
+def sort(in_file, out_file):
 
-def parse_param():
+    sort_cmd = 'tail -n +2 ' + in_file + ' | sort -n -k1 -k2 >> ' + out_file
 
-    long_opts_list = ['OTTERS_dir=', 'anno_dir=', 'geno_dir=',
-                      'sst_file=', 'out_dir=', 'chrom=', 'r2=',
-                      'window=', 'thread=', 'models=',
-                      'pt=',
-                      'prscs_a=', 'prscs_b=', 'prscs_phi=',
-                      'prscs_n_iter=', 'prscs_n_burnin=', 'prscs_thin=',
-                      'seed=',
-                      'SDPR_dir=', 'SDPR_r2=', 'SDPR_M=', 'SDPR_opt_llk=',
-                      'SDPR_iter=', 'SDPR_burn=', 'SDPR_thin=', 'SDPR_a=',
-                      'SDPR_c=', 'SDPR_a0k=', 'SDPR_b0k=',
-                      'help']
+    try:
+        proc = subprocess.check_call(sort_cmd,
+                                     stdout=subprocess.PIPE,
+                                     shell=True)
+    except subprocess.CalledProcessError:
+        print('Sorting failed for ' + in_file)
+        return None
 
-    param_dict = {'OTTERS_dir': None, 'anno_dir': None,
-                  'geno_dir': None, 'sst_file': None, 'out_dir': None, 'chrom': None,
-                  'r2': 2, 'window': 1000000, 'thread': 1, 'models': None,
-                  'pt': [0.001, 0.05],
-                  'prscs_a': 1, 'prscs_b': 0.5, 'prscs_phi': 0.0001,
-                  'prscs_n_iter': 1000, 'prscs_n_burnin': 500, 'prscs_thin': 5,
-                  'SDPR_dir': None, 'SDPR_r2': 0.1, 'SDPR_M': 1000, 'SDPR_opt_llk': 1,
-                  'SDPR_iter': 1000, 'SDPR_burn': 200, 'SDPR_thin': 1, 'SDPR_a': 0.1,
-                  'SDPR_c': 1, 'SDPR_a0k': 0.5, 'SDPR_b0k': 0.5,
-                  'seed': None}
+    return out_file
 
-    print('\n')
 
-    if len(sys.argv) > 1:
+def tabix(in_file, format='bgzip', tmp_file=None):
+
+    """ Tabix a txt or txt.gz file with option to keep the original file or not """
+
+    # if the file is not compressed, firt compress and save to a temporary file
+    if format == 'txt':
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "h", long_opts_list)
+            pysam.tabix_compress(in_file, tmp_file, force=True)
         except:
-            print('Option not recognized.')
-            print('Use --help for usage information.\n')
-            sys.exit(2)
-
-        for opt, arg in opts:
-            if opt == "-h" or opt == "--help":
-                print(__doc__)
-                sys.exit(0)
-            elif opt == "--OTTERS_dir":
-                param_dict['OTTERS_dir'] = arg
-            elif opt == "--anno_dir":
-                param_dict['anno_dir'] = arg
-            elif opt == "--geno_dir":
-                param_dict['geno_dir'] = arg
-            elif opt == "--sst_file":
-                param_dict['sst_file'] = arg
-            elif opt == "--out_dir":
-                param_dict['out_dir'] = arg
-            elif opt == "--chrom":
-                param_dict['chrom'] = str(arg)
-            elif opt == "--r2":
-                param_dict['r2'] = float(arg)
-            elif opt == "--window":
-                param_dict['window'] = int(arg)
-            elif opt == "--thread":
-                param_dict['thread'] = int(arg)
-            elif opt == "--models":
-                param_dict['models'] = arg.split(',')
-            elif opt == "--pt":
-                param_dict['pt'] = arg.split(',')
-            elif opt == "--prscs_a":
-                param_dict['prscs_a'] = float(arg)
-            elif opt == "--prscs_b":
-                param_dict['prscs_b'] = float(arg)
-            elif opt == "--prscs_phi":
-                param_dict['prscs_phi'] = float(arg)
-            elif opt == "--prscs_n_iter":
-                param_dict['prscs_n_iter'] = int(arg)
-            elif opt == "--prscs_n_burnin":
-                param_dict['prscs_n_burnin'] = int(arg)
-            elif opt == "--prscs_thin":
-                param_dict['prscs_thin'] = int(arg)
-            elif opt == "--SDPR_dir":
-                param_dict['SDPR_dir'] = arg
-            elif opt == "--SDPR_r2":
-                param_dict['SDPR_r2'] = float(arg)
-            elif opt == "--SDPR_M":
-                param_dict['SDPR_M'] = int(arg)
-            elif opt == "--SDPR_opt_llk":
-                param_dict['SDPR_opt_llk'] = int(arg)
-            elif opt == "--SDPR_iter":
-                param_dict['SDPR_iter'] = int(arg)
-            elif opt == "--SDPR_burn":
-                param_dict['SDPR_burn'] = int(arg)
-            elif opt == "--SDPR_thin":
-                param_dict['SDPR_thin'] = int(arg)
-            elif opt == "--SDPR_a":
-                param_dict['SDPR_a'] = float(arg)
-            elif opt == "--SDPR_c":
-                param_dict['SDPR_c'] = float(arg)
-            elif opt == "--SDPR_a0k":
-                param_dict['SDPR_a0k'] = float(arg)
-            elif opt == "--SDPR_b0k":
-                param_dict['SDPR_b0k'] = float(arg)
-            elif opt == "--thread":
-                param_dict['thread'] = int(arg)
-            elif opt == "--seed":
-                param_dict['seed'] = int(arg)
+            print('Compress failed for ' + in_file)
+            return None
     else:
-        print(__doc__)
-        sys.exit(0)
+        tmp_file = in_file
 
-    if param_dict['OTTERS_dir'] is None:
-        print('* Please specify the directory to OTTERS --OTTERS_dir\n')
-        sys.exit(2)
-    elif param_dict['anno_dir'] is None:
-        print('* Please specify the directory to the gene annotation file using --anno_dir\n')
-        sys.exit(2)
-    elif param_dict['geno_dir'] is None:
-        print('* Please specify the directory to the binary file of LD reference panel --geno_dir\n')
-        sys.exit(2)
-    elif param_dict['sst_file'] is None:
-        print('* Please specify the eQTL summary statistics file using --sst_file\n')
-        sys.exit(2)
-    elif param_dict['out_dir'] is None:
-        print('* Please specify the output directory\n')
-        sys.exit(2)
-    elif param_dict['chrom'] is None:
-        print('* Please specify the chromosome --chrom\n')
-        sys.exit(2)
-    elif param_dict['models'] is None:
-        print('* Please specify the imputation models --models\n')
-        sys.exit(2)
+    try:
+        out_file = pysam.tabix_index(tmp_file, force=True,
+                                     seq_col=0, start_col=1, end_col=1,
+                                     line_skip=1)
+    except:
+        print('Tabix failed for ' + in_file)
+        return None
 
-    for key in param_dict:
-        print('--%s=%s' % (key, param_dict[key]))
+    return out_file
 
-    print('\n')
-    return param_dict
 
+def sort_tabix_sst(sst_dir, out_dir):
+
+    print('Sort and Tabix summary statistics...')
+
+    if not os.path.exists(sst_dir):
+        print("Summary statistics doesn't exists.")
+        return None
+
+    # sort trained eQTL weights by chromosome and position of SNPs
+    sort_sst = sort(sst_dir, os.path.join(out_dir, 'sort_sst.txt'))
+
+    if not sort_sst:
+        return None
+
+    # tabix sorted file
+    tabix_out = tabix(sort_sst)
+    if not tabix_out:
+        return None
+
+    return tabix_out
+
+
+def sort_tabix_weight(weight_dir, models, out_dir):
+
+    print('Sort and Tabix trained eQTL weights...')
+    # create a temp directory to save sorted and tabixed weights
+    idx = 0
+    fail_idx = 0
+    success = []
+    out = []
+
+    for model in models:
+
+        idx += 1
+        w_file = os.path.join(weight_dir, model + '.txt')
+
+        if not os.path.exists(w_file):
+            fail_idx += 1
+            print(w_file + 'does not exists')
+            continue
+
+        # sort trained eQTL weights by chromosome and position of SNPs
+        sort_weights = sort(w_file, os.path.join(out_dir, 'sort_' + model + '.txt'))
+        if not sort_weights:
+            fail_idx += 1
+            continue
+
+        # tabix sorted file
+        tabix_out = tabix(sort_weights)
+        if not tabix_out:
+            fail_idx += 1
+            continue
+
+        success.append(model)
+        out.append(tabix_out)
+
+    return success, out
 
 #########################################################
-
 # wrapper for thread_process functions; adds error catching/logging for failed targets
 def error_handler(func):
     @functools.wraps(func)
@@ -206,6 +173,7 @@ def check_path(path):
     if not os.path.isdir(path):
         os.makedirs(path)
 
+
 # return snpIDs
 def get_snpIDs(df: pd.DataFrame, flip=False):
     chroms = df['CHROM'].astype('str').values
@@ -217,6 +185,7 @@ def get_snpIDs(df: pd.DataFrame, flip=False):
         return ['_'.join(i) for i in zip(chroms, pos, A1, A2)]
     else:
         return ['_'.join(i) for i in zip(chroms, pos, A2, A1)]
+
 
 # Decrease memory by downcasting 'CHROM' column to integer, integer and float columns to minimum size that will not lose info
 def optimize_cols(df: pd.DataFrame):
@@ -232,20 +201,54 @@ def optimize_cols(df: pd.DataFrame):
 
     return df
 
+
+# determine indices of file cols to read in, dtype of each col
+def get_cols_dtype(cols):
+
+    dtype_dict = {
+        'CHROM': object,
+        'POS': np.int64,
+        'A1': object,
+        'A2': object,
+        'SNP': object,
+        'ES': np.float64,
+        'Z': np.float64,
+        'N': np.int64,
+        'GeneEnd': np.int64,
+        'GeneName': object,
+        'GeneStart': np.int64,
+        'snpID': object,
+        'TargetID': object,
+        'bp': object}
+
+    out_dtype_dict = {x: dtype_dict[x] for x in cols}
+
+    return out_dtype_dict
+
 ################ Functions related to PLINK ##################
 
 
-def call_PLINK_extract(bim_path, out_path, target, chr, start, end):
+def call_PLINK_extract(bim_path, out_path, target, chrom, start_pos, end_pos):
 
     # save the range of the gene
     range = os.path.join(out_path, 'range.txt')
     with open(range, 'w') as ff:
-        ff.write('%s\t%s\t%s\t%s\n' % (chr, start, end, target))
+        ff.write('%s\t%s\t%s\t%s\n' % (chrom, start_pos, end_pos, target))
 
     # extract the genotype data for this range
     out_geno = os.path.join(out_path, target)
+
     cmd = ["plink --bfile "+bim_path+" --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
-    return cmd
+
+    try:
+        proc = subprocess.check_call(cmd,
+                                     stdout=subprocess.PIPE,
+                                     shell=True)
+    except subprocess.CalledProcessError:
+        print('There is no genotype reference data.')
+        return None
+
+    return True
 
 
 def call_PLINK_clump(bim_path, r2, pvalue_path, work_dir, window=1000, p=1, snp_field="snpID", p_field="P"):
@@ -273,13 +276,137 @@ def call_PLINK_predict(bim_path, score_path, out_path):
            " --out " + out_path]
     return cmd
 
-################ Functions related to TABIX ##################
 
+################ Function to read in and format reference bim file ##################
+
+def read_format_ref_bim(ref_dir, ref_file):
+
+    target_bim = os.path.join(ref_dir, ref_file)
+
+    col_names = ["CHROM", "SNP", "bp", "POS", "A1", "A2"]
+    dtypes = get_cols_dtype(col_names)
+
+    ref_chunks = pd.read_csv(target_bim, sep='\t',
+                             low_memory=False,
+                             header=None,
+                             names=col_names,
+                             iterator=True,
+                             chunksize=1000,
+                             dtype=dtypes)
+
+    target_ref = pd.concat([chunk for chunk in ref_chunks]).reset_index(drop=True)
+
+    if len(target_ref) == 0:
+        return None
+
+    # format snp IDs in the reference bim file
+    target_ref['snpID'] = get_snpIDs(target_ref, flip=False)
+
+    target_ref[['CHROM', 'snpID', 'bp', 'POS', 'A1', 'A2']].to_csv(
+        target_bim,
+        sep='\t',
+        index=None,
+        header=None,
+        mode='w')
+
+    return target_ref
+
+
+################ Functions to read in summary statistics ##################
+
+def extract_start_end_pos(target_info, window):
+
+    start = str(max(int(target_info.GeneStart) - window,0))
+    end = str(int(target_info.GeneEnd) + window)
+
+    return start, end
+
+
+def read_sst_by_chunks(tabix_out, sst, target):
+
+    if not tabix_out:
+        return None
+
+    if sst == 'eQTL weights':
+        col_names = ["CHROM", "POS", "A1", "A2", "TargetID", "ES"]
+    elif sst == 'GWAS':
+        col_names = ["CHROM", "POS", "A1", "A2", "Z"]
+    elif sst == 'eQTL sst':
+        col_names = ["CHROM", "POS", "A1", "A2", "Z", "TargetID", "N"]
+
+    dtypes = get_cols_dtype(col_names)
+
+    chunks = pd.read_csv(StringIO(tabix_out.decode('utf-8')), sep='\t',
+                         low_memory=False,
+                         header=None,
+                         names=col_names,
+                         iterator=True,
+                         chunksize=1000,
+                         dtype=dtypes)
+
+    if sst == 'GWAS':
+        target_df = pd.concat([chunk for chunk in chunks]).reset_index(drop=True)
+    else:
+        target_df = pd.concat([chunk[chunk.TargetID == target] for chunk in chunks]).reset_index(drop=True)
+
+    if target_df.empty:
+        return None
+
+    target_df = optimize_cols(target_df)
+
+    return target_df
+
+
+def read_sst(sst_file, sst, target, chrom, start_pos, end_pos):
+
+    # call tabix to extract estimated eQTL effect sizes for target gene
+    tabix_out = call_tabix(sst_file, chrom, start_pos, end_pos)
+
+    # read in estimated eQTL effect sizes
+    target_df = read_sst_by_chunks(tabix_out=tabix_out,
+                                   sst=sst,
+                                   target=target)
+
+    return target_df
+
+
+################ Function to read in annotation file ##################
+
+def read_anno(anno_dir, chrom):
+
+    col_names = ['CHROM', 'GeneEnd', 'GeneStart', 'TargetID']
+    dtypes = get_cols_dtype(col_names)
+
+    print('Read gene annotation data on chromosome ' + chrom + '...')
+    anno_chunks = pd.read_csv(
+        anno_dir,
+        sep='\t',
+        header=0,
+        chunksize=10000,
+        iterator=True,
+        dtype=dtypes)
+
+    GeneAnno = pd.concat([x[x['CHROM'] == chrom] for x in anno_chunks]).reset_index(drop=True)
+
+    if GeneAnno.empty:
+        print('There are no valid gene annotation data for chromosome ' + chrom + '\n')
+        return None
+
+    GeneAnno = optimize_cols(GeneAnno)
+    TargetID = GeneAnno.TargetID
+    n_targets = TargetID.size
+
+    return GeneAnno, TargetID, n_targets
+
+
+################ Functions related to TABIX ##################
 # Call tabix, read in lines into byt array
-def call_tabix(path, chr, start, end):
+def call_tabix(path, chrom, start, end):
+
+    chrom = str(chrom)
 
     proc = subprocess.Popen(
-        ["tabix "+path+" "+chr+":"+start+"-"+end],
+        ["tabix "+path+" "+chrom+":"+start+"-"+end],
         shell=True,
         stdout=subprocess.PIPE)
 
@@ -287,7 +414,7 @@ def call_tabix(path, chr, start, end):
 
     # process while subprocesses running
     while proc.poll() is None:
-        line =  proc.stdout.readline()
+        line = proc.stdout.readline()
         if len(line) == 0:
             break
         proc_out += line
@@ -367,6 +494,7 @@ def save_results(model, out_df, out_dir):
 
     print('Finish ' + model + '.')
 
+
 def save_results_PT(p, out_df, out_dir):
 
     out_df[['CHROM', 'POS', 'A1', 'A2', 'TargetID', 'Beta']].to_csv(
@@ -418,7 +546,17 @@ def format_save_results(work_dir, out_dir, model, sst_df):
     save_results(model, out_df, out_dir)
 
 
-def PRScs_LD_cmd(bim_dir, sst_df, out_file, work_dir):
+def pos_def_matrix(mat):
+    """ convert the input matrix to the cloest positive definite matrix"""
+    # Make sure the ld is positive definite matrix
+    _, s, v = linalg.svd(mat)
+    h = np.dot(v.T, np.dot(np.diag(s), v))
+    mat_pos_def = (mat+h)/2
+
+    return mat_pos_def
+
+
+def plink_LD_cmd(bim_dir, sst_df, out_file, work_dir, convert=None):
 
     target_snplist = sst_df['snpID']
     target_snplist_path = os.path.join(work_dir, 'snplist.txt')
@@ -444,7 +582,7 @@ def PRScs_LD_cmd(bim_dir, sst_df, out_file, work_dir):
             # print('LD calculation completed.')
     except subprocess.CalledProcessError:
             print('LD calculation failed. \n')
-            return None
+            return None, None
 
     ld_dir = os.path.join(work_dir, out_file + '.ld')
 
@@ -464,40 +602,17 @@ def PRScs_LD_cmd(bim_dir, sst_df, out_file, work_dir):
     # We set nan = 0 here 
     V = np.nan_to_num(V)
 
-    # Make sure the ld is positive definite matrix
-    # PLINK rounds to 6 decimal points, which sometimes makes the correlation matrix become not positive definite
-    _, s, v = linalg.svd(V)
-    h = np.dot(v.T, np.dot(np.diag(s), v))
-    V = (V+h)/2
+    if convert:
+        # PLINK rounds to 6 decimal points, which sometimes makes the correlation matrix become not positive definite
+        # convert it to be positive definite
+        V = pos_def_matrix(V)
+
     blk_size = len(V)
 
     return V, blk_size
 
 
-
 ################ Read In Functions ##################
-
-def read_anno(anno_dir, chrom, dtype={'CHROM': object, 'GeneEnd': np.int64, 'GeneStart': np.int64, 'TargetID': object}):
-
-    print('Read gene annotation data on chromosome ' + chrom + '...')
-    anno_chunks = pd.read_csv(
-        anno_dir,
-        sep='\t',
-        header=0,
-        chunksize=10000,
-        iterator=True,
-        dtype=dtype)
-
-    GeneAnno = pd.concat([x[x['CHROM'] == chrom] for x in anno_chunks]).reset_index(drop=True)
-
-    if GeneAnno.empty:
-        print('There are no valid gene annotation data for chromosome ' + chrom + '\n')
-        return None
-
-    TargetID = GeneAnno.TargetID
-    n_targets = TargetID.size
-
-    return GeneAnno, TargetID, n_targets
 
 
 def create_file_title(out_cols, out_dir, out_file):
@@ -536,7 +651,7 @@ def read_in_clumped(clumped_file, chrom):
     return snps
 
 
-################ Match snpIDs of two data frames ##################
+################ Match snpIDs of data frames ##################
 
 def filter_df_rows(df, filter_by, filter_cols):
 
@@ -544,29 +659,76 @@ def filter_df_rows(df, filter_by, filter_cols):
 
     return df
 
-def match_snp_ID(df_ref, df_sst):
+
+def handle_flip_snps(df_ref, df_1, statistics):
+    """Handle flipped snp IDs"""
+
+    # filter out non-matching snpID rows in df_ref and df_1
+    df_1 = df_1[np.any(df_1[['snpID', 'snpIDflip']].isin(df_ref.snpID.values), axis=1)].reset_index(drop=True)
+
+    # if snpID is not in df_ref.snpID, assumed flipped; if flipped, flip Zscore sign
+    df_1['flip'] = np.where(df_1.snpID.isin(df_ref.snpID.values), 1, -1)
+    if not np.all(df_1['flip'] == 1):
+            idx = (df_1['flip'] == -1)
+            df_1.loc[idx, ['snpID']] = df_1.loc[idx, ['snpIDflip']].values
+            df_1.loc[idx, ['A1', 'A2']] = df_1.loc[idx, ['A2', 'A1']].values
+            df_1[statistics] = df_1['flip'] * df_1[statistics]
+    return df_1
+
+
+def match_snp_ID_double(df_ref, df_1):
 
     df_ref['snpID'] = get_snpIDs(df_ref, flip=False)
-    df_sst['snpID'] = get_snpIDs(df_sst, flip=False)
-    df_sst['snpIDflip'] = get_snpIDs(df_sst, flip=True)
+    df_1['snpID'] = get_snpIDs(df_1, flip=False)
+    df_1['snpIDflip'] = get_snpIDs(df_1, flip=True)
 
     # find overlapped snpIDs
-    overlap_list = np.intersect1d(df_ref['snpID'], df_sst[['snpID', 'snpIDflip']])
+    overlap_list = np.intersect1d(df_ref['snpID'], df_1[['snpID', 'snpIDflip']])
 
     if overlap_list.size:
-        # filter out rows with non-matching snpIDs from the eQTL summary statistics
-        df_sst = filter_df_rows(df=df_sst,
-                                filter_by=overlap_list,
-                                filter_cols=['snpID', 'snpIDflip'])
+        df_ref = df_ref[df_ref.snpID.isin(overlap_list)]
+        df_1 = handle_flip_snps(df_ref, df_1, 'Z')
+    else:
+        return None, None, None
 
-        # if not in df_ref.snpID, that means snpIDflip is in df_ref.snpID;
-        # if snpIDflip is in df_ref.snpID, flip Zscore sign, flip A1 A2.
-        df_sst['flip'] = np.where(df_sst.snpID.isin(df_ref.snpID.values), 1, -1)
-        if not np.all(df_sst['flip'] == 1):
-            idx = (df_sst['flip'] == -1)
-            df_sst.loc[idx, ['snpID']] = df_sst.loc[idx, ['snpIDflip']].values
-            df_sst.loc[idx, ['A1', 'A2']] = df_sst.loc[idx, ['A2', 'A1']].values
-            df_sst['Z'] = df_sst['flip'] * df_sst['Z']
+    return df_ref, df_1, overlap_list
 
-    return df_ref, df_sst, overlap_list
+
+def match_snp_ID_triple(df_ref, df_1, df_2):
+    """Match snps in df_1 and df_2 with snps in df_ref"""
+    df_ref['snpID'] = get_snpIDs(df_ref, flip=False)
+    df_1['snpID'] = get_snpIDs(df_1, flip=False)
+    df_1['snpIDflip'] = get_snpIDs(df_1, flip=True)
+    df_2['snpID'] = get_snpIDs(df_2, flip=False)
+    df_2['snpIDflip'] = get_snpIDs(df_2, flip=True)
+
+    # find overlapped snpIDs
+    overlap_list = reduce(np.intersect1d, (df_ref.snpID, df_1[['snpID', 'snpIDflip']], df_2[['snpID', 'snpIDflip']]))
+
+    if overlap_list.size:
+        df_ref = df_ref[df_ref.snpID.isin(overlap_list)]
+        # filter out rows with non-matching snpIDs in df_1 and df_2
+        df_1 = handle_flip_snps(df_ref, df_1, 'Z')
+        df_2 = handle_flip_snps(df_ref, df_2, 'ES')
+    else:
+        return None, None, None, None
+
+    return df_ref, df_1, df_2, overlap_list
+
+
+################ TWAS with GWAS summary statistics ##################
+
+
+def get_pval(z):
+    return np.format_float_scientific(chi2.sf(np.power(z, 2), 1), precision=15, exp_digits=0)
+
+
+def get_z_denom(V, w):
+    return np.sqrt(np.linalg.multi_dot([w, V, w]))
+
+
+def get_fusion_zscore(V_cor, w, Z_gwas, snp_sd=None):
+    Z_twas = np.vdot(Z_gwas, w) / get_z_denom(V_cor, w)
+    return Z_twas, get_pval(Z_twas)
+
 

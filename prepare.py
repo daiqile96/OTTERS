@@ -1,10 +1,6 @@
-
 from scipy.stats.distributions import chi2
-from io import StringIO
 import ottersutils as ots
-import subprocess
 import shutil
-import pandas as pd
 import numpy as np
 import os
 
@@ -25,80 +21,51 @@ def prepare(target, target_anno, chrom, window,
     ots.check_path(target_dir)
 
     # generate command to call PLINK to extract the binary file for the target gene
-    extract_cmd = ots.call_PLINK_extract(geno_dir, target_dir, target, chrom, start, end)
+    extract_proc = ots.call_PLINK_extract(bim_path=geno_dir,
+                                          out_path=target_dir,
+                                          target=target,
+                                          chrom=chrom,
+                                          start_pos=start,
+                                          end_pos=end)
 
-    try:
-        proc = subprocess.check_call(extract_cmd,
-                                     stdout=subprocess.PIPE,
-                                     shell=True)
-        # print('Done making binary files.')
-    except subprocess.CalledProcessError:
-        print('There is no genotype data for TargetID: ' + target)
-        print('Remove temporary files for TargetID: ' + target + '.\n')
+    if not extract_proc:
+        print('Remove temporary files. \n')
         shutil.rmtree(target_dir)
         return None, None, None
 
     ################# Read in eQTL summary statistics #####################
+    target_sst = ots.read_sst(sst_file=sst_dir,
+                              sst='eQTL sst',
+                              target=target,
+                              chrom=chrom,
+                              start_pos=start,
+                              end_pos=end)
 
-    # print('*Reading eQTL summary statistics data...*')
-
-    sst_proc_out = ots.call_tabix(sst_dir, chrom, start, end)
-
-    if not sst_proc_out:
-        print('There is no summary statistics data for the range of ' + target)
-        print('Remove temporary files for TargetID: ' + target + '.\n')
-        shutil.rmtree(target_dir)
-        return None, None, None
-
-    sst_chunks = pd.read_csv(StringIO(sst_proc_out.decode('utf-8')), sep='\t',
-                             low_memory=False,
-                             header=None,
-                             names=["CHROM", "POS", "A1", "A2", "Z", "TargetID", "N"],
-                             iterator=True,
-                             chunksize=1000,
-                             dtype={'P': np.float64, 'N': np.int32})
-
-    target_sst = pd.concat([chunk[chunk.TargetID == target] for chunk in sst_chunks]).reset_index(drop=True)
-
-    if len(target_sst) == 0:
-        print('There is no summary statistics data for TargetID: ' + target)
-        print('Remove temporary files for TargetID: ' + target + '.\n')
+    if target_sst is None:
+        print('There is no estimated eQTL weights')
+        print('Remove temporary files. \n')
         shutil.rmtree(target_dir)
         return None, None, None
 
     ################# Read in SNPs in LD reference #####################
-
     # read in snps in LD reference panel
-    target_bim = os.path.join(target_dir, target + '.bim')
-    ref_chunks = pd.read_csv(target_bim, sep='\t',
-                             low_memory=False,
-                             header=None,
-                             names=["CHROM", "SNP", "bp", "POS", "A1", "A2"],
-                             iterator=True,
-                             chunksize=1000,
-                             usecols=["CHROM", "POS", 'bp', "A1", "A2"])
-    target_ref = pd.concat([chunk for chunk in ref_chunks]).reset_index(drop=True)
+    target_ref = ots.read_format_ref_bim(ref_dir=target_dir,
+                                         ref_file=target + '.bim')
 
-    # here we format snpID in LD reference bim file...')
-    target_ref['snpID'] = ots.get_snpIDs(target_ref, flip=False)
-    ots.output_data(out_df=target_ref,
-                    out_cols=['CHROM', 'snpID', 'bp', 'POS', 'A1', 'A2'],
-                    out_path=target_bim,
-                    write_mode='w')
+    if target_ref is None:
+        print('There is no reference bim file.')
+        return None
 
     ########### Match SNPs in eQTL reference and LD reference #########
     # print('Check overlapped SNPs between eQTL reference and LD reference...')
-    target_ref, target_sst, snp_overlap = ots.match_snp_ID(df_ref=target_ref,
-                                                           df_sst=target_sst)
+    target_ref, target_sst, snp_overlap = ots.match_snp_ID_double(df_ref=target_ref,
+                                                                  df_1=target_sst)
 
     if not snp_overlap.size:
         print('No overlapping test eQTLs')
         print('Remove temporary files for TargetID: ' + target + '.\n')
         shutil.rmtree(target_dir)
         return None, None, None
-
-    # else:
-        # print('Find %s overlapped eQTLs' % (len(snp_overlap)))
 
     ################ Calculate median sample size ####################
     # print('*Calculate median sample size of eQTLs...*')
@@ -130,7 +97,7 @@ def prepare(target, target_anno, chrom, window,
                                     filter_by=clumped_snp,
                                     filter_cols=['snpID'])
 
-    ################# Prepare Input Summary Statistics for Imputation Models #############################
+    ####### Prepare Inputs for Imputation Models ########
 
     # print('*Start prepare input summary statistics...*')
 
