@@ -4,6 +4,18 @@
 
 A powerful TWAS framework leveraging summary-level reference data. 
 
+We provide an integrated tool that can 
+ -  perform LD-clumping 
+ -  prepare the required inputs (LD reference and eQTL summary statistics) in the required formats for P+T, lassosum, SDPR, and PRS-CS
+ -  perform TWAS Stage I: run P+T, lassosum, SDPR, and PRS-CS to train eQTL weights.
+ -  perform TWAS Stage II: gene-based association test using GWAS summary statistics.
+
+In this tool, we 
+ - integrate [TABIX](http://www.htslib.org/doc/tabix.html) and [PLINK 1.9](https://www.cog-genomics.org/plink) tools to extract input data per target gene more efficiently
+ - integrate [PRS-CS software](https://github.com/getian107/PRScs), [lassosum R package](https://github.com/tshmak/lassosum), and [SDPR software](https://github.com/eldronzhou/SDPR) to train eQTL weights
+ - enable parallel computation to train GReX imputation models / perform gene-based association test simultaneously for multiple genes. 
+
+
 ## Getting Started
 
 Download and install following required tools, modules, and packages:
@@ -12,25 +24,6 @@ Download and install following required tools, modules, and packages:
     
     ```bash
     git clone https://github.com/daiqile96/OTTERS.git 
-    ```
-
-  - [BGZIP](http://www.htslib.org/doc/bgzip.html) and [TABIX](http://www.htslib.org/doc/tabix.html)
-
-    *Here is my code to download and install BGZIP and TABIX:*
-
-    ```bash
-    wget https://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2
-    tar jxvf tabix-0.2.6.tar.bz2
-    cd tabix-0.2.6
-    make
-
-    # copy the binary bgzip and tabix to my path: ~/projects/bin
-    cp bgzip tabix ~/projects/bin
-
-    # test if BGZIP and TABIX are successfully installed
-    export PATH=~/projects/bin:$PATH 
-    bgzip
-    tabix
     ```
 
   - [PLINK 1.9](https://www.cog-genomics.org/plink/)
@@ -99,24 +92,13 @@ Download and install following required tools, modules, and packages:
       ```
 
       **Please make sure that dynamic libraries are not changed every time when use SDPR.**
+    
+    - R packages:
+      - [lassosum](https://github.com/tshmak/lassosum) to perform lassosum. 
+      - [fdrtool](https://github.com/tshmak/lassosum) to perform pseudo-validation implemented in lassosum. 
+    
 
-    - [lassosum](https://github.com/tshmak/lassosum) to perform lassosum. 
-    - [fdrtool](https://github.com/tshmak/lassosum) to perform pseudo-validation implemented in lassosum. 
-  
-  
-
-## Stage I
-
-We provide an integrated tool that can 
- -  perform LD-clumping 
- -  prepare the required inputs (LD reference and eQTL summary statistics) in the required formats for P+T, lassosum, SDPR, and PRS-CS
- -  run P+T, lassosum, SDPR, and PRS-CS to train eQTL weights.
-
-In this tool, we 
- - integrate [TABIX](http://www.htslib.org/doc/tabix.html) and [PLINK 1.9](https://www.cog-genomics.org/plink) tools to extract input data per target gene more efficiently
- - enable parallel computation to train imputation models simultaneously for multiple genes. 
-
-### *The example of using OTTERS to train eQTL weights using eQTL summary statistics and LD reference data:*
+## Example: 
 
   ```bash
   # activate the environment
@@ -126,14 +108,14 @@ In this tool, we
   N_THREADS=1
 
   # set up my OTTERS directory and SDPR directory
-  OTTERS_DIR=/home/qdai8/projects/bin/OTTERS_new
+  OTTERS_DIR=/home/qdai8/projects/bin/OTTERS
   SDPR_DIR=/home/qdai8/projects/bin/SDPR
 
-  # make sure the dynamic libraries of SDPR are not changed
+  # make sure the dynamic libraries of SDPR are not changed (For SDPR)
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${SDPR_DIR}/MKL/lib
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${SDPR_DIR}/gsl/lib
 
-  # prevent automatically using  all available cores on a compute node
+  # prevent automatically using  all available cores on a compute node (For SDPR and PRS-CS)
   export MKL_NUM_THREADS=$N_THREADS
   export NUMEXPR_NUM_THREADS=$N_THREADS
   export OMP_NUM_THREADS=$N_THREADS
@@ -144,45 +126,92 @@ In this tool, we
   # Start to run OTTERS
   cd ${OTTERS_DIR}/Example
 
-  # set up input files
+  # Input for OTTERS STAGE I 
+  # Annotation File 
   exp_anno=exp_anno.txt
+  # Genotype data from LD reference panel
   geno_dir=Exp_geno
-  sst_file=Exp_SumStats.txt
-  out_dir=Results
-  chr=4
-  
-  # set LD-clumping threshold 
-  clump_r2=0.99
+  # eQTL summary statistics 
+  sst_file=Exp_eQTLSumStats.txt
+  # Input for OTTERS STAGE II
+  # GWAS summary statistics 
+  gwas_sst_file=Exp_GWASSumStats.txt
 
-  # Run OTTERS to train eQTL weights using P+T, lassosum, SDPR and PRS-CS. 
+  # Set chromosome number (The example is for chromosome 4)
+  chr=4
+  # Set LD-clumping threshold in STAGE I
+  clump_r2=0.99
+  # Set output directory for STAGE I
+  out_dir=Results
+  
+  # STAGE I
+  # train eQTL weights using P+T, lassosum, SDPR and PRS-CS. 
   # It may take several minutes to complete.
-  python3 ${OTTERS_DIR}/imputation.py \
+  python3 ${OTTERS_DIR}/training.py \
   --OTTERS_dir=${OTTERS_DIR} \
   --SDPR_dir=${SDPR_DIR} \
   --anno_dir=${exp_anno} \
   --geno_dir=${geno_dir} \
-  --sst_file=${sst_file}.gz \
+  --sst_file=${sst_file} \
   --out_dir=${out_dir} \
   --chrom=${chr} \
   --r2=${clump_r2} \
   --models=PT,lassosum,SDPR,PRScs \
   --thread=$N_THREADS
+  
+  # Set output directory for STAGE II
+  twas_dir=TWAS
+
+  # STAGE II
+  # gene-based association test using eQTL-weight trained from P+T, lassosum, SDPR and PRS-CS.
+  python3 ${OTTERS_DIR}/testing.py \
+  --OTTERS_dir=${OTTERS_DIR} \
+  --weight_dir=${OTTERS_DIR}/Example/Results \
+  --models=P0.001,P0.05,lassosum,SDPR,PRScs \
+  --anno_dir=${exp_anno} \
+  --geno_dir=${geno_dir} \
+  --out_dir=${twas_dir} \
+  --gwas_file=${gwas_sst_file} \
+  --chrom=${chr} \
+  --thread=$N_THREADS
   ```
 
-## Stage II (Still working on Stage II)
+## Required Inputs 
 
-In Stage II, we impute GReX and perform gene-based association analysis in the test GWAS dataset. 
+ - Annotation File : 
 
-Notes:
+    | CHROM | GeneStart | GeneEnd |     TargetID    | GeneName | 
+    |:-----:|:---------:|:-------:|:---------------:|:--------:|
+    |   1   |    100    |   200   |     ENSG0000    |     X    |
+
+    Example: Example/exp_anno.txt
+
+ - Genotype data from LD reference panel in PLINK binary files :
+
+    Example: Example/Exp_geno.bed; Example/Exp_geno.bim; Example/Exp_geno.fam
+
+ - eQTL summary statistics (text file):
+
+    *Please sort by chromosome and then by SNP position in ascending order*
+
+    | CHROM | POS | A1 | A2 | Zscore |  TargetID   |   N  |
+    |:-----:|:---:|:--:|:--:|:------:|:-----------:|:----:|
+    |   1   | 100 |  C |  T |   3    |   ENSG0000  |  200 |
+
+    Example: Example/Exp_eQTLSumStats.txt
+
+ - GWAS summary statistics (text file):
+  
+    *Not required to be sorted*
+
+    | CHROM | POS | A1 | A2 | Zscore |  
+    |:-----:|:---:|:--:|:--:|:------:|
+    |   1   | 100 |  C |  T |   2    |
+
+    Example: Example/Exp_GWASSumStats.txt
+
+## Notes:
 
 - OTTERS is based on [PLINK 1.9](https://www.cog-genomics.org/plink/), [PRS-CS software](https://github.com/getian107/PRScs), [lassosum R package](https://github.com/tshmak/lassosum), and [SDPR software](https://github.com/eldronzhou/SDPR). We really appreciate the authors of these softwares. 
 
-- When run SDPR and PRS-CS, please use the following commands to prevent automatically using  all available cores on a compute node:
-
-  ```bash
-  export MKL_NUM_THREADS=$N_THREADS
-  export NUMEXPR_NUM_THREADS=$N_THREADS
-  export OMP_NUM_THREADS=$N_THREADS
-  ```
-
-- The scripts for generating all the Tables and Figures of the Manuscript can be found [here](https://htmlpreview.github.io/?https://github.com/daiqile96/OTTERS/blob/main/Manuscript/FiguresAndTables.html). 
+- The scripts for generating all the Tables and Figures of the Manuscript can be found [here](https://htmlpreview.github.io/?https://github.com/daiqile96/OTTERS/blob/main/Manuscript/FiguresAndTables.rmd). 
