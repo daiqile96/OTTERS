@@ -46,38 +46,15 @@ Download and install following required tools, modules, and packages:
     ```
 
   - Python modules/libraries:
-    - pandas
-    - scipy
-    - numpy
-  
-      *Here is my code to set up the Python Environment to use OTTERS:*
-      ```bash
-      # install miniconda
-      wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-      bash Miniconda3-latest-Linux-x86_64.sh
-      source ~/.bashrc
-      # remove sh file 
-      rm Miniconda3-latest-Linux-x86_64.sh
 
-      # create the environment 
-      conda create --name otters python=3.9 pandas numpy scipy 
-      # deactivate the conda environment
-      conda deactivate
-      ```
+    - [pandas](https://pandas.pydata.org)
+    - [scipy](https://scipy.org)
+    - [numpy](https://numpy.org)
+    - [pysam](https://pysam.readthedocs.io/en/latest/api.html) 
 
-      *To use this environment to run OTTERS*:
+    If you're new to python, [here](Example/Exp_otters_env.sh) is an example to set up the Python Environment to use OTTERS.
 
-      ```bash
-        # activate the environment
-      conda activate otters
-
-      # RUN OTTERS HERE
-
-      # deactivate the environment
-      conda deactivate
-      ```
-
-  - If you want to apply SDPR and lassosum as imputation models, please install:
+  - To apply SDPR and lassosum as imputation models, please install:
     - [SDPR](https://github.com/eldronzhou/SDPR) to perform SDPR
       
       *Here is my code to download SDPR*
@@ -90,12 +67,11 @@ Download and install following required tools, modules, and packages:
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/projects/bin/SDPR/MKL/lib
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/projects/bin/SDPR/gsl/lib
       ```
-
       **Please make sure that dynamic libraries are not changed every time when use SDPR.**
     
     - R packages:
       - [lassosum](https://github.com/tshmak/lassosum) to perform lassosum. 
-      - [fdrtool](https://github.com/tshmak/lassosum) to perform pseudo-validation implemented in lassosum. 
+      - [fdrtool](https://cran.r-project.org/web/packages/fdrtool/index.html) to perform pseudo-validation implemented in lassosum. 
     
 
 ## Example: 
@@ -178,7 +154,7 @@ Download and install following required tools, modules, and packages:
 
 ## Required Inputs 
 
- - Annotation File : 
+ - Annotation File should contain following columns with the same name in same order (text file): 
 
     | CHROM | GeneStart | GeneEnd |     TargetID    | GeneName | 
     |:-----:|:---------:|:-------:|:---------------:|:--------:|
@@ -190,7 +166,7 @@ Download and install following required tools, modules, and packages:
 
     Example: Example/Exp_geno.bed; Example/Exp_geno.bim; Example/Exp_geno.fam
 
- - eQTL summary statistics (text file):
+ - eQTL summary statistics should contain following columns with the same name in same order (text file):
 
     *Please sort by chromosome and then by SNP position in ascending order*
 
@@ -200,7 +176,7 @@ Download and install following required tools, modules, and packages:
 
     Example: Example/Exp_eQTLSumStats.txt
 
- - GWAS summary statistics (text file):
+ - GWAS summary statistics should contain following columns with the same name in same order (text file):
   
     *Not required to be sorted*
 
@@ -213,5 +189,3 @@ Download and install following required tools, modules, and packages:
 ## Notes:
 
 - OTTERS is based on [PLINK 1.9](https://www.cog-genomics.org/plink/), [PRS-CS software](https://github.com/getian107/PRScs), [lassosum R package](https://github.com/tshmak/lassosum), and [SDPR software](https://github.com/eldronzhou/SDPR). We really appreciate the authors of these softwares. 
-
-- The scripts for generating all the Tables and Figures of the Manuscript can be found [here](https://htmlpreview.github.io/?https://github.com/daiqile96/OTTERS/blob/main/Manuscript/FiguresAndTables.rmd). 
