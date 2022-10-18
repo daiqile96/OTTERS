@@ -74,7 +74,7 @@ Download and install following required tools, modules, and packages:
       **Please make sure that dynamic libraries are not changed every time when use SDPR.**
     
     - R packages:
-      - [lassosum](https://github.com/tshmak/lassosum) to perform lassosum. 
+      - [lassosum](https://github.com/tshmak/lassosum) to perform lassosum (lassosum requires several R packages, please follow the lassosum installation guidance to install all of them).
       - [fdrtool](https://cran.r-project.org/web/packages/fdrtool/index.html) to perform pseudo-validation implemented in lassosum. 
     
 
