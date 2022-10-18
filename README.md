@@ -44,6 +44,10 @@ Download and install following required tools, modules, and packages:
     export PATH=~/projects/bin:$PATH 
     plink
     ```
+    To permanently store the path, please add the line to your ~/.bash_profile (or ~/.bashrc).
+    ```bash
+    export PATH=~/projects/bin:$PATH 
+    ```
 
   - Python modules/libraries:
 
