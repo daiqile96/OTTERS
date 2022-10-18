@@ -253,9 +253,9 @@ def thread_process(num):
         ########################### Find overlap snps #################
 
         # find overlap snps between reference panel, summary statistics, and estimated eQTL weights
-        target_ref, target_g, target_w, snp_overlap = ots.match_snp_ID_triple(df_ref=target_ref,
-                                                                              df_1=target_g,
-                                                                              df_2=target_w)
+        sub_ref, sub_g, target_w, snp_overlap = ots.match_snp_ID_triple(df_ref=target_ref,
+                                                                        df_1=target_g,
+                                                                        df_2=target_w)
 
         if not snp_overlap.size:
             print('No overlapping test eQTLs between eQTL weights, GWAS summary statistics, and LD reference panel for' + model)
@@ -277,7 +277,7 @@ def thread_process(num):
         Result['n_snps'] = len(snp_overlap)
         Result['Z'], Result['P'] = ots.get_fusion_zscore(V_cor=V,
                                                          w=target_w.ES.values,
-                                                         Z_gwas=target_g.Z.values)
+                                                         Z_gwas=sub_g.Z.values)
 
         # write to file
         Result.to_csv(
