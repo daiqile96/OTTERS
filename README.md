@@ -160,9 +160,9 @@ Download and install following required tools, modules, and packages:
 
  - Annotation File should contain following columns with the same name in same order (text file): 
 
-    | CHROM | GeneStart | GeneEnd |     TargetID    | GeneName | 
-    |:-----:|:---------:|:-------:|:---------------:|:--------:|
-    |   1   |    100    |   200   |     ENSG0000    |     X    |
+    | CHROM | GeneStart | GeneEnd |     TargetID    | 
+    |:-----:|:---------:|:-------:|:---------------:|
+    |   1   |    100    |   200   |     ENSG0000    |
 
     Example: Example/exp_anno.txt
 
