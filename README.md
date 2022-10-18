@@ -178,6 +178,11 @@ Download and install following required tools, modules, and packages:
     |:-----:|:---:|:--:|:--:|:------:|:-----------:|:----:|
     |   1   | 100 |  C |  T |   3    |   ENSG0000  |  200 |
 
+    To convert a two-sided p-value to Zscore, in python, we can do:
+    ```python
+    from scipy.stats import norm
+    Z = np.sign(Beta) * abs(norm.ppf(pvalue/2.0))
+    ```
     Example: Example/Exp_eQTLSumStats.txt
 
  - GWAS summary statistics should contain following columns with the same name in same order (text file):
