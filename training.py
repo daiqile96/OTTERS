@@ -334,12 +334,10 @@ def thread_process(num):
                                                     n_burnin=param_dict['prscs_n_burnin'],
                                                     thin=param_dict['prscs_thin'],
                                                     seed=param_dict['seed'])
+                # save PRS-CS results
+                ots.save_results(model='PRScs', out_df=target_sst, out_dir=out_dir)
             except subprocess.CalledProcessError:
                 print('PRS-CS failed.')
-                return None
-
-        # save PRS-CS results
-        ots.save_results(model='PRScs', out_df=target_sst, out_dir=out_dir)
 
     # ############################# SDPR ###############################
     if 'SDPR' in param_dict['models']:
@@ -371,15 +369,14 @@ def thread_process(num):
                                          stdout=subprocess.PIPE,
                                          cwd=target_dir,
                                          shell=True)
+            # save SDPR results
+            ots.format_save_results(work_dir=target_dir,
+                                    out_dir=out_dir,
+                                    model='SDPR',
+                                    sst_df=target_sst)
         except subprocess.CalledProcessError:
             print('SDPR failed')
-            return None
 
-        # save SDPR results
-        ots.format_save_results(work_dir=target_dir,
-                                out_dir=out_dir,
-                                model='SDPR',
-                                sst_df=target_sst)
 
     ############################# Lassosum ###############################
     if 'lassosum' in param_dict['models']:
@@ -391,15 +388,13 @@ def thread_process(num):
                                          stdout=subprocess.PIPE,
                                          cwd=target_dir,
                                          shell=True)
+            # save lassosum results
+            ots.format_save_results(work_dir=target_dir,
+                                    out_dir=out_dir,
+                                    model='lassosum',
+                                    sst_df=target_sst)
         except subprocess.CalledProcessError:
                 print('lassosum failed for TargetID: ' + target)
-                return None
-
-        # save lassosum results
-        ots.format_save_results(work_dir=target_dir,
-                                out_dir=out_dir,
-                                model='lassosum',
-                                sst_df=target_sst)
 
     ############################ Clean temporary files #########################
     shutil.rmtree(target_dir)
