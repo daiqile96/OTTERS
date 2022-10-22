@@ -42,7 +42,7 @@ def prepare(target, target_anno, chrom, window,
                               end_pos=end)
 
     if target_sst is None:
-        print('There is no estimated eQTL weights')
+        print('There is no estimated eQTL summary statistics')
         print('Remove temporary files. \n')
         shutil.rmtree(target_dir)
         return None, None, None
