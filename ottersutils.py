@@ -382,6 +382,7 @@ def read_anno(anno_dir, chrom):
         anno_dir,
         sep='\t',
         header=0,
+        usecols=col_names,
         chunksize=10000,
         iterator=True,
         dtype=dtypes)
@@ -696,7 +697,6 @@ def match_snp_ID_double(df_ref, df_1):
 
 def match_snp_ID_triple(df_ref, df_1, df_2):
     """Match snps in df_1 and df_2 with snps in df_ref"""
-    df_ref['snpID'] = get_snpIDs(df_ref, flip=False)
     df_1['snpID'] = get_snpIDs(df_1, flip=False)
     df_1['snpIDflip'] = get_snpIDs(df_1, flip=True)
     df_2['snpID'] = get_snpIDs(df_2, flip=False)

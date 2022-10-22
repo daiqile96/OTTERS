@@ -257,7 +257,7 @@ def thread_process(num):
                                                                         df_1=target_g,
                                                                         df_2=target_w)
 
-        if not snp_overlap.size:
+        if snp_overlap is None:
             print('No overlapping test eQTLs between eQTL weights, GWAS summary statistics, and LD reference panel for' + model)
             continue
 
