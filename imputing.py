@@ -165,7 +165,8 @@ samples = pd.read_csv(param_dict['samples'],
                       sep='\t',
                       low_memory=False,
                       header=None,
-                      names=['FID', 'IID'])
+                      names=['FID', 'IID'],
+                      dtype={'FID': object, 'IID': object})
 
 Result = samples.copy().T
 
@@ -273,7 +274,8 @@ def thread_process(num):
         target_grex = pd.read_csv(os.path.join(target_dir, "GReX.profile"),
                                   low_memory=False,
                                   delim_whitespace=True,
-                                  header=0)
+                                  header=0,
+                                  dtype={'FID': object, 'IID': object})
 
         tmp_merge = samples.merge(target_grex, how='left')
 
