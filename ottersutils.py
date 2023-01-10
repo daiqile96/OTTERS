@@ -345,9 +345,9 @@ def read_sst_by_chunks(tabix_out, sst, target):
                          dtype=dtypes)
 
     if sst == 'GWAS':
-        target_df = pd.concat([chunk for chunk in chunks]).reset_index(drop=True)
+        target_df = pd.concat([chunk for chunk in chunks]).drop_duplicates(["CHROM", "POS", "A1", "A2"]).reset_index(drop=True)
     else:
-        target_df = pd.concat([chunk[chunk.TargetID == target] for chunk in chunks]).reset_index(drop=True)
+        target_df = pd.concat([chunk[chunk.TargetID == target] for chunk in chunks]).drop_duplicates(["CHROM", "POS", "A1", "A2"]).reset_index(drop=True)
 
     if target_df.empty:
         return None
