@@ -26,6 +26,25 @@ Download and install following required tools, modules, and packages:
     git clone https://github.com/daiqile96/OTTERS.git 
     ```
 
+  - [BGZIP](http://www.htslib.org/doc/bgzip.html) and [TABIX](http://www.htslib.org/doc/tabix.html)
+
+     *Here is my code to download and install BGZIP and TABIX:*
+
+     ```bash
+     wget https://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2
+     tar jxvf tabix-0.2.6.tar.bz2
+     cd tabix-0.2.6
+     make
+
+     # copy the binary bgzip and tabix to my path: ~/projects/bin
+     cp bgzip tabix ~/projects/bin
+
+     # test if BGZIP and TABIX are successfully installed
+     export PATH=~/projects/bin:$PATH 
+     bgzip
+     tabix
+     ```
+
   - [PLINK 1.9](https://www.cog-genomics.org/plink/)
     
     *Here is my code to download and install PLINK 1.9:*
