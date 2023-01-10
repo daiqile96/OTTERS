@@ -51,10 +51,10 @@ Download and install following required tools, modules, and packages:
 
   - Python modules/libraries:
 
-    - [pandas](https://pandas.pydata.org)
-    - [scipy](https://scipy.org)
-    - [numpy](https://numpy.org)
-    - [pysam](https://pysam.readthedocs.io/en/latest/api.html) 
+    - [pandas 1.4.4](https://pandas.pydata.org)
+    - [scipy 1.7.3](https://scipy.org)
+    - [numpy 1.21.5](https://numpy.org)
+    - [pysam 0.19.1](https://pysam.readthedocs.io/en/latest/api.html) 
 
     If you're new to python, [here](Example/Exp_otters_env.sh) is an example to set up the Python Environment to use OTTERS.
 

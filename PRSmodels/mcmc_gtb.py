@@ -10,6 +10,7 @@ from scipy import linalg
 from scipy import random
 import gigrnd
 
+
 def mcmc(a, b, phi, sst_dict, n, ld_blk, blk_size, n_iter, n_burnin, thin, seed):
 
     # seed
