@@ -1,6 +1,6 @@
 # OTTERS: **O**mnibus **T**ranscriptome **T**est using **E**xpression **R**eference **S**ummary data
 
-![OTTERS Framework](Manuscript/F1.png)
+![OTTERS Framework](F1.png)
 
 A powerful TWAS framework leveraging summary-level reference data. 
 
