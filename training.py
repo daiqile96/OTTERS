@@ -122,7 +122,7 @@ def parse_param():
 
     param_dict = {'OTTERS_dir': None, 'anno_dir': None,
                   'geno_dir': None, 'sst_file': None, 'out_dir': None, 'chrom': None,
-                  'r2': 2, 'window': 1000000, 'thread': 1, 'models': None,
+                  'r2': 0.99, 'window': 1000000, 'thread': 1, 'models': None,
                   'pt': [0.001, 0.05],
                   'prscs_a': 1, 'prscs_b': 0.5, 'prscs_phi': 0.0001,
                   'prscs_n_iter': 1000, 'prscs_n_burnin': 500, 'prscs_thin': 5,
