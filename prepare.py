@@ -96,6 +96,8 @@ def prepare(target, target_anno, chrom, window,
     target_sst = ots.filter_df_rows(df=target_sst,
                                     filter_by=clumped_snp,
                                     filter_cols=['snpID'])
+    # prevent duplicated snpIDs
+    target_sst = target_sst.drop_duplicates(subset=['snpID']).reset_index(drop=True)
 
     ####### Prepare Inputs for Imputation Models ########
 
