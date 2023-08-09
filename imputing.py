@@ -3,7 +3,7 @@
 """
 
 Usage:
-python imputing.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PATH_TO_GENO --weight_file=PATH_TO_WEIGHT --gwas_file=PATH_TO_GWAS --out_dir=OUTPUT_DIR --chrom=CHROM
+python imputing.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PATH_TO_GENO --weight_file=PATH_TO_WEIGHT --samples=PATH_TO_SAMPLE --out_dir=OUTPUT_DIR --chrom=CHROM
                [--window=WINDOW --thread=THREAD]
 
  - PATH_TO_OTTERS: The directory of OTTERS source code
@@ -22,11 +22,10 @@ python imputing.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_di
     |:-----:|:---:|:--:|:--:|:---------:|:-----:|
     |   1   | 100 |  C |  T | ENSG0000  |  0.2  |
 
- - PATH_TO_GWAS: Full path and the file name of GWAS summary statistics.
+ - PATH_TO_SAMPLE: Full path and the file name of samples to impute.
 
-    | CHROM | POS | A1 | A2 | TargetID  |  Z   |
-    |:-----:|:---:|:--:|:--:|:---------:|:-----:|
-    |   1   | 100 |  C |  T | ENSG0000  |  2    |
+    | GTEX-1117F | GTEX-1117F |
+    | GTEX-111CU | GTEX-111CU |
 
  - OUTPUT_DIR: Output directory
 
