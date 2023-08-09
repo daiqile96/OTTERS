@@ -3,7 +3,7 @@
 """
 
 Usage:
-python TWAS.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PATH_TO_GENO --weight_file=PATH_TO_WEIGHT --gwas_file=PATH_TO_GWAS --out_dir=OUTPUT_DIR --chrom=CHROM
+python imputing.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PATH_TO_GENO --weight_file=PATH_TO_WEIGHT --gwas_file=PATH_TO_GWAS --out_dir=OUTPUT_DIR --chrom=CHROM
                [--window=WINDOW --thread=THREAD]
 
  - PATH_TO_OTTERS: The directory of OTTERS source code
@@ -240,7 +240,7 @@ def thread_process(num):
         ########################### Find overlap snps #################
 
         # find overlap snps between reference panel, summary statistics, and estimated eQTL weights
-        new_ref, target_w, snp_overlap = ots.match_snp_ID_double(df_ref=target_ref,
+        new_ref, target_w, snp_overlap = ots.match_snp_ID_impute(df_ref=target_ref,
                                                                  df_1=target_w)
 
         if not snp_overlap.size:
@@ -265,8 +265,6 @@ def thread_process(num):
                                               stdout=subprocess.PIPE,
                                               cwd=target_dir,
                                               shell=True)
-
-            # print('LD calculation completed.')
         except subprocess.CalledProcessError:
                 print('GReX Imputation Failed For ' + model + '.\n')
                 continue

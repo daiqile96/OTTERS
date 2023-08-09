@@ -675,7 +675,22 @@ def handle_flip_snps(df_ref, df_1, statistics):
             df_1.loc[idx, ['A1', 'A2']] = df_1.loc[idx, ['A2', 'A1']].values
             df_1[statistics] = df_1['flip'] * df_1[statistics]
     return df_1
+def match_snp_ID_impute(df_ref, df_1):
 
+    df_ref['snpID'] = get_snpIDs(df_ref, flip=False)
+    df_1['snpID'] = get_snpIDs(df_1, flip=False)
+    df_1['snpIDflip'] = get_snpIDs(df_1, flip=True)
+
+    # find overlapped snpIDs
+    overlap_list = np.intersect1d(df_ref['snpID'], df_1[['snpID', 'snpIDflip']])
+
+    if overlap_list.size:
+        df_ref = df_ref[df_ref.snpID.isin(overlap_list)]
+        df_1 = handle_flip_snps(df_ref, df_1, 'ES')
+    else:
+        return None, None, None
+
+    return df_ref, df_1, overlap_list
 
 def match_snp_ID_double(df_ref, df_1):
 
