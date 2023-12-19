@@ -51,18 +51,20 @@ def tabix(in_file, format='bgzip', tmp_file=None):
 
     # if the file is not compressed, firt compress and save to a temporary file
     if format == 'txt':
+        s = 1
         try:
             pysam.tabix_compress(in_file, tmp_file, force=True)
         except:
             print('Compress failed for ' + in_file)
             return None
     else:
+        s = 0
         tmp_file = in_file
 
     try:
         out_file = pysam.tabix_index(tmp_file, force=True,
                                      seq_col=0, start_col=1, end_col=1,
-                                     line_skip=1)
+                                     line_skip=s)
     except:
         print('Tabix failed for ' + in_file)
         return None
