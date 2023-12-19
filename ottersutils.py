@@ -62,7 +62,7 @@ def tabix(in_file, format='bgzip', tmp_file=None):
     try:
         out_file = pysam.tabix_index(tmp_file, force=True,
                                      seq_col=0, start_col=1, end_col=1,
-                                     line_skip=1)
+                                     line_skip=0)
     except:
         print('Tabix failed for ' + in_file)
         return None
