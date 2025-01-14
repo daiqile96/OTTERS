@@ -98,7 +98,11 @@ Download and install following required tools, modules, and packages:
       - [lassosum](https://github.com/tshmak/lassosum) to perform lassosum (lassosum requires several R packages, please follow the lassosum installation guidance to install all of them).
       - [fdrtool](https://cran.r-project.org/web/packages/fdrtool/index.html) to perform pseudo-validation implemented in lassosum. 
     
+## Updates:
 
+- Jan 14, 2025: Added a new argument, `--lassosum_ld_blocks`, allowing users to select the LD blocks used for lassosum. The argument must be one of the following pre-defined LD blocks provided by [Berisa and Pickrell (2015)](https://pmc.ncbi.nlm.nih.gov/articles/PMC4731402/): EUR.hg19, ASN.hg19, AFR.hg19, EUR.hg38, ASN.hg38, AFR.hg38. The default value is EUR.hg38. 
+  
+  
 ## Example: 
 
   ```bash
@@ -158,6 +162,7 @@ Download and install following required tools, modules, and packages:
   --chrom=${chr} \
   --r2=${clump_r2} \
   --models=PT,lassosum,SDPR,PRScs \
+  --lassosum_ld_blocks=EUR.hg38
   --thread=$N_THREADS
   
   # Set output directory for STAGE II
