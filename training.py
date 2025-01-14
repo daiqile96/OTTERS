@@ -16,6 +16,7 @@ python imputation.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_
         --SDPR_r2=SDPR_R2_FOR_BLOCK
         --SDPR_a=SDPR_PARAM_A --SDPR_c=SDPR_PARAM_C
         --SDPR_a0k=SDPR_PARAM_A0K --SDPR_b0k=SDPR_PARAM_B0K 
+        --lassosum_ld_blocks
 
         --help]
 
@@ -83,6 +84,8 @@ python imputation.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_
 
  - SDPR_PARAM_B0K(optional): hyperparameter for inverse gamma distribution. Default is 0.5.
 
+ - lassosum_ld_blocks (optional): Need to be one of `EUR.hg19`, `ASN.hg19`, `AFR.hg19`, `EUR.hg38`, `ASN.hg38`, `AFR.hg38` to use pre-defined LD blocks given by Berisa and Pickrell (2015)
+
 """
 
 import multiprocessing
@@ -117,7 +120,7 @@ def parse_param():
                       'seed=',
                       'SDPR_dir=', 'SDPR_r2=', 'SDPR_M=', 'SDPR_opt_llk=',
                       'SDPR_iter=', 'SDPR_burn=', 'SDPR_thin=', 'SDPR_a=',
-                      'SDPR_c=', 'SDPR_a0k=', 'SDPR_b0k=',
+                      'SDPR_c=', 'SDPR_a0k=', 'SDPR_b0k=', 'lassosum_ld_blocks=',
                       'help']
 
     param_dict = {'OTTERS_dir': None, 'anno_dir': None,
@@ -128,7 +131,7 @@ def parse_param():
                   'prscs_n_iter': 1000, 'prscs_n_burnin': 500, 'prscs_thin': 5,
                   'SDPR_dir': None, 'SDPR_r2': 0.1, 'SDPR_M': 1000, 'SDPR_opt_llk': 1,
                   'SDPR_iter': 1000, 'SDPR_burn': 200, 'SDPR_thin': 1, 'SDPR_a': 0.1,
-                  'SDPR_c': 1, 'SDPR_a0k': 0.5, 'SDPR_b0k': 0.5,
+                  'SDPR_c': 1, 'SDPR_a0k': 0.5, 'SDPR_b0k': 0.5, 'lassosum_ld_blocks': 'EUR.hg38',
                   'seed': None}
 
     print('\n')
@@ -201,6 +204,8 @@ def parse_param():
                 param_dict['SDPR_a0k'] = float(arg)
             elif opt == "--SDPR_b0k":
                 param_dict['SDPR_b0k'] = float(arg)
+            elif opt == "--lassosum_ld_blocks":
+                param_dict['lassosum_ld_blocks'] = arg
             elif opt == "--thread":
                 param_dict['thread'] = int(arg)
             elif opt == "--seed":
@@ -230,6 +235,8 @@ def parse_param():
     elif param_dict['models'] is None:
         print('* Please specify the imputation models --models\n')
         sys.exit(2)
+    elif param_dict['lassosum_ld_blocks'] not in ['EUR.hg19', 'ASN.hg19', 'AFR.hg19', 'EUR.hg38', 'ASN.hg38', 'AFR.hg38']:
+        print('* Please select lassosum_ld_blocks from EUR.hg19, ASN.hg19, AFR.hg19, EUR.hg38, ASN.hg38, AFR.hg38 --lassosum_ld_blocks\n')
 
     for key in param_dict:
         print('--%s=%s' % (key, param_dict[key]))
@@ -382,8 +389,13 @@ def thread_process(num):
     if 'lassosum' in param_dict['models']:
         # print("*Start lassosum...*")
         try:
-            lassosum_arg = ots.lassosum_cmd(param_dict['chrom'], target, target + '_beta.txt', 'lassosum.txt',
-                                            lassosum_path, int(median_N))
+            lassosum_arg = ots.lassosum_cmd(chrom=param_dict['chrom'],
+                                            bim_dir=target,
+                                            sst_dir=target + '_beta.txt',
+                                            out_dir='lassosum.txt',
+                                            lassosum_path=lassosum_path,
+                                            N=int(median_N),
+                                            ld_blocks=param_dict['lassosum_ld_blocks'])
             proc = subprocess.check_call(lassosum_arg,
                                          stdout=subprocess.PIPE,
                                          cwd=target_dir,

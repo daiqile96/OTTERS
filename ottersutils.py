@@ -430,7 +430,9 @@ def call_tabix(path, chrom, start, end):
 
 
 ################ Functions related to Imputation ##################
-def lassosum_cmd(chrom, bim_dir, sst_dir, out_dir, lassosum_path, N):
+def lassosum_cmd(chrom, bim_dir, sst_dir, out_dir, lassosum_path, N, ld_blocks):
+
+    print('lassosum using LD blocks ' + ld_blocks)
 
     cmd = ['Rscript ' + lassosum_path +
            ' --medianN=' + str(int(N)) +
@@ -438,7 +440,7 @@ def lassosum_cmd(chrom, bim_dir, sst_dir, out_dir, lassosum_path, N):
            ' --sst_file=' + sst_dir +
            ' --out_path=' + out_dir +
            ' --chr=' + str(chrom) +
-           ' --LDblocks=EUR.hg38']
+           ' --LDblocks=' + ld_blocks]
 
     return cmd
 
