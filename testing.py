@@ -40,7 +40,6 @@ python TWAS.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PA
 """
 import multiprocessing
 import subprocess
-import warnings
 import getopt
 import shutil
 import pysam
@@ -168,11 +167,8 @@ if current_chrom not in valid_chroms:
 # Issue warning if models were removed
 removed_models = set(original_models) - set(param_dict['models'])
 if removed_models:
-    warnings.warn(
-        f"Removed {', '.join(removed_models)} from models: "
-        f"not applicable for chromosome {param_dict['chrom']} (only 1-22 supported).",
-        UserWarning
-    )
+    print(f"Removed {', '.join(removed_models)} from models: "
+        f"not applicable for chromosome {param_dict['chrom']} (only 1-22 supported).")
 
 ############################################################
 # Create directory for temporary files

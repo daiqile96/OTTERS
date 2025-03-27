@@ -147,6 +147,25 @@ ots.check_path(out_dir)
 GeneAnno, TargetID, n_targets = ots.read_anno(anno_dir=param_dict['anno_dir'],
                                               chrom=param_dict['chrom'])
 
+# Check if chromosome is valid (1-22) for SDPR and lassosum
+valid_chroms = {str(i) for i in range(1, 23)}  # {"1", "2", ..., "22"}
+current_chrom = param_dict['chrom']
+# Track original models for comparison
+original_models = param_dict['models'].copy()
+
+# Remove SDPR/lassosum if chrom is invalid
+if current_chrom not in valid_chroms:
+    param_dict['models'] = [
+        model for model in param_dict['models'] 
+        if model not in {'SDPR', 'lassosum'}
+    ]
+
+# Issue warning if models were removed
+removed_models = set(original_models) - set(param_dict['models'])
+if removed_models:
+    print(f"Removed {', '.join(removed_models)} from models: "
+        f"not applicable for chromosome {param_dict['chrom']} (only 1-22 supported).")
+
 ############################################################
 # Create directory for temporary files
 tmp_dir = os.path.join(out_dir, 'tmp')
@@ -224,6 +243,17 @@ def thread_process(num):
         w_file = tabix_files[idx]
 
         ################# Read in eQTL weights #####################
+
+        chrom_map = {
+            'x': '23',  # X chromosome (case-insensitive)
+            'y': '24'   # Y chromosome (case-insensitive)
+        }
+        # Get the input chromosome value
+        original_chrom = param_dict['chrom']
+        # Convert to lowercase string for case-insensitive lookup
+        input_key = str(original_chrom).lower()
+        # Replace only X/Y; leave 1-22 and other values unchanged
+        chrom = chrom_map.get(input_key, original_chrom)
 
         target_w = ots.read_sst(sst_file=w_file,
                                 sst='eQTL weights',
