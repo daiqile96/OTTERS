@@ -322,8 +322,7 @@ def thread_process(num):
                                                     out_dir=out_dir,
                                                     sst_dir=tabix_sst,
                                                     clump_r2=param_dict['r2'])
-    print(target_sst)
-
+    
     if (target_dir is None):
         return None
 

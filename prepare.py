@@ -91,7 +91,6 @@ def prepare(target, target_anno, chrom, window,
     target_clumped = os.path.join(target_dir, target + '.clumped')
     clumped_snp = ots.read_in_clumped(clumped_file=target_clumped,
                                       chrom=chrom)
-    print(clumped_snp)
 
     # filter summary statistics by clumping results
     target_sst = ots.filter_df_rows(df=target_sst,

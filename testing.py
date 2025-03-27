@@ -290,7 +290,7 @@ def thread_process(num):
         print('Finish ' + model + '.')
 
     ############################ Clean temporary files ##################
-    shutil.rmtree(target_dir)
+    # shutil.rmtree(target_dir)
     print('Done. \n')
 
 ############################################################
@@ -301,7 +301,7 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     print('Remove temporary files.')
-    shutil.rmtree(os.path.join(out_dir, 'tmp'))
+    # shutil.rmtree(os.path.join(out_dir, 'tmp'))
 
 ############################################################
 # time calculation
