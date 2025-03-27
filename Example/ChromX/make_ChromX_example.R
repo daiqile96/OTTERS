@@ -26,6 +26,8 @@ write.table(anno,
 
 bim_file = read.table('ChromX_Exp_geno.bim')
 bim_file$V1 = 'X'
+bim_file$V2 = paste(bim_file$V1, bim_file$V4, bim_file$V6, bim_file$V5,
+                    sep = '_')
 write.table(bim_file,
             file = "ChromX_Exp_geno.bim",
             col.names = FALSE,  

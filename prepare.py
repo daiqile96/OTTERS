@@ -46,8 +46,6 @@ def prepare(target, target_anno, chrom, window,
         print('Remove temporary files. \n')
         shutil.rmtree(target_dir)
         return None, None, None
-    
-    print(target_sst)
 
     ################# Read in SNPs in LD reference #####################
     # read in snps in LD reference panel
@@ -57,8 +55,7 @@ def prepare(target, target_anno, chrom, window,
     if target_ref is None:
         print('There is no reference bim file.')
         return None
-    
-    print(target_ref)
+
 
     ########### Match SNPs in eQTL reference and LD reference #########
     # print('Check overlapped SNPs between eQTL reference and LD reference...')
