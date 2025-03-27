@@ -1,0 +1,39 @@
+PLINK v1.90b5.3 64-bit (21 Feb 2018)
+Options in effect:
+  --bfile /home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/CHR4/CHR4_binary
+  --extract range /home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/exp_range.txt
+  --maf 0.01
+  --make-bed
+  --out /home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Exp_geno
+
+Hostname: node06.local
+Working directory: /mnt/YangFSS/data2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp
+Start time: Mon Apr  4 17:04:19 2022
+
+Random number seed: 1649106259
+257780 MB RAM detected; reserving 128890 MB for main workspace.
+Allocated 7257 MB successfully, after larger attempt(s) failed.
+759873 variants loaded from .bim file.
+838 people (0 males, 0 females, 838 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Exp_geno.nosex
+.
+--extract range: 754946 variants excluded.
+--extract range: 4927 variants remaining.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 838 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.998201.
+0 variants removed due to minor allele threshold(s)
+(--maf/--max-maf/--mac/--max-mac).
+4927 variants and 838 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to
+/home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Exp_geno.bed
++
+/home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Exp_geno.bim
++
+/home/qdai/YangFSSdata2/qdai/BS_TWAS/Temp/Test_OTTERS/GenotypeFiles/Exp/Exp_geno.fam
+... done.
+
+End time: Mon Apr  4 17:04:20 2022
