@@ -162,7 +162,7 @@ Download and install following required tools, modules, and packages:
   --chrom=${chr} \
   --r2=${clump_r2} \
   --models=PT,lassosum,SDPR,PRScs \
-  --lassosum_ld_blocks=EUR.hg38
+  --lassosum_ld_blocks=EUR.hg38 \
   --thread=$N_THREADS
   
   # Set output directory for STAGE II
