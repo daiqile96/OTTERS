@@ -208,21 +208,20 @@ def optimize_cols(df: pd.DataFrame):
 def get_cols_dtype(cols):
 
     dtype_dict = {
-        'CHROM': 'string',
+        'CHROM': object,
         'POS': np.int64,
-        'A1': 'string',
-        'A2': 'string',
-        'SNP': 'string',
+        'A1': object,
+        'A2': object,
+        'SNP': object,
         'ES': np.float64,
         'Z': np.float64,
         'N': np.int64,
         'GeneEnd': np.int64,
-        'GeneName': 'string',
+        'GeneName': object,
         'GeneStart': np.int64,
-        'snpID': 'string',
-        'TargetID': 'string',
-        'bp': 'string'
-    }
+        'snpID': object,
+        'TargetID': object,
+        'bp': object}
 
     out_dtype_dict = {x: dtype_dict[x] for x in cols}
 
@@ -298,12 +297,7 @@ def read_format_ref_bim(ref_dir, ref_file):
                              dtype=dtypes)
 
     target_ref = pd.concat([chunk for chunk in ref_chunks]).reset_index(drop=True)
-
-    print(target_ref)
-
     target_ref['CHROM'] = target_ref['CHROM'].astype(str).replace({'23': 'X', '24': 'Y'})
-
-    print(target_ref)
 
     if len(target_ref) == 0:
         return None
