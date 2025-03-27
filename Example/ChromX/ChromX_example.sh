@@ -54,7 +54,7 @@ python3 ${OTTERS_DIR}/training.py \
 --chrom=${chr} \
 --r2=${clump_r2} \
 --models=PT,lassosum,SDPR,PRScs \
---lassosum_ld_blocks=EUR.hg38
+--lassosum_ld_blocks=EUR.hg38 \
 --thread=$N_THREADS
 
 # Set output directory for STAGE II

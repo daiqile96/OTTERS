@@ -300,7 +300,7 @@ def thread_process(num):
                                                     sst_dir=tabix_sst,
                                                     clump_r2=param_dict['r2'])
     print(target_sst)
-    
+
     if (target_dir is None):
         return None
 
@@ -351,9 +351,13 @@ def thread_process(num):
     # ############################# SDPR ###############################
     if 'SDPR' in param_dict['models']:
 
+        chrom_map = {'x': '23', 'y': '24'}
+        input_key = str(param_dict['chrom']).lower()
+        chrom = chrom_map.get(input_key, param_dict['chrom'])
+
         # generate LD reference for SDPR
         ots.SDPR_LD_args(SDPR_path=SDPR_path,
-                         chrom=param_dict['chrom'],
+                         chrom=chrom,
                          r2=param_dict['SDPR_r2'],
                          bim_dir=target,
                          work_dir=target_dir)
@@ -363,7 +367,7 @@ def thread_process(num):
             SDPR_mcmc_args = ots.SDPR_args(SDPR_path=SDPR_path,
                                            sst_file=target + '_Zscore.txt',
                                            N=median_N,
-                                           chrom=param_dict['chrom'],
+                                           chrom=chrom,
                                            M=param_dict['SDPR_M'],
                                            opt_llk=param_dict['SDPR_opt_llk'],
                                            iter=param_dict['SDPR_iter'],
@@ -391,7 +395,10 @@ def thread_process(num):
     if 'lassosum' in param_dict['models']:
         # print("*Start lassosum...*")
         try:
-            lassosum_arg = ots.lassosum_cmd(chrom=param_dict['chrom'],
+            chrom_map = {'x': '23', 'y': '24'}
+            input_key = str(param_dict['chrom']).lower()
+            chrom = chrom_map.get(input_key, param_dict['chrom'])
+            lassosum_arg = ots.lassosum_cmd(chrom=chrom,
                                             bim_dir=target,
                                             sst_dir=target + '_beta.txt',
                                             out_dir='lassosum.txt',
