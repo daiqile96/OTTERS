@@ -239,10 +239,21 @@ def thread_process(num):
 
         ################# Read in eQTL weights #####################
 
+        chrom_map = {
+            'x': '23',  # X chromosome (case-insensitive)
+            'y': '24'   # Y chromosome (case-insensitive)
+        }
+        # Get the input chromosome value
+        original_chrom = param_dict['chrom']
+        # Convert to lowercase string for case-insensitive lookup
+        input_key = str(original_chrom).lower()
+        # Replace only X/Y; leave 1-22 and other values unchanged
+        chrom = chrom_map.get(input_key, original_chrom)
+
         target_w = ots.read_sst(sst_file=w_file,
                                 sst='eQTL weights',
                                 target=target,
-                                chrom=param_dict['chrom'],
+                                chrom=chrom,
                                 start_pos=start,
                                 end_pos=end)
 
