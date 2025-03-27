@@ -5,7 +5,7 @@ conda activate otters
 N_THREADS=1
 
 # set up my OTTERS directory and SDPR directory
-OTTERS_DIR=/home/qdai8/projects/Temp/OTTERS
+OTTERS_DIR=/home/qdai8/projects/bin/OTTERS
 SDPR_DIR=/home/qdai8/projects/bin/SDPR
 
 # make sure the dynamic libraries of SDPR are not changed (For SDPR)
