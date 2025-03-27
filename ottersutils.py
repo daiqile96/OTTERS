@@ -193,7 +193,8 @@ def get_snpIDs(df: pd.DataFrame, flip=False):
 def optimize_cols(df: pd.DataFrame):
 
     if 'CHROM' in df.columns:
-        df['CHROM'] = df['CHROM'].astype(str)
+        df['CHROM'] = df['CHROM'].astype(str).replace({'X': '23', 'Y': '24'})
+        df['CHROM'] = df['CHROM'].astype(str).astype(int)
 
     ints = df.select_dtypes(include=['int64']).columns.tolist()
     df[ints] = df[ints].apply(pd.to_numeric, downcast='integer')

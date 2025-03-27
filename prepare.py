@@ -51,7 +51,6 @@ def prepare(target, target_anno, chrom, window,
     # read in snps in LD reference panel
     target_ref = ots.read_format_ref_bim(ref_dir=target_dir,
                                          ref_file=target + '.bim')
-    target_ref['CHROM'] = target_ref['CHROM'].astype(str).replace({'23': 'X', '24': 'Y'})
 
     if target_ref is None:
         print('There is no reference bim file.')
