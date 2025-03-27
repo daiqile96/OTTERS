@@ -301,7 +301,7 @@ def read_format_ref_bim(ref_dir, ref_file):
 
     print(target_ref)
 
-    target_ref['CHROM'] = target_ref['CHROM'].astype(str).replace({'X': '23', 'Y': '24'})
+    target_ref['CHROM'] = target_ref['CHROM'].astype(str).replace({'23': 'X', '24': 'Y'})
 
     print(target_ref)
 
