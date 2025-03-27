@@ -95,6 +95,7 @@ import shutil
 import sys
 import os
 import getopt
+import warnings
 
 from time import time
 from scipy.stats.distributions import chi2
@@ -254,6 +255,28 @@ GeneAnno, TargetID, n_targets = ots.read_anno(anno_dir=param_dict['anno_dir'],
 out_dir = param_dict['out_dir']
 ots.check_path(out_dir)
 
+# Check if chromosome is valid (1-22)
+valid_chroms = {str(i) for i in range(1, 23)}  # {"1", "2", ..., "22"}
+current_chrom = param_dict['chrom']
+# Track original models for comparison
+original_models = param_dict['models'].copy()
+
+# Remove SDPR/lassosum if chrom is invalid
+if current_chrom not in valid_chroms:
+    param_dict['models'] = [
+        model for model in param_dict['models'] 
+        if model not in {'SDPR', 'lassosum'}
+    ]
+
+# Issue warning if models were removed
+removed_models = set(original_models) - set(param_dict['models'])
+if removed_models:
+    warnings.warn(
+        f"Removed {', '.join(removed_models)} from models: "
+        f"not applicable for chromosome {param_dict['chrom']} (only 1-22 supported).",
+        UserWarning
+    )
+
 # Create output files and load required tools
 out_cols = ['CHROM', 'POS', 'A1', 'A2', 'TargetID', 'ES']
 for model in param_dict['models']:
@@ -263,7 +286,10 @@ for model in param_dict['models']:
     elif model in ['SDPR', 'PRScs', 'lassosum']:
         ots.create_file_title(out_cols, out_dir, model + '.txt')
         if model == 'SDPR':
-            SDPR_path = os.path.join(param_dict['SDPR_dir'], 'SDPR')
+            if param_dict['chrom'] not in str(1:22):
+                print('Currently SDPR is only applicable on chromosoem 1:22')
+            else:
+                SDPR_path = os.path.join(param_dict['SDPR_dir'], 'SDPR')
         elif model == 'PRScs':
             sys.path.append(os.path.join(param_dict['OTTERS_dir'], 'PRSmodels'))
             import mcmc_gtb
@@ -350,14 +376,9 @@ def thread_process(num):
 
     # ############################# SDPR ###############################
     if 'SDPR' in param_dict['models']:
-
-        chrom_map = {'x': '23', 'y': '24'}
-        input_key = str(param_dict['chrom']).lower()
-        chrom = chrom_map.get(input_key, param_dict['chrom'])
-
         # generate LD reference for SDPR
         ots.SDPR_LD_args(SDPR_path=SDPR_path,
-                         chrom=chrom,
+                         chrom=param_dict['chrom'],
                          r2=param_dict['SDPR_r2'],
                          bim_dir=target,
                          work_dir=target_dir)
@@ -367,7 +388,7 @@ def thread_process(num):
             SDPR_mcmc_args = ots.SDPR_args(SDPR_path=SDPR_path,
                                            sst_file=target + '_Zscore.txt',
                                            N=median_N,
-                                           chrom=chrom,
+                                           chrom=param_dict['chrom'],
                                            M=param_dict['SDPR_M'],
                                            opt_llk=param_dict['SDPR_opt_llk'],
                                            iter=param_dict['SDPR_iter'],
@@ -395,10 +416,7 @@ def thread_process(num):
     if 'lassosum' in param_dict['models']:
         # print("*Start lassosum...*")
         try:
-            chrom_map = {'x': '23', 'y': '24'}
-            input_key = str(param_dict['chrom']).lower()
-            chrom = chrom_map.get(input_key, param_dict['chrom'])
-            lassosum_arg = ots.lassosum_cmd(chrom=chrom,
+            lassosum_arg = ots.lassosum_cmd(chrom=param_dict['chrom'],
                                             bim_dir=target,
                                             sst_dir=target + '_beta.txt',
                                             out_dir='lassosum.txt',
