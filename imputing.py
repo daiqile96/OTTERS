@@ -258,7 +258,7 @@ def thread_process(num):
         target_w = ots.read_sst(sst_file=w_file,
                                 sst='eQTL weights',
                                 target=target,
-                                chrom=param_dict['chrom'],
+                                chrom=chrom,
                                 start_pos=start,
                                 end_pos=end)
 

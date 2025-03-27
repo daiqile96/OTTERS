@@ -76,11 +76,11 @@ python3 ${OTTERS_DIR}/testing.py \
 # get imputed genetically regulated gene expression
 impute_dir=GReX
 # samples to perform imputation
-samples=Exp_samples.txt
+samples=ChromX_Exp_samples.txt
 # imputation
 python3 ${OTTERS_DIR}/imputing.py \
 --OTTERS_dir=${OTTERS_DIR} \
---weight_dir=${OTTERS_DIR}/Example/Results \
+--weight_dir=${OTTERS_DIR}/Example/ChromX/Results \
 --models=P0.001,P0.05,lassosum,SDPR,PRScs \
 --anno_dir=${exp_anno} \
 --geno_dir=${geno_dir} \
