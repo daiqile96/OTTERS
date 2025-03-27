@@ -64,7 +64,7 @@ twas_dir=TWAS
 # gene-based association test using eQTL-weight trained from P+T, lassosum, SDPR and PRS-CS.
 python3 ${OTTERS_DIR}/testing.py \
 --OTTERS_dir=${OTTERS_DIR} \
---weight_dir=${OTTERS_DIR}/Example/Results \
+--weight_dir=${OTTERS_DIR}/Example/ChromX/Results \
 --models=P0.001,P0.05,lassosum,SDPR,PRScs \
 --anno_dir=${exp_anno} \
 --geno_dir=${geno_dir} \
