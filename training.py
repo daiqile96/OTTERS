@@ -91,11 +91,11 @@ python imputation.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_
 import multiprocessing
 import numpy as np
 import subprocess
+import warnings
 import shutil
 import sys
 import os
 import getopt
-import warnings
 
 from time import time
 from scipy.stats.distributions import chi2
@@ -255,7 +255,7 @@ GeneAnno, TargetID, n_targets = ots.read_anno(anno_dir=param_dict['anno_dir'],
 out_dir = param_dict['out_dir']
 ots.check_path(out_dir)
 
-# Check if chromosome is valid (1-22)
+# Check if chromosome is valid (1-22) for SDPR and lassosum
 valid_chroms = {str(i) for i in range(1, 23)}  # {"1", "2", ..., "22"}
 current_chrom = param_dict['chrom']
 # Track original models for comparison

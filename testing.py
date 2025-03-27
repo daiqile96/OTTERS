@@ -40,6 +40,7 @@ python TWAS.py --OTTERS_dir=PATH_TO_OTTERS --anno_dir=PATH_TO_ANNO --geno_dir=PA
 """
 import multiprocessing
 import subprocess
+import warnings
 import getopt
 import shutil
 import pysam
@@ -150,6 +151,28 @@ ots.check_path(out_dir)
 # Read in gene annotation file
 GeneAnno, TargetID, n_targets = ots.read_anno(anno_dir=param_dict['anno_dir'],
                                               chrom=param_dict['chrom'])
+
+# Check if chromosome is valid (1-22) for SDPR and lassosum
+valid_chroms = {str(i) for i in range(1, 23)}  # {"1", "2", ..., "22"}
+current_chrom = param_dict['chrom']
+# Track original models for comparison
+original_models = param_dict['models'].copy()
+
+# Remove SDPR/lassosum if chrom is invalid
+if current_chrom not in valid_chroms:
+    param_dict['models'] = [
+        model for model in param_dict['models'] 
+        if model not in {'SDPR', 'lassosum'}
+    ]
+
+# Issue warning if models were removed
+removed_models = set(original_models) - set(param_dict['models'])
+if removed_models:
+    warnings.warn(
+        f"Removed {', '.join(removed_models)} from models: "
+        f"not applicable for chromosome {param_dict['chrom']} (only 1-22 supported).",
+        UserWarning
+    )
 
 ############################################################
 # Create directory for temporary files
@@ -301,7 +324,7 @@ def thread_process(num):
         print('Finish ' + model + '.')
 
     ############################ Clean temporary files ##################
-    # shutil.rmtree(target_dir)
+    shutil.rmtree(target_dir)
     print('Done. \n')
 
 ############################################################
@@ -312,7 +335,7 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     print('Remove temporary files.')
-    # shutil.rmtree(os.path.join(out_dir, 'tmp'))
+    shutil.rmtree(os.path.join(out_dir, 'tmp'))
 
 ############################################################
 # time calculation
