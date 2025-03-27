@@ -51,11 +51,11 @@ def prepare(target, target_anno, chrom, window,
     # read in snps in LD reference panel
     target_ref = ots.read_format_ref_bim(ref_dir=target_dir,
                                          ref_file=target + '.bim')
+    target_ref['CHROM'] = target_ref['CHROM'].astype(str).replace({'23': 'X', '24': 'Y'})
 
     if target_ref is None:
         print('There is no reference bim file.')
         return None
-
 
     ########### Match SNPs in eQTL reference and LD reference #########
     # print('Check overlapped SNPs between eQTL reference and LD reference...')
@@ -92,6 +92,7 @@ def prepare(target, target_anno, chrom, window,
     target_clumped = os.path.join(target_dir, target + '.clumped')
     clumped_snp = ots.read_in_clumped(clumped_file=target_clumped,
                                       chrom=chrom)
+    print(clumped_snp)
 
     # filter summary statistics by clumping results
     target_sst = ots.filter_df_rows(df=target_sst,

@@ -297,7 +297,6 @@ def read_format_ref_bim(ref_dir, ref_file):
                              dtype=dtypes)
 
     target_ref = pd.concat([chunk for chunk in ref_chunks]).reset_index(drop=True)
-    target_ref['CHROM'] = target_ref['CHROM'].astype(str).replace({'23': 'X', '24': 'Y'})
 
     if len(target_ref) == 0:
         return None
@@ -652,6 +651,10 @@ def read_in_clumped(clumped_file, chrom):
             res = line.split()
             if len(res) != 0:
                 if res[0] == chrom:
+                    snps.append(res[2])
+                elif chrom == 'X' and res[0] == '23':
+                    snps.append(res[2])
+                elif chrom == 'Y' and res[0] == '24':
                     snps.append(res[2])
 
     return snps
