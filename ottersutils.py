@@ -193,7 +193,7 @@ def get_snpIDs(df: pd.DataFrame, flip=False):
 def optimize_cols(df: pd.DataFrame):
 
     if 'CHROM' in df.columns:
-        df['CHROM'] = df['CHROM'].astype(str)
+        df['CHROM'] = df['CHROM'].astype(str).astype(int)
 
     ints = df.select_dtypes(include=['int64']).columns.tolist()
     df[ints] = df[ints].apply(pd.to_numeric, downcast='integer')
@@ -208,20 +208,21 @@ def optimize_cols(df: pd.DataFrame):
 def get_cols_dtype(cols):
 
     dtype_dict = {
-        'CHROM': str,
+        'CHROM': 'string',
         'POS': np.int64,
-        'A1': str,
-        'A2': str,
-        'SNP': str,
+        'A1': 'string',
+        'A2': 'string',
+        'SNP': 'string',
         'ES': np.float64,
         'Z': np.float64,
         'N': np.int64,
         'GeneEnd': np.int64,
-        'GeneName': str,
+        'GeneName': 'string',
         'GeneStart': np.int64,
-        'snpID': str,
-        'TargetID': str,
-        'bp': object}
+        'snpID': 'string',
+        'TargetID': 'string',
+        'bp': 'string'
+    }
 
     out_dtype_dict = {x: dtype_dict[x] for x in cols}
 
@@ -297,7 +298,11 @@ def read_format_ref_bim(ref_dir, ref_file):
                              dtype=dtypes)
 
     target_ref = pd.concat([chunk for chunk in ref_chunks]).reset_index(drop=True)
-    
+
+    print(target_ref)
+
+    target_ref['CHROM'] = target_ref['CHROM'].astype(str).replace({'X': '23', 'Y': '24'})
+
     print(target_ref)
 
     if len(target_ref) == 0:
