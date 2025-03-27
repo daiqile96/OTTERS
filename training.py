@@ -286,10 +286,7 @@ for model in param_dict['models']:
     elif model in ['SDPR', 'PRScs', 'lassosum']:
         ots.create_file_title(out_cols, out_dir, model + '.txt')
         if model == 'SDPR':
-            if param_dict['chrom'] not in str(1:22):
-                print('Currently SDPR is only applicable on chromosoem 1:22')
-            else:
-                SDPR_path = os.path.join(param_dict['SDPR_dir'], 'SDPR')
+            SDPR_path = os.path.join(param_dict['SDPR_dir'], 'SDPR')
         elif model == 'PRScs':
             sys.path.append(os.path.join(param_dict['OTTERS_dir'], 'PRSmodels'))
             import mcmc_gtb
