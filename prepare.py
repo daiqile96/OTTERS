@@ -25,12 +25,13 @@ def prepare(target, target_anno, chrom, window,
     # generate command to call PLINK to extract the binary file for the target gene
     if geno_type == 'vcf':
         # save the range of the gene
-        range = os.path.join(target_dir, 'range.txt')
-        with open(range, 'w') as ff:
+        range_file = os.path.join(target_dir, 'range.txt')
+        with open(range_file, 'w') as ff:
             ff.write('%s\t%s\t%s\t%s\n' % (chrom, start, end, target))
         # extract the genotype data for this range
         out_geno = os.path.join(target_dir, target)
-        cmd = ["plink --vcf " + geno_dir + ".vcf --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
+        cmd = ["plink --vcf " + geno_dir + ".vcf --keep-allele-order --extract range " + range_file 
+               + " --make-bed --out " + out_geno]
         try:
             proc = subprocess.check_call(cmd,
                                          stdout=subprocess.PIPE,
