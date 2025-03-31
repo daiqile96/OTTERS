@@ -18,36 +18,33 @@ In this tool, we
 
 ## Latest Updates
 
-* **January 14, 2025**  
-  - Added `--lassosum_ld_blocks` argument  
-    * Purpose: Select LD blocks for lassosum analysis  
-    * Available options (from [Berisa & Pickrell (2015)](https://pmc.ncbi.nlm.nih.gov/articles/PMC4731402/)):  
-      - `EUR.hg19`, `ASN.hg19`, `AFR.hg19`  
-      - `EUR.hg38`, `ASN.hg38`, `AFR.hg38`  
-    * Default: `EUR.hg38`  
+### January 14, 2025: Added `--lassosum_ld_blocks` argument  
+  * Purpose: Select LD blocks for lassosum analysis  
+  * Available options (from [Berisa & Pickrell (2015)](https://pmc.ncbi.nlm.nih.gov/articles/PMC4731402/)):  
+    - `EUR.hg19`, `ASN.hg19`, `AFR.hg19`  
+    - `EUR.hg38`, `ASN.hg38`, `AFR.hg38`  
+  * Default: `EUR.hg38`  
 
-* **March 29, 2025**  
-  - Added support for sex chromosomes (`--chrom=X` and `--chrom=Y`)  
-    * Note: In OTTERS outputs:  
-      - Chromosome X → labeled as 23  
-      - Chromosome Y → labeled as 24  
-    * Example resources:  
-      - [ChromX Analysis Script](https://raw.githubusercontent.com/daiqile96/OTTERS/main/Example/ChromX/ChromX_example.sh)  
-      - [Test Data](https://github.com/daiqile96/OTTERS/tree/development/Example/ChromX)  
+### March 29, 2025: Added support for sex chromosomes (`--chrom=X` and `--chrom=Y`)  
+  * Note: In OTTERS outputs:  
+    - Chromosome X → labeled as 23  
+    - Chromosome Y → labeled as 24  
+  * Example resources:  
+    - [ChromX Analysis Script](https://raw.githubusercontent.com/daiqile96/OTTERS/main/Example/ChromX/ChromX_example.sh)  
+    - [Test Data](https://github.com/daiqile96/OTTERS/tree/development/Example/ChromX)  
 
-* **March 30, 2025**  
-  - Added VCF/VCF.gz support for LD reference panels  
-    * New `--geno_type` options:  
-      - `Example_geno.vcf` (uncompressed VCF)  
-      - `Example_geno.vcf.gz` (compressed VCF)  
-    * Default remains: `plink` (binary format)  
-    * Implementation:  
-      - Creates a gene-specific range file with genomic coordinates
-      - Runs PLINK to extract the region from vcf or vcf.gz and convert to binary format via [`call_PLINK_extract()`](https://github.com/daiqile96/OTTERS/blob/development/ottersutils.py#L234-L260)  
-    * Example resources:  
-      - [Analysis with VCF.gz genotype data](https://raw.githubusercontent.com/daiqile96/OTTERS/main/Example/VCF/example.sh)  
-        *For uncompressed VCF:* Simply replace `.vcf.gz` with `.vcf`  
-      - [Test Data](https://github.com/daiqile96/OTTERS/tree/development/Example/VCF)
+### March 30, 2025: Added VCF/VCF.gz support for LD reference panels  
+  * New `--geno_type` options:  
+    - `Example_geno.vcf` (uncompressed VCF)  
+    - `Example_geno.vcf.gz` (compressed VCF)  
+  * Default remains: `plink` (binary format)  
+  * Implementation:  
+    - Creates a gene-specific range file with genomic coordinates
+    - Runs PLINK to extract the region from vcf or vcf.gz and convert to binary format via [`call_PLINK_extract()`](https://github.com/daiqile96/OTTERS/blob/development/ottersutils.py#L234-L260)  
+  * Example resources:  
+    - [Analysis with VCF.gz genotype data](https://raw.githubusercontent.com/daiqile96/OTTERS/main/Example/VCF/example.sh)  
+      * For uncompressed VCF: Simply replace `.vcf.gz` with `.vcf`  
+    - [Test Data](https://github.com/daiqile96/OTTERS/tree/development/Example/VCF)
 
 
 ## Getting Started
