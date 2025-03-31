@@ -1,5 +1,6 @@
 from scipy.stats.distributions import chi2
 import ottersutils as ots
+import subprocess
 import shutil
 import numpy as np
 import os
@@ -21,7 +22,24 @@ def prepare(target, target_anno, chrom, window,
     ots.check_path(target_dir)
 
     # generate command to call PLINK to extract the binary file for the target gene
-    extract_proc = ots.call_PLINK_extract(bim_path=geno_dir,
+    if ref_type == 'vcf':
+        # save the range of the gene
+        range = os.path.join(target_dir, 'range.txt')
+        with open(range, 'w') as ff:
+            ff.write('%s\t%s\t%s\t%s\n' % (chrom, start, end, target))
+        # extract the genotype data for this range
+        out_geno = os.path.join(target_dir, target)
+        cmd = ['plink --vcf' + geno_dir + "--make-bed --out geno_dir"]
+        cmd = ["plink --bfile "+ geno_dir +" --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
+        try:
+            proc = subprocess.check_call(cmd,
+                                        stdout=subprocess.PIPE,
+                                        shell=True)
+        except subprocess.CalledProcessError:
+            print('There is no genotype reference data.')
+            return None, None, None
+    else:
+        extract_proc = ots.call_PLINK_extract(bim_path=geno_dir,
                                           out_path=target_dir,
                                           target=target,
                                           chrom=chrom,

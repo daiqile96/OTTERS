@@ -121,6 +121,7 @@ def parse_param():
                       'SDPR_dir=', 'SDPR_r2=', 'SDPR_M=', 'SDPR_opt_llk=',
                       'SDPR_iter=', 'SDPR_burn=', 'SDPR_thin=', 'SDPR_a=',
                       'SDPR_c=', 'SDPR_a0k=', 'SDPR_b0k=', 'lassosum_ld_blocks=',
+                      'geno_type='
                       'help']
 
     param_dict = {'OTTERS_dir': None, 'anno_dir': None,
@@ -132,7 +133,7 @@ def parse_param():
                   'SDPR_dir': None, 'SDPR_r2': 0.1, 'SDPR_M': 1000, 'SDPR_opt_llk': 1,
                   'SDPR_iter': 1000, 'SDPR_burn': 200, 'SDPR_thin': 1, 'SDPR_a': 0.1,
                   'SDPR_c': 1, 'SDPR_a0k': 0.5, 'SDPR_b0k': 0.5, 'lassosum_ld_blocks': 'EUR.hg38',
-                  'seed': None}
+                  'seed': None, 'geno_type': 'plink'}
 
     print('\n')
 
@@ -210,6 +211,8 @@ def parse_param():
                 param_dict['thread'] = int(arg)
             elif opt == "--seed":
                 param_dict['seed'] = int(arg)
+            elif opt == "--geno_type":
+                param_dict['geno_type'] = str(arg)
     else:
         print(__doc__)
         sys.exit(0)
@@ -317,8 +320,9 @@ def thread_process(num):
                                                     geno_dir=param_dict['geno_dir'],
                                                     out_dir=out_dir,
                                                     sst_dir=tabix_sst,
-                                                    clump_r2=param_dict['r2'])
-    
+                                                    clump_r2=param_dict['r2'],
+                                                    geno_type=param_dict['geno_type'])
+
     if (target_dir is None):
         return None
 
