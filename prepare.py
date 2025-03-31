@@ -30,12 +30,11 @@ def prepare(target, target_anno, chrom, window,
             ff.write('%s\t%s\t%s\t%s\n' % (chrom, start, end, target))
         # extract the genotype data for this range
         out_geno = os.path.join(target_dir, target)
-        cmd = ['plink --vcf' + geno_dir + "--make-bed --out geno_dir"]
-        cmd = ["plink --bfile "+ geno_dir +" --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
+        cmd = ["plink --vcf " + geno_dir + " --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
         try:
             proc = subprocess.check_call(cmd,
-                                        stdout=subprocess.PIPE,
-                                        shell=True)
+                                         stdout=subprocess.PIPE,
+                                         shell=True)
         except subprocess.CalledProcessError:
             print('There is no genotype reference data.')
             return None, None, None
