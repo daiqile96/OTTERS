@@ -65,14 +65,15 @@ twas_dir=TWAS
 # gene-based association test using eQTL-weight trained from P+T, lassosum, SDPR and PRS-CS.
 python3 ${OTTERS_DIR}/testing.py \
 --OTTERS_dir=${OTTERS_DIR} \
---weight_dir=${OTTERS_DIR}/Example/Results \
+--weight_dir=${OTTERS_DIR}/Example/VCF/Results \
 --models=P0.001,P0.05,lassosum,SDPR,PRScs \
 --anno_dir=${exp_anno} \
 --geno_dir=${geno_dir} \
 --out_dir=${twas_dir} \
 --gwas_file=${gwas_sst_file} \
 --chrom=${chr} \
---thread=$N_THREADS
+--thread=$N_THREADS \
+--geno_type=vcf
 
 # get imputed genetically regulated gene expression
 impute_dir=GReX
