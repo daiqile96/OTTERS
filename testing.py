@@ -61,11 +61,13 @@ def parse_param():
 
     long_opts_list = ['OTTERS_dir=', 'anno_dir=', 'geno_dir=',
                       'weight_dir=', 'gwas_file=', 'out_dir=', 'chrom=',
-                      'window=', 'thread=', 'models=', 'help']
+                      'window=', 'thread=', 'models=', 
+                      'geno_type=', 'help']
 
     param_dict = {'OTTERS_dir': None, 'anno_dir': None,
                   'geno_dir': None, 'weight_dir': None, 'gwas_file': None, 'out_dir': None, 'chrom': None,
-                  'window': 1000000, 'thread': 1, 'models': None}
+                  'window': 1000000, 'thread': 1, 
+                  'geno_type': 'plink', 'models': None}
 
     print('\n')
 
