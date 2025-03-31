@@ -121,7 +121,7 @@ def parse_param():
                       'SDPR_dir=', 'SDPR_r2=', 'SDPR_M=', 'SDPR_opt_llk=',
                       'SDPR_iter=', 'SDPR_burn=', 'SDPR_thin=', 'SDPR_a=',
                       'SDPR_c=', 'SDPR_a0k=', 'SDPR_b0k=', 'lassosum_ld_blocks=',
-                      'geno_type='
+                      'geno_type=',
                       'help']
 
     param_dict = {'OTTERS_dir': None, 'anno_dir': None,
