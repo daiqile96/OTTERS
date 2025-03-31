@@ -35,9 +35,9 @@ In this tool, we
 
 ### March 30, 2025: Added VCF/VCF.gz support for LD reference panels  
   * New `--geno_type` options:  
-    - `Example_geno.vcf` (uncompressed VCF)  
-    - `Example_geno.vcf.gz` (compressed VCF)  
-  * Default remains: `plink` (binary format)  
+    - `--geno_type=vcf` (uncompressed VCF)  
+    - `--geno_type=vcf.gz` (compressed VCF)  
+  * Default: `--geno_type=plink` (plink binary format)  
   * Implementation:  
     - Creates a gene-specific range file with genomic coordinates
     - Runs PLINK to extract the region from vcf or vcf.gz and convert to binary format via [`call_PLINK_extract()`](https://github.com/daiqile96/OTTERS/blob/development/ottersutils.py#L234-L260)  
