@@ -30,7 +30,7 @@ def prepare(target, target_anno, chrom, window,
             ff.write('%s\t%s\t%s\t%s\n' % (chrom, start, end, target))
         # extract the genotype data for this range
         out_geno = os.path.join(target_dir, target)
-        cmd = ["plink --vcf " + geno_dir + " --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
+        cmd = ["plink --vcf " + geno_dir + ".vcf --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
         try:
             proc = subprocess.check_call(cmd,
                                          stdout=subprocess.PIPE,
