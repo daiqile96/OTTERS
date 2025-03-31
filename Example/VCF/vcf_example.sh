@@ -56,7 +56,7 @@ python3 ${OTTERS_DIR}/training.py \
 --models=PT,lassosum,SDPR,PRScs \
 --lassosum_ld_blocks=EUR.hg38 \
 --thread=$N_THREADS \
---geno_type=vcf
+--geno_type=vcf.gz
 
 # Set output directory for STAGE II
 twas_dir=TWAS
@@ -73,7 +73,7 @@ python3 ${OTTERS_DIR}/testing.py \
 --gwas_file=${gwas_sst_file} \
 --chrom=${chr} \
 --thread=$N_THREADS \
---geno_type=vcf
+--geno_type=vcf.gz
 
 # get imputed genetically regulated gene expression
 impute_dir=GReX
@@ -82,7 +82,7 @@ samples=Exp_samples.txt
 # imputation
 python3 ${OTTERS_DIR}/imputing.py \
 --OTTERS_dir=${OTTERS_DIR} \
---weight_dir=${OTTERS_DIR}/Example/Results \
+--weight_dir=${OTTERS_DIR}/Example/VCF/Results \
 --models=P0.001,P0.05,lassosum,SDPR,PRScs \
 --anno_dir=${exp_anno} \
 --geno_dir=${geno_dir} \
@@ -90,4 +90,4 @@ python3 ${OTTERS_DIR}/imputing.py \
 --chrom=${chr} \
 --samples=${samples} \
 --thread=$N_THREADS \
---geno_type=vcf
+--geno_type=vcf.gz
