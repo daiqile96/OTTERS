@@ -7,7 +7,8 @@ import os
 
 
 def prepare(target, target_anno, chrom, window,
-            geno_dir, out_dir, sst_dir, clump_r2):
+            geno_dir, out_dir, sst_dir, clump_r2,
+            geno_type):
 
     ################# PLINK Binary Files #####################
 
@@ -22,7 +23,7 @@ def prepare(target, target_anno, chrom, window,
     ots.check_path(target_dir)
 
     # generate command to call PLINK to extract the binary file for the target gene
-    if ref_type == 'vcf':
+    if geno_type == 'vcf':
         # save the range of the gene
         range = os.path.join(target_dir, 'range.txt')
         with open(range, 'w') as ff:
