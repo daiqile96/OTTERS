@@ -231,17 +231,24 @@ def get_cols_dtype(cols):
 ################ Functions related to PLINK ##################
 
 
-def call_PLINK_extract(bim_path, out_path, target, chrom, start_pos, end_pos):
+def call_PLINK_extract(geno_path, out_path, target, chrom, start_pos, end_pos, geno_type):
 
     # save the range of the gene
-    range = os.path.join(out_path, 'range.txt')
-    with open(range, 'w') as ff:
+    range_file = os.path.join(out_path, 'range.txt')
+    with open(range_file, 'w') as ff:
         ff.write('%s\t%s\t%s\t%s\n' % (chrom, start_pos, end_pos, target))
 
     # extract the genotype data for this range
     out_geno = os.path.join(out_path, target)
 
-    cmd = ["plink --bfile "+bim_path+" --keep-allele-order --extract range " + range + " --make-bed --out " + out_geno]
+    if geno_type in ('vcf', 'vcf.gz'):
+        cmd = ["plink --vcf " + geno_path + "." + geno_type +
+               "--keep-allele-order --extract range " + 
+               range_file + " --make-bed --out " + out_geno] 
+    else:
+        cmd = ["plink --bfile "+ geno_path + 
+               " --keep-allele-order --extract range " +
+               range_file + " --make-bed --out " + out_geno]
 
     try:
         proc = subprocess.check_call(cmd,
