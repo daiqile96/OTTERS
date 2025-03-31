@@ -45,11 +45,12 @@ def prepare(target, target_anno, chrom, window,
                                           chrom=chrom,
                                           start_pos=start,
                                           end_pos=end)
+        if not extract_proc:
+            print('Remove temporary files. \n')
+            shutil.rmtree(target_dir)
+            return None, None, None
 
-    if not extract_proc:
-        print('Remove temporary files. \n')
-        shutil.rmtree(target_dir)
-        return None, None, None
+    
 
     ################# Read in eQTL summary statistics #####################
     target_sst = ots.read_sst(sst_file=sst_dir,
