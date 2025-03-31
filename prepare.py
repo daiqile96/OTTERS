@@ -40,11 +40,11 @@ def prepare(target, target_anno, chrom, window,
             return None, None, None
     else:
         extract_proc = ots.call_PLINK_extract(bim_path=geno_dir,
-                                          out_path=target_dir,
-                                          target=target,
-                                          chrom=chrom,
-                                          start_pos=start,
-                                          end_pos=end)
+                                             out_path=target_dir,
+                                             target=target,
+                                             chrom=chrom,
+                                             start_pos=start,
+                                             end_pos=end)
         if not extract_proc:
             print('Remove temporary files. \n')
             shutil.rmtree(target_dir)
