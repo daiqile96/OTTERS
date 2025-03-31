@@ -18,7 +18,7 @@ In this tool, we
 
 ## Latest Updates
 
-### January 14, 2025: Added `--lassosum_ld_blocks` argument  
+### January 14, 2025: Added `--lassosum_ld_blocks` argument
   * Purpose: Select LD blocks for lassosum analysis  
   * Available options (from [Berisa & Pickrell (2015)](https://pmc.ncbi.nlm.nih.gov/articles/PMC4731402/)):  
     - `EUR.hg19`, `ASN.hg19`, `AFR.hg19`  
