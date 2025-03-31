@@ -103,6 +103,8 @@ def parse_param():
                 param_dict['window'] = int(arg)
             elif opt == "--thread":
                 param_dict['thread'] = int(arg)
+            elif opt == "--geno_type":
+                param_dict['geno_type'] = str(arg)
 
     else:
         print(__doc__)
@@ -226,17 +228,35 @@ def thread_process(num):
     target_dir = os.path.join(out_dir, target)
     ots.check_path(target_dir)
 
-    # call PLINK to extract the binary file for the target gene
-    extract_proc = ots.call_PLINK_extract(bim_path=param_dict['geno_dir'],
-                                          out_path=target_dir,
-                                          target=target,
-                                          chrom=param_dict['chrom'],
-                                          start_pos=start,
-                                          end_pos=end)
-    if not extract_proc:
-        print('Remove temporary files. \n')
-        shutil.rmtree(target_dir)
-        return None
+    if param_dict['geno_type'] == 'vcf':
+        # save the range of the gene
+        range = os.path.join(target_dir, 'range.txt')
+        with open(range, 'w') as ff:
+            ff.write('%s\t%s\t%s\t%s\n' % (param_dict['chrom'], start, end, target))
+        # extract the genotype data for this range
+        out_geno = os.path.join(target_dir, target)
+        cmd = ["plink --vcf " + param_dict['geno_dir'] + 
+               ".vcf --keep-allele-order --extract range " + 
+               range + " --make-bed --out " + out_geno]
+        try:
+            proc = subprocess.check_call(cmd,
+                                         stdout=subprocess.PIPE,
+                                         shell=True)
+        except subprocess.CalledProcessError:
+            print('There is no genotype reference data.')
+            return None, None, None
+    else:
+        # call PLINK to extract the binary file for the target gene
+        extract_proc = ots.call_PLINK_extract(bim_path=param_dict['geno_dir'],
+                                            out_path=target_dir,
+                                            target=target,
+                                            chrom=param_dict['chrom'],
+                                            start_pos=start,
+                                            end_pos=end)
+        if not extract_proc:
+            print('Remove temporary files. \n')
+            shutil.rmtree(target_dir)
+            return None
 
     # read in snps in reference panel
     target_ref = ots.read_format_ref_bim(ref_dir=target_dir,
