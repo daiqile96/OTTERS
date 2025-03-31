@@ -61,11 +61,13 @@ def parse_param():
 
     long_opts_list = ['OTTERS_dir=', 'anno_dir=', 'geno_dir=',
                       'weight_dir=', 'out_dir=', 'chrom=',
-                      'window=', 'thread=', 'models=', 'samples=', 'help']
+                      'window=', 'thread=', 'models=', 'samples=', 
+                      'geno_type=', 'help']
 
     param_dict = {'OTTERS_dir': None, 'anno_dir': None,
                   'geno_dir': None, 'weight_dir': None, 'out_dir': None, 'chrom': None,
-                  'window': 1000000, 'thread': 1, 'models': None, 'samples': None}
+                  'window': 1000000, 'thread': 1, 'models': None, 'samples': None,
+                  'geno_type': 'plink'}
 
     print('\n')
 
@@ -101,6 +103,8 @@ def parse_param():
                 param_dict['samples'] = arg
             elif opt == "--thread":
                 param_dict['thread'] = int(arg)
+            elif opt == "--geno_type":
+                param_dict['geno_type'] = str(arg)
 
     else:
         print(__doc__)
@@ -216,12 +220,13 @@ def thread_process(num):
     ots.check_path(target_dir)
 
     # call PLINK to extract the binary file for the target gene
-    extract_proc = ots.call_PLINK_extract(bim_path=param_dict['geno_dir'],
+    extract_proc = ots.call_PLINK_extract(geno_path=param_dict['geno_dir'],
                                           out_path=target_dir,
                                           target=target,
                                           chrom=param_dict['chrom'],
                                           start_pos=start,
-                                          end_pos=end)
+                                          end_pos=end,
+                                          geno_type=param_dict['geno_type'])
     if not extract_proc:
         print('Remove temporary files. \n')
         shutil.rmtree(target_dir)
