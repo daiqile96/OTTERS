@@ -101,6 +101,8 @@ Download and install following required tools, modules, and packages:
 ## Updates:
 
 - Jan 14, 2025: Added a new argument, `--lassosum_ld_blocks`, allowing users to select the LD blocks used for lassosum. The argument must be one of the following pre-defined LD blocks provided by [Berisa and Pickrell (2015)](https://pmc.ncbi.nlm.nih.gov/articles/PMC4731402/): EUR.hg19, ASN.hg19, AFR.hg19, EUR.hg38, ASN.hg38, AFR.hg38. The default value is EUR.hg38. 
+
+- May 27, 2025: We’ve added support for --chrom='X' and --chrom='Y'. Please note that in OTTERS outputs, chromosome X is labeled as 23 and chromosome Y is labeled as 24. For an example of applying OTTERS to chromosome X, see [here](https://raw.githubusercontent.com/daiqile96/OTTERS/refs/heads/main/Example/ChromX/ChromX_example.sh). 
   
   
 ## Example: 
