@@ -241,12 +241,12 @@ def call_PLINK_extract(geno_path, out_path, target, chrom, start_pos, end_pos, g
     # extract the genotype data for this range
     out_geno = os.path.join(out_path, target)
 
-    if geno_type in ('vcf', 'vcf.gz'):
+    if geno_type == 'vcf':
         cmd = ["plink --vcf " + geno_path + "." + geno_type +
-               " --keep-allele-order --extract range " + 
-               range_file + " --make-bed --out " + out_geno] 
+               " --keep-allele-order --extract range " +
+               range_file + " --make-bed --out " + out_geno]
     else:
-        cmd = ["plink --bfile "+ geno_path + 
+        cmd = ["plink --bfile "+ geno_path +
                " --keep-allele-order --extract range " +
                range_file + " --make-bed --out " + out_geno]
 
