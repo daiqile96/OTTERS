@@ -73,7 +73,7 @@ python3 ${OTTERS_DIR}/testing.py \
 --gwas_file=${gwas_sst_file} \
 --chrom=${chr} \
 --thread=$N_THREADS \
---geno_type=vcf.gz
+--geno_type=vcf
 
 # get imputed genetically regulated gene expression
 impute_dir=GReX
@@ -90,4 +90,4 @@ python3 ${OTTERS_DIR}/imputing.py \
 --chrom=${chr} \
 --samples=${samples} \
 --thread=$N_THREADS \
---geno_type=vcf.gz
+--geno_type=vcf
