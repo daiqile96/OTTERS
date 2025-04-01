@@ -38,9 +38,10 @@ In this tool, we
 * **March 31, 2025**  
   - Added VCF/VCF.gz support for LD reference panels  
     * New `--geno_type` options: `vcf` 
-    * Default remains: `plink` (binary format)  
+    * Default remains: `plink` (binary PLINK format)
     * Note: 
       * Require bgzip and tabixed vcf files, e.g. [Exp_geno.vcf.gz](https://github.com/daiqile96/OTTERS/tree/development/Example/VCF/Exp_geno.vcf.gz) and [Exp_geno.vcf.gz.tbi](https://github.com/daiqile96/OTTERS/tree/development/Example/VCF/Exp_geno.vcf.gz.tbi)
+        * For each gene, OTTERS uses the Tabix tool to extract the relevant region from the VCF, and then calls PLINK to convert the extracted vcf into binary PLINK format. See the functions [extract_vcf_region_with_tabix](https://github.com/daiqile96/OTTERS/blob/main/ottersutils.py#L233) and [call_PLINK_extract](https://github.com/daiqile96/OTTERS/blob/main/ottersutils.py#L267) for details.
     * Example resources:  
       - [Analysis with VCF.gz genotype data](https://raw.githubusercontent.com/daiqile96/OTTERS/main/Example/VCF/vcf_example.sh)  
         - `geno_dir=Exp_geno.vcf.gz` 
