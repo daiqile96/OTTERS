@@ -22,26 +22,22 @@ def prepare(target, target_anno, chrom, window,
     target_dir = os.path.join(out_dir, target)
     ots.check_path(target_dir)
 
-    # generate command to call PLINK to extract the binary file for the target gene
+    # If genotype is vcf, use tabix to extract temporary VCF file for the target gene
     if geno_type == 'vcf':
-        tmp_vcf = os.path.join(target_dir, target + '.vcf')
-        region = f"{chrom}:{start}-{end}"
-        tabix_cmd = f"tabix -h {geno_dir} {region} > {tmp_vcf}"
-
-        # Run command
-        process = subprocess.Popen(tabix_cmd, shell=True,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-
-        # Check if it succeeded
-        if process.returncode == 0:
+        tmp_vcf = ots.extract_vcf_region_with_tabix(geno_dir=geno_dir,
+                                                    target_dir=target_dir,
+                                                    target=target,
+                                                    chrom=chrom,
+                                                    start_pos=start,
+                                                    end_pos=end)
+        if tmp_vcf:
             geno_dir = tmp_vcf
         else:
-            print("Tabix command failed for converting vcf to plink binary data")
-            print("stderr:", stderr.decode())
+            print("Failed to extract region.")
+            shutil.rmtree(target_dir)
             return None, None, None
 
+    # Call PLINK to generate the binary file for the target gene
     extract_proc = ots.call_PLINK_extract(geno_path=geno_dir,
                                           out_path=target_dir,
                                           target=target,
@@ -53,6 +49,7 @@ def prepare(target, target_anno, chrom, window,
         print('Remove temporary files. \n')
         shutil.rmtree(target_dir)
         return None, None, None
+
 
     ################# Read in eQTL summary statistics #####################
     target_sst = ots.read_sst(sst_file=sst_dir,
