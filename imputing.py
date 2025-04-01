@@ -218,9 +218,25 @@ def thread_process(num):
     # set output path of the target gene
     target_dir = os.path.join(out_dir, target)
     ots.check_path(target_dir)
+    geno_dir = param_dict['geno_dir']
+
+    # If genotype is vcf, use tabix to extract temporary VCF file for the target gene
+    if param_dict['geno_type'] == 'vcf':
+        tmp_vcf = ots.extract_vcf_region_with_tabix(geno_dir=geno_dir,
+                                                    target_dir=target_dir,
+                                                    target=target,
+                                                    chrom=param_dict['chrom'],
+                                                    start_pos=start,
+                                                    end_pos=end)
+        if tmp_vcf:
+            geno_dir = tmp_vcf
+        else:
+            print("Failed to extract region.")
+            shutil.rmtree(target_dir)
+            return None, None, None
 
     # call PLINK to extract the binary file for the target gene
-    extract_proc = ots.call_PLINK_extract(geno_path=param_dict['geno_dir'],
+    extract_proc = ots.call_PLINK_extract(geno_path=geno_dir,
                                           out_path=target_dir,
                                           target=target,
                                           chrom=param_dict['chrom'],
