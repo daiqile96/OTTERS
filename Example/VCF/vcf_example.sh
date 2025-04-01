@@ -27,7 +27,7 @@ cd ${OTTERS_DIR}/Example/VCF
 # Annotation File 
 exp_anno=exp_anno.txt
 # Genotype data from LD reference panel
-geno_dir=Exp_geno
+geno_dir=Exp_geno.vcf.gz
 # eQTL summary statistics 
 sst_file=Exp_eQTLSumStats.txt
 # Input for OTTERS STAGE II
@@ -56,7 +56,7 @@ python3 ${OTTERS_DIR}/training.py \
 --models=PT,lassosum,SDPR,PRScs \
 --lassosum_ld_blocks=EUR.hg38 \
 --thread=$N_THREADS \
---geno_type=vcf.gz
+--geno_type=vcf
 
 # Set output directory for STAGE II
 twas_dir=TWAS
@@ -73,7 +73,7 @@ python3 ${OTTERS_DIR}/testing.py \
 --gwas_file=${gwas_sst_file} \
 --chrom=${chr} \
 --thread=$N_THREADS \
---geno_type=vcf.gz
+--geno_type=vcf
 
 # get imputed genetically regulated gene expression
 impute_dir=GReX
@@ -90,4 +90,4 @@ python3 ${OTTERS_DIR}/imputing.py \
 --chrom=${chr} \
 --samples=${samples} \
 --thread=$N_THREADS \
---geno_type=vcf.gz
+--geno_type=vcf
