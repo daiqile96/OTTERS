@@ -228,7 +228,40 @@ def get_cols_dtype(cols):
 
     return out_dtype_dict
 
+
 ################ Functions related to PLINK ##################
+def extract_vcf_region_with_tabix(geno_dir, target_dir, target, chrom, start_pos, end_pos):
+
+    index_path = geno_dir + '.tbi'
+    if not os.path.exists(index_path):
+        print("Tabix index (.tbi) is required for VCF genotype data.")
+        return None
+
+    tmp_vcf = os.path.join(target_dir, f"{target}.vcf")
+    region = f"{chrom}:{start_pos}-{end_pos}"
+    tabix_cmd = f"tabix -h {geno_dir} {region} > {tmp_vcf}"
+
+    try:
+        process = subprocess.Popen(
+            tabix_cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            print("Tabix command failed.")
+            print("stderr:", stderr.decode())
+            shutil.rmtree(target_dir, ignore_errors=True)
+            return None
+        else:
+            return tmp_vcf
+
+    except Exception as e:
+        print(f"Failed to run tabix command: {e}")
+        shutil.rmtree(target_dir, ignore_errors=True)
+        return None
 
 
 def call_PLINK_extract(geno_path, out_path, target, chrom, start_pos, end_pos, geno_type):
@@ -243,8 +276,7 @@ def call_PLINK_extract(geno_path, out_path, target, chrom, start_pos, end_pos, g
 
     if geno_type == 'vcf':
         cmd = ["plink --vcf " + geno_path +
-               " --keep-allele-order --extract range " +
-               range_file + " --make-bed --out " + out_geno]
+               " --keep-allele-order --make-bed --out " + out_geno]
     else:
         cmd = ["plink --bfile " + geno_path +
                " --keep-allele-order --extract range " +
