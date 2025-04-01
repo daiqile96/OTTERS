@@ -33,21 +33,19 @@ In this tool, we
       - Chromosome Y → labeled as 24  
     * Example resources:  
       - [ChromX Analysis Script](https://raw.githubusercontent.com/daiqile96/OTTERS/main/Example/ChromX/ChromX_example.sh)  
-      - [Test Data](https://github.com/daiqile96/OTTERS/tree/development/Example/ChromX)  
+        - [data to run this example analysis](https://github.com/daiqile96/OTTERS/tree/development/Example/ChromX)  
 
-* **March 30, 2025**  
+* **March 31, 2025**  
   - Added VCF/VCF.gz support for LD reference panels  
-    * New `--geno_type` options:  
-      - `Example_geno.vcf` (uncompressed VCF)  
-      - `Example_geno.vcf.gz` (compressed VCF)  
+    * New `--geno_type` options: `vcf` 
     * Default remains: `plink` (binary format)  
-    * Implementation:  
-      - Creates a gene-specific range file with genomic coordinates
-      - Runs PLINK to extract the region from vcf or vcf.gz and convert to binary format via [`call_PLINK_extract()`](https://github.com/daiqile96/OTTERS/blob/development/ottersutils.py#L234-L260)  
+    * Note: 
+      * Require bgzip and tabixed vcf files, e.g. [Exp_geno.vcf.gz](https://github.com/daiqile96/OTTERS/tree/development/Example/VCF/Exp_geno.vcf.gz) and [Exp_geno.vcf.gz.tbi](https://github.com/daiqile96/OTTERS/tree/development/Example/VCF/Exp_geno.vcf.gz.tbi)
     * Example resources:  
-      - [Analysis with VCF.gz genotype data](https://raw.githubusercontent.com/daiqile96/OTTERS/main/Example/VCF/example.sh)  
-        *For uncompressed VCF:* Simply replace `.vcf.gz` with `.vcf`  
-      - [Test Data](https://github.com/daiqile96/OTTERS/tree/development/Example/VCF)
+      - [Analysis with VCF.gz genotype data](https://raw.githubusercontent.com/daiqile96/OTTERS/main/Example/VCF/vcf_example.sh)  
+        - `geno_dir=Exp_geno.vcf.gz` 
+        - `--geno_type=vcf`
+        - [data to run this example analysis](https://github.com/daiqile96/OTTERS/tree/development/Example/VCF)
 
 
 ## Getting Started
